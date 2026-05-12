@@ -1,0 +1,57 @@
+{
+  "name": "@huni/core",
+  "version": "0.1.0",
+  "description": "ORM-agnostic multi-tenancy core — tenant registry, connection cache, AsyncLocalStorage context, and pluggable resolvers",
+  "author": "Huni Contributors",
+  "license": "MIT",
+  "keywords": [
+    "multi-tenancy",
+    "tenant",
+    "database-per-tenant",
+    "saas",
+    "node",
+    "typescript",
+    "async-local-storage"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/huni-dev/huni.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://huni.dev/packages/core",
+  "bugs": "https://github.com/huni-dev/huni/issues",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

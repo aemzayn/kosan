@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+# Docusaurus
+.docusaurus/
+docs/build/
+
+# OS
+.DS_Store
+Thumbs.db

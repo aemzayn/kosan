@@ -1,0 +1,47 @@
+version: '3.9'
+
+# Master DB holds the tenants table.
+# Each tenant (alpha, beta) gets its own Postgres container.
+
+services:
+  master:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: master
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U admin -d master']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  alpha_db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: alpha_db
+      POSTGRES_USER: alpha_user
+      POSTGRES_PASSWORD: alpha_pass
+    ports:
+      - '5433:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U alpha_user -d alpha_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  beta_db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: beta_db
+      POSTGRES_USER: beta_user
+      POSTGRES_PASSWORD: beta_pass
+    ports:
+      - '5434:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U beta_user -d beta_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
