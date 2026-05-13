@@ -1,5 +1,4 @@
 ---
-sidebar_position: 3
 ---
 
 # Credential Encryption
@@ -35,7 +34,7 @@ interface Cipher {
 
 A simple implementation using Node's built-in `crypto`:
 
-```ts title="src/cipher.ts"
+```ts [src/cipher.ts]
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
@@ -75,7 +74,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 For cloud-managed key storage:
 
-```ts title="src/cipher.ts"
+```ts [src/cipher.ts]
 import { KMSClient, EncryptCommand, DecryptCommand } from '@aws-sdk/client-kms';
 
 const kms = new KMSClient({ region: process.env.AWS_REGION });
@@ -107,7 +106,7 @@ export const cipher = {
 
 ## Google Cloud KMS
 
-```ts title="src/cipher.ts"
+```ts [src/cipher.ts]
 import { KeyManagementServiceClient } from '@google-cloud/kms';
 
 const client = new KeyManagementServiceClient();
@@ -157,7 +156,7 @@ To rotate the encryption key:
 3. Update the rows in the master DB
 4. Switch the live key
 
-```ts title="scripts/rotate-keys.ts"
+```ts [scripts/rotate-keys.ts]
 import { oldCipher, newCipher } from './cipher.js';
 
 const tenants = await masterStore.findAll();

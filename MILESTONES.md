@@ -119,3 +119,19 @@ Build the library from core outward, ending in a runnable demo against real Post
 - [ ] Adapter authoring guide
 - [ ] Deployment guide (subdomain setup, credential encryption, Docker)
 - [ ] Migration guide
+
+---
+
+## Milestone 7 — NestJS support ✅
+
+> `@huni/nestjs` — NestJS module, guard, and decorator integration.
+
+- [x] `HuniModule.forRoot` — synchronous registration
+- [x] `HuniModule.forRootAsync` — async registration (useFactory, inject)
+- [x] `TenantMiddleware` — NestJS middleware wrapping `runWithTenant(ctx, next)`
+- [x] `TenantGuard` — optional guard asserting tenant context is present
+- [x] `@CurrentTenant()` — parameter decorator returning `TenantContextValue`
+- [x] `@InjectRegistry()` — constructor decorator injecting the `TenantRegistry`
+- [x] Tests — 16/16 (HuniModule structure, TenantGuard, TenantMiddleware with context isolation)
+- [x] Example — `examples/sequelize-nestjs/` — runnable NestJS app with Docker Compose, 3 tenants
+- [x] Docs — `docs/docs/packages/nestjs.md` updated + `docs/docs/examples/sequelize-nestjs.md`

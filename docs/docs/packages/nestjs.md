@@ -1,8 +1,9 @@
 ---
-sidebar_position: 6
 ---
 
 # @huni/nestjs
+
+> **Example:** see [`examples/sequelize-nestjs/`](https://github.com/huni-dev/huni/tree/main/examples/sequelize-nestjs) for a complete runnable demo.
 
 NestJS module that resolves the tenant on every request, scopes the connection via `AsyncLocalStorage`, and provides DI-friendly decorators so `useTenant()` is available in controllers and services.
 
@@ -192,6 +193,35 @@ export class TenantProvisioningService {
 | Tenant not found | `HttpException` 404 |
 | Tenant suspended / deleted | `HttpException` 404 (or `missingTenantStatus`) |
 | Unexpected error | Rethrown — handled by NestJS exception filter |
+
+---
+
+---
+
+## Registering model factories
+
+Because `HuniModule` creates the `TenantRegistry` internally, you can't call
+`registry.registerModels()` before the DI container is ready. The idiomatic
+solution is a lightweight service with `onModuleInit`:
+
+```ts
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { InjectRegistry } from '@huni/nestjs';
+import { TenantRegistry } from '@huni/core';
+import { OrderModel } from './models/order';
+
+@Injectable()
+export class AppService implements OnModuleInit {
+  constructor(@InjectRegistry() private readonly registry: TenantRegistry) {}
+
+  onModuleInit() {
+    this.registry.registerModels([OrderModel]);
+  }
+}
+```
+
+Add it to `AppModule`'s `providers` array and NestJS will call `onModuleInit`
+after all providers are resolved.
 
 ---
 

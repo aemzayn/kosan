@@ -49,7 +49,7 @@ huni/
 | Build | tsup (produces `dist/index.js`, `dist/index.cjs`, `dist/index.d.ts`) |
 | Tests | Vitest |
 | Lint / format | Biome (single tool, no ESLint + Prettier) |
-| Docs | Docusaurus 3 (`docs/`) |
+| Docs | VitePress 1 (`docs/`) |
 | CI | GitHub Actions (`.github/workflows/ci.yml`) |
 
 ---
@@ -479,19 +479,19 @@ The CLI config accepts either a connection string or a full `Sequelize` options 
 
 ## Docs site
 
-Built with Docusaurus 3.10.1. Lives in `docs/`.
+Built with VitePress 1. Lives in `docs/`.
 
 ```bash
 cd docs
 pnpm install
-pnpm start    # dev server at localhost:3000
-pnpm build    # static output in docs/build/
-pnpm serve    # serve the built output
+pnpm dev      # dev server at localhost:5173
+pnpm build    # static output in docs/.vitepress/dist/
+pnpm preview  # serve the built output
 ```
 
-Sidebar order: Introduction → Getting Started → Packages → Guides → Deployment.
+Config: `docs/.vitepress/config.mts`. Sidebar order: Introduction → Getting Started → Packages → Guides → Deployment.
 
-Content lives in `docs/docs/`. Add a new guide by creating a `.md` file and adding it to `sidebars.ts`.
+Content lives in `docs/docs/`. Add a new guide by creating a `.md` file and adding it to the `sidebar` array in `config.mts`.
 
 ---
 
@@ -504,8 +504,8 @@ Content lives in `docs/docs/`. Add a new guide by creating a `.md` file and addi
 | 3 — Prisma | ✅ | `@huni/prisma` with structural typing, no hard client dep |
 | 4 — Fastify + Koa | ✅ | `@huni/fastify` (callback hook), `@huni/koa`, `wrapWithTenantContext` |
 | 5 — Observability | ✅ | `getStats()`, `getHealthPayload()`, `getTenantLogContext()`, slow-query detection |
-| 6 — Docs | ✅ | Docusaurus site with 17 pages across all packages and guides |
+| 6 — Docs | ✅ | VitePress site with 17 pages across all packages and guides |
+| 7 — NestJS | ✅ | `@huni/nestjs` (module, guard, decorators) + `examples/sequelize-nestjs` demo |
 
 **Planned (not started):**
-- `@huni/nestjs` — NestJS module, guard, and decorator integration
 - `@huni/drizzle` — Drizzle ORM adapter

@@ -1,5 +1,4 @@
 ---
-sidebar_position: 1
 ---
 
 # Orders App (Sequelize + Express)

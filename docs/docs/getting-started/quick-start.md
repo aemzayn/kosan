@@ -1,5 +1,4 @@
 ---
-sidebar_position: 2
 ---
 
 # Quick Start
@@ -13,7 +12,7 @@ This guide walks through a complete Sequelize + Express setup in five minutes. B
 
 ## 1 — Master database connection
 
-```ts title="src/registry.ts"
+```ts [src/registry.ts]
 import { TenantRegistry } from '@huni/core';
 import { SequelizeAdapter, SequelizeMasterStore } from '@huni/sequelize';
 import { Sequelize } from 'sequelize';
@@ -43,7 +42,7 @@ export const registry = await TenantRegistry.create({
 
 You only do this once per tenant (e.g. during onboarding):
 
-```ts title="src/onboarding.ts"
+```ts [src/onboarding.ts]
 import { registry } from './registry.js';
 
 const tenant = await registry.createTenant({
@@ -63,7 +62,7 @@ console.log(tenant.id); // UUID assigned by Huni
 
 Model factories are registered once on the registry and called per-connection:
 
-```ts title="src/models/order.ts"
+```ts [src/models/order.ts]
 import { DataTypes } from 'sequelize';
 import type { AdapterContext } from '@huni/sequelize';
 
@@ -77,7 +76,7 @@ export function OrderModel({ sequelize }: AdapterContext) {
 }
 ```
 
-```ts title="src/registry.ts"
+```ts [src/registry.ts]
 import { OrderModel } from './models/order.js';
 
 registry.registerModels([OrderModel]);
@@ -85,7 +84,7 @@ registry.registerModels([OrderModel]);
 
 ## 4 — Express middleware
 
-```ts title="src/app.ts"
+```ts [src/app.ts]
 import express from 'express';
 import { tenantMiddleware } from '@huni/express';
 import { SubdomainResolver } from '@huni/core';
@@ -108,7 +107,7 @@ app.use(
 
 ## 5 — Use models in a route handler
 
-```ts title="src/routes/orders.ts"
+```ts [src/routes/orders.ts]
 import { useTenant } from '@huni/core';
 import type { ModelStatic, Model } from 'sequelize';
 import { app } from '../app.js';
@@ -132,7 +131,7 @@ app.post('/orders', async (req, res) => {
 
 Use the `onCreate` lifecycle hook to run database creation and initial migrations automatically:
 
-```ts title="src/registry.ts"
+```ts [src/registry.ts]
 import { registry } from './registry.js';
 
 const registry = await TenantRegistry.create({
@@ -149,7 +148,7 @@ const registry = await TenantRegistry.create({
 
 ## 7 — Start the server
 
-```ts title="src/index.ts"
+```ts [src/index.ts]
 import { app } from './app.js';
 
 app.listen(3000, () => {

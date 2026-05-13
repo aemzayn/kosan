@@ -1,5 +1,4 @@
 ---
-sidebar_position: 1
 ---
 
 # Docker Deployment
@@ -31,7 +30,7 @@ This guide shows how to deploy a Huni application with Docker Compose — a mast
 
 ## Docker Compose
 
-```yaml title="docker-compose.yml"
+```yaml [docker-compose.yml]
 version: "3.9"
 
 services:
@@ -91,7 +90,7 @@ volumes:
 
 ## Dockerfile
 
-```dockerfile title="Dockerfile"
+```dockerfile [Dockerfile]
 FROM node:20-alpine AS builder
 WORKDIR /app
 
@@ -117,7 +116,7 @@ CMD ["node", "dist/index.js"]
 
 ## Environment variables
 
-```bash title=".env"
+```bash [.env]
 # 32-byte hex key for credential encryption
 ENCRYPTION_KEY=0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b
 
@@ -131,7 +130,7 @@ MASTER_DATABASE_URL=postgres://admin:admin@master-db:5432/master
 
 Run this once after `docker compose up` to register tenants:
 
-```ts title="scripts/provision.ts"
+```ts [scripts/provision.ts]
 import { registry } from '../src/registry.js';
 
 const tenants = [
@@ -178,7 +177,7 @@ docker compose exec app node --import tsx scripts/provision.ts
 
 ## Running migrations in CI/CD
 
-```yaml title=".github/workflows/deploy.yml"
+```yaml [.github/workflows/deploy.yml]
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -215,7 +214,7 @@ docker run --rm \
 
 Instead of one container per tenant, you can use a single Postgres instance with multiple databases. This is simpler to operate and good for smaller deployments:
 
-```yaml title="docker-compose.yml (simplified)"
+```yaml [docker-compose.yml (simplified)]
 services:
   app:
     build: .

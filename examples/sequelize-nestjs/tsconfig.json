@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "@huni/core": ["../../packages/core/src/index.ts"],
+      "@huni/nestjs": ["../../packages/nestjs/src/index.ts"],
+      "@huni/sequelize": ["../../packages/sequelize/src/index.ts"]
+    }
+  },
+  "include": ["src"],
+  "ts-node": {
+    "transpileOnly": false,
+    "files": true
+  }
+}

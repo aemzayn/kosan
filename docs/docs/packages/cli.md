@@ -1,5 +1,4 @@
 ---
-sidebar_position: 7
 ---
 
 # @huni/cli
@@ -45,7 +44,7 @@ npx huni migrate --tenant acme
 
 Create `huni.config.ts` (or `.js` / `.mjs`) at the root of your project:
 
-```ts title="huni.config.ts"
+```ts [huni.config.ts]
 import { Sequelize } from 'sequelize';
 import { SequelizeMasterStore } from '@huni/sequelize';
 import { SequelizeAdapter } from '@huni/sequelize';
@@ -84,7 +83,7 @@ interface HuniConfig {
 
 Each file in `migrationsPath` must export `up` and `down` functions:
 
-```ts title="migrations/001_create_orders.ts"
+```ts [migrations/001_create_orders.ts]
 import type { QueryInterface, DataTypes } from 'sequelize';
 
 export async function up(qi: QueryInterface): Promise<void> {
@@ -202,7 +201,7 @@ printResults(results, {
 
 In a CI pipeline, `huni migrate` exits with code `0` if all tenants succeed and `1` if any tenant fails. Use `--concurrency 1` for sequential runs:
 
-```yaml title=".github/workflows/migrate.yml"
+```yaml [.github/workflows/migrate.yml]
 - name: Run tenant migrations
   run: npx huni migrate --concurrency 1
   env:

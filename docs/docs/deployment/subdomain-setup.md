@@ -1,5 +1,4 @@
 ---
-sidebar_position: 2
 ---
 
 # Subdomain Setup
@@ -23,7 +22,7 @@ With most DNS providers (Cloudflare, Route 53, etc.) a wildcard `*` record cover
 
 ## Nginx reverse proxy
 
-```nginx title="/etc/nginx/sites-available/myapp"
+```nginx [/etc/nginx/sites-available/myapp]
 # Catch all subdomains
 server {
     listen 443 ssl;
@@ -81,7 +80,7 @@ echo "0 0,12 * * * root certbot renew --quiet" >> /etc/cron.d/certbot
 
 [Caddy](https://caddyserver.com) handles TLS automatically, including wildcard certs with DNS challenge:
 
-```caddy title="Caddyfile"
+```caddy [Caddyfile]
 *.myapp.com, myapp.com {
     tls {
         dns cloudflare {env.CF_API_TOKEN}

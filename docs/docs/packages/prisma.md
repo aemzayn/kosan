@@ -1,5 +1,4 @@
 ---
-sidebar_position: 3
 ---
 
 # @huni/prisma
@@ -18,7 +17,7 @@ No hard dependency on `@prisma/client` — the adapter is fully generic and uses
 
 ### 1 — Add the tenant model to your Prisma schema
 
-```prisma title="prisma/schema.prisma"
+```prisma [prisma/schema.prisma]
 model Tenant {
   id        String   @id @default(uuid())
   slug      String   @unique

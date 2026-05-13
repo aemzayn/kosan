@@ -1,5 +1,4 @@
 ---
-sidebar_position: 1
 ---
 
 # Installation
@@ -54,7 +53,7 @@ npm install -D @huni/cli
 
 Huni is ESM-first. Make sure your `tsconfig.json` targets a modern module system:
 
-```json title="tsconfig.json"
+```json [tsconfig.json]
 {
   "compilerOptions": {
     "target": "ES2022",
