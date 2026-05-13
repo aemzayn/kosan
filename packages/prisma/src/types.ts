@@ -1,4 +1,4 @@
-import type { TenantConfig, TenantStatus } from '@kosan/core';
+import type { TenantConfig, TenantStatus } from "@kosan/core";
 
 // ---------------------------------------------------------------------------
 // Minimal structural interfaces — avoids a hard dependency on @prisma/client.
@@ -67,12 +67,12 @@ export interface TenantDelegate {
   }): Promise<TenantRow | null>;
 
   create(args: {
-    data: Omit<TenantRow, 'createdAt' | 'updatedAt'>;
+    data: Omit<TenantRow, "createdAt" | "updatedAt">;
   }): Promise<TenantRow>;
 
   update(args: {
     where: { id: string };
-    data: Partial<Omit<TenantRow, 'id' | 'createdAt' | 'updatedAt'>>;
+    data: Partial<Omit<TenantRow, "id" | "createdAt" | "updatedAt">>;
   }): Promise<TenantRow>;
 
   delete(args: {

@@ -1,9 +1,9 @@
-import { DataTypes } from 'sequelize';
-import type { AdapterContext } from '@kosan/sequelize';
+import type { AdapterContext } from "@kosan/sequelize";
+import { DataTypes } from "sequelize";
 
 export function TodoModel({ sequelize }: AdapterContext) {
   return sequelize.define(
-    'Todo',
+    "Todo",
     {
       id: {
         type: DataTypes.UUID,
@@ -13,9 +13,9 @@ export function TodoModel({ sequelize }: AdapterContext) {
       userId: {
         type: DataTypes.UUID,
         allowNull: false,
-        field: 'user_id',
-        references: { model: 'users', key: 'id' },
-        onDelete: 'CASCADE',
+        field: "user_id",
+        references: { model: "users", key: "id" },
+        onDelete: "CASCADE",
       },
       title: {
         type: DataTypes.STRING(200),
@@ -28,6 +28,6 @@ export function TodoModel({ sequelize }: AdapterContext) {
         defaultValue: false,
       },
     },
-    { tableName: 'todos', underscored: true },
+    { tableName: "todos", underscored: true },
   );
 }

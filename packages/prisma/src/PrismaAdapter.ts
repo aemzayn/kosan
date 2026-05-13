@@ -1,9 +1,5 @@
-import type { Adapter, ModelFactory, TenantConfig } from '@kosan/core';
-import type {
-  PrismaAdapterOptions,
-  PrismaClientLike,
-  PrismaModels,
-} from './types.js';
+import type { Adapter, ModelFactory, TenantConfig } from "@kosan/core";
+import type { PrismaAdapterOptions, PrismaClientLike, PrismaModels } from "./types.js";
 
 /**
  * Adapter that creates one `PrismaClient` instance per tenant, overriding
@@ -19,14 +15,12 @@ import type {
  * });
  * ```
  */
-export class PrismaAdapter<TClient extends PrismaClientLike>
-  implements Adapter<TClient>
-{
+export class PrismaAdapter<TClient extends PrismaClientLike> implements Adapter<TClient> {
   private readonly options: Required<PrismaAdapterOptions<TClient>>;
 
   constructor(options: PrismaAdapterOptions<TClient>) {
     this.options = {
-      datasourceName: 'db',
+      datasourceName: "db",
       ...options,
     };
   }
@@ -64,8 +58,8 @@ export class PrismaAdapter<TClient extends PrismaClientLike>
    */
   registerModelFactories(_factories: ModelFactory<TClient>[]): void {
     throw new Error(
-      'PrismaAdapter does not support registerModelFactories. ' +
-        'Access models via useTenant().models.prisma (or usePrisma()) instead.',
+      "PrismaAdapter does not support registerModelFactories. " +
+        "Access models via useTenant().models.prisma (or usePrisma()) instead.",
     );
   }
 }

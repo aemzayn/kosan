@@ -7,7 +7,9 @@
       "Bash(pnpm --filter @kosan/sequelize test --reporter=verbose)",
       "Bash(pnpm build *)",
       "Bash(xargs sed *)",
-      "Bash(pnpm *)"
+      "Bash(pnpm *)",
+      "Bash(gh run *)",
+      "Bash(xargs ls)"
     ]
   }
 }

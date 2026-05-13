@@ -1,6 +1,6 @@
-import path from 'node:path';
-import { createJiti } from 'jiti';
-import type { KosanConfig } from './types.js';
+import path from "node:path";
+import { createJiti } from "jiti";
+import type { KosanConfig } from "./types.js";
 
 /**
  * Loads a `kosan.config.ts` (or `.js` / `.mjs`) file from the given path.
@@ -19,17 +19,17 @@ export async function loadConfig(configPath: string): Promise<KosanConfig> {
     throw new Error(`Failed to load config from "${absolutePath}": ${String(err)}`);
   }
 
-  if (mod === null || typeof mod !== 'object') {
+  if (mod === null || typeof mod !== "object") {
     throw new Error(
       `Config file "${absolutePath}" must export a default object. Got: ${typeof mod}`,
     );
   }
 
   const config = mod as Record<string, unknown>;
-  if (typeof config['master'] === 'undefined') {
+  if (typeof config.master === "undefined") {
     throw new Error(`Config is missing required field: "master"`);
   }
-  if (typeof config['migrationsPath'] !== 'string') {
+  if (typeof config.migrationsPath !== "string") {
     throw new Error(`Config is missing required field: "migrationsPath" (string)`);
   }
 

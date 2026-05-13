@@ -1,4 +1,4 @@
-import type { Sequelize } from 'sequelize';
+import type { Sequelize } from "sequelize";
 
 /** Passed to every model factory so it can call `sequelize.define(...)`. */
 export interface AdapterContext {
@@ -21,7 +21,7 @@ export interface SequelizeAdapterOptions {
    * The tenant's actual dialect is derived from its `host` / `dbName` config;
    * this is the fallback.
    */
-  defaultDialect?: 'postgres' | 'mysql' | 'mariadb' | 'sqlite' | 'mssql';
+  defaultDialect?: "postgres" | "mysql" | "mariadb" | "sqlite" | "mssql";
 
   /** Sequelize pool options applied to every tenant connection. */
   pool?: {

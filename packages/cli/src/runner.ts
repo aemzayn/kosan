@@ -1,7 +1,7 @@
-import type { QueryInterface, Sequelize } from 'sequelize';
-import { SequelizeStorage, Umzug } from 'umzug';
-import type { TenantMigrationResult, KosanConfig } from './types.js';
-import type { TenantConfig } from '@kosan/core';
+import type { TenantConfig } from "@kosan/core";
+import type { QueryInterface, Sequelize } from "sequelize";
+import { SequelizeStorage, Umzug } from "umzug";
+import type { KosanConfig, TenantMigrationResult } from "./types.js";
 
 // ---------------------------------------------------------------------------
 // Public migration shape — what callers provide to the runner
@@ -20,7 +20,7 @@ export interface Migration {
 export interface RunMigrationOptions {
   tenant: TenantConfig;
   sequelize: Sequelize;
-  config: Pick<KosanConfig, 'migrationsTableName'>;
+  config: Pick<KosanConfig, "migrationsTableName">;
   migrations: Migration[];
 }
 
@@ -46,7 +46,7 @@ export async function runMigrationsForTenant(
       context: qi,
       storage: new SequelizeStorage({
         sequelize,
-        tableName: config.migrationsTableName ?? 'sequelize_meta',
+        tableName: config.migrationsTableName ?? "sequelize_meta",
       }),
       logger: undefined,
     });
@@ -56,7 +56,7 @@ export async function runMigrationsForTenant(
       return {
         tenantId: tenant.id,
         slug: tenant.slug,
-        outcome: 'up-to-date',
+        outcome: "up-to-date",
         applied: [],
         durationMs: Date.now() - start,
       };
@@ -66,7 +66,7 @@ export async function runMigrationsForTenant(
     return {
       tenantId: tenant.id,
       slug: tenant.slug,
-      outcome: 'migrated',
+      outcome: "migrated",
       applied: executed.map((m) => m.name),
       durationMs: Date.now() - start,
     };
@@ -74,7 +74,7 @@ export async function runMigrationsForTenant(
     return {
       tenantId: tenant.id,
       slug: tenant.slug,
-      outcome: 'failed',
+      outcome: "failed",
       applied: [],
       error: err instanceof Error ? err : new Error(String(err)),
       durationMs: Date.now() - start,
@@ -86,11 +86,11 @@ export async function runMigrationsForTenant(
 // Migration file loader — used by the CLI; separated so tests can bypass it
 // ---------------------------------------------------------------------------
 
-import { readdirSync } from 'node:fs';
-import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { readdirSync } from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 
-const MIGRATION_EXTENSIONS = new Set(['.js', '.cjs', '.mjs', '.ts']);
+const MIGRATION_EXTENSIONS = new Set([".js", ".cjs", ".mjs", ".ts"]);
 
 interface MigrationModule {
   up?: (qi: QueryInterface, sq: typeof Sequelize) => Promise<void>;
@@ -115,15 +115,15 @@ export function loadMigrationsFromDir(dir: string, SeqConstructor: typeof Sequel
     return {
       name: file,
       up: async (qi: QueryInterface) => {
-        const mod = await import(fileUrl) as MigrationModule;
+        const mod = (await import(fileUrl)) as MigrationModule;
         const fn = mod.up ?? mod.default?.up;
-        if (typeof fn !== 'function') throw new Error(`Migration "${file}" has no up() export`);
+        if (typeof fn !== "function") throw new Error(`Migration "${file}" has no up() export`);
         await fn(qi, SeqConstructor);
       },
       down: async (qi: QueryInterface) => {
-        const mod = await import(fileUrl) as MigrationModule;
+        const mod = (await import(fileUrl)) as MigrationModule;
         const fn = mod.down ?? mod.default?.down;
-        if (typeof fn !== 'function') throw new Error(`Migration "${file}" has no down() export`);
+        if (typeof fn !== "function") throw new Error(`Migration "${file}" has no down() export`);
         await fn(qi, SeqConstructor);
       },
     };

@@ -1,7 +1,7 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { InjectRegistry } from '@kosan/nestjs';
-import { TenantRegistry } from '@kosan/core';
-import { OrderModel } from './models/order';
+import type { TenantRegistry } from "@kosan/core";
+import { InjectRegistry } from "@kosan/nestjs";
+import { Injectable, type OnModuleInit } from "@nestjs/common";
+import { OrderModel } from "./models/order";
 
 /**
  * Registers model factories on the Kosan registry once the NestJS DI
@@ -14,6 +14,6 @@ export class AppService implements OnModuleInit {
 
   onModuleInit() {
     this.registry.registerModels([OrderModel]);
-    console.log('[kosan] model factories registered');
+    console.log("[kosan] model factories registered");
   }
 }

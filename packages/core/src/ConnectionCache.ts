@@ -1,4 +1,4 @@
-import type { Adapter, CacheOptions, TenantConfig } from './types.js';
+import type { Adapter, CacheOptions, TenantConfig } from "./types.js";
 
 interface CacheEntry<TConn> {
   conn: TConn;
@@ -107,7 +107,7 @@ export class ConnectionCache<TConn> {
       void this.evict(entry.tenantId);
     }, this.idleTimeoutMs);
     // Don't keep the Node process alive just for cache cleanup.
-    if (typeof timer === 'object' && 'unref' in timer) timer.unref();
+    if (typeof timer === "object" && "unref" in timer) timer.unref();
     entry.timer = timer;
   }
 }

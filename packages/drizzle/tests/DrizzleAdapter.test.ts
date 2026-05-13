@@ -1,24 +1,24 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { DrizzleAdapter } from '../src/DrizzleAdapter.js';
-import type { DrizzleClientLike } from '../src/types.js';
-import type { TenantConfig } from '@kosan/core';
+import type { TenantConfig } from "@kosan/core";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DrizzleAdapter } from "../src/DrizzleAdapter.js";
+import type { DrizzleClientLike } from "../src/types.js";
 
 const TENANT: TenantConfig = {
-  id: 't-1',
-  slug: 'acme',
-  host: 'localhost',
+  id: "t-1",
+  slug: "acme",
+  host: "localhost",
   port: 5432,
-  dbName: 'acme_db',
-  user: 'u',
-  password: 'p',
-  status: 'active',
+  dbName: "acme_db",
+  user: "u",
+  password: "p",
+  status: "active",
 };
 
 // ---------------------------------------------------------------------------
 // Fake client
 // ---------------------------------------------------------------------------
 
-function makeClient(overrides: Partial<DrizzleClientLike['$client']> = {}): DrizzleClientLike {
+function makeClient(overrides: Partial<DrizzleClientLike["$client"]> = {}): DrizzleClientLike {
   return {
     $client: {
       end: vi.fn(async () => {}),
@@ -31,9 +31,9 @@ function makeClient(overrides: Partial<DrizzleClientLike['$client']> = {}): Driz
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('DrizzleAdapter', () => {
-  describe('connect', () => {
-    it('calls clientFactory with the tenant', async () => {
+describe("DrizzleAdapter", () => {
+  describe("connect", () => {
+    it("calls clientFactory with the tenant", async () => {
       const factory = vi.fn(async (_t: TenantConfig) => makeClient());
       const adapter = new DrizzleAdapter({ clientFactory: factory });
 
@@ -41,7 +41,7 @@ describe('DrizzleAdapter', () => {
       expect(factory).toHaveBeenCalledWith(TENANT);
     });
 
-    it('returns the client produced by the factory', async () => {
+    it("returns the client produced by the factory", async () => {
       const client = makeClient();
       const adapter = new DrizzleAdapter({ clientFactory: async () => client });
 
@@ -49,7 +49,7 @@ describe('DrizzleAdapter', () => {
       expect(result).toBe(client);
     });
 
-    it('supports synchronous factories', async () => {
+    it("supports synchronous factories", async () => {
       const client = makeClient();
       const adapter = new DrizzleAdapter({ clientFactory: () => client });
 
@@ -58,8 +58,8 @@ describe('DrizzleAdapter', () => {
     });
   });
 
-  describe('disconnect', () => {
-    it('calls $client.end() when available', async () => {
+  describe("disconnect", () => {
+    it("calls $client.end() when available", async () => {
       const client = makeClient();
       const adapter = new DrizzleAdapter({ clientFactory: async () => client });
 
@@ -67,7 +67,7 @@ describe('DrizzleAdapter', () => {
       expect(client.$client?.end).toHaveBeenCalledOnce();
     });
 
-    it('calls $client.close() when end is not available', async () => {
+    it("calls $client.close() when end is not available", async () => {
       const close = vi.fn(async () => {});
       const client: DrizzleClientLike = { $client: { close } };
       const adapter = new DrizzleAdapter({ clientFactory: async () => client });
@@ -76,7 +76,7 @@ describe('DrizzleAdapter', () => {
       expect(close).toHaveBeenCalledOnce();
     });
 
-    it('calls $client.destroy() when neither end nor close is available', async () => {
+    it("calls $client.destroy() when neither end nor close is available", async () => {
       const destroy = vi.fn();
       const client: DrizzleClientLike = { $client: { destroy } };
       const adapter = new DrizzleAdapter({ clientFactory: async () => client });
@@ -85,7 +85,7 @@ describe('DrizzleAdapter', () => {
       expect(destroy).toHaveBeenCalledOnce();
     });
 
-    it('does nothing when $client is undefined', async () => {
+    it("does nothing when $client is undefined", async () => {
       const client: DrizzleClientLike = {};
       const adapter = new DrizzleAdapter({ clientFactory: async () => client });
 
@@ -93,13 +93,13 @@ describe('DrizzleAdapter', () => {
     });
   });
 
-  describe('getModels', () => {
-    it('returns an object with the drizzle key set to the client', () => {
+  describe("getModels", () => {
+    it("returns an object with the drizzle key set to the client", () => {
       const client = makeClient();
       const adapter = new DrizzleAdapter({ clientFactory: async () => client });
 
       const models = adapter.getModels(client);
-      expect(models['drizzle']).toBe(client);
+      expect(models.drizzle).toBe(client);
     });
   });
 });

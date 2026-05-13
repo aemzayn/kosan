@@ -1,10 +1,10 @@
-import path from 'node:path';
-import { Sequelize } from 'sequelize';
-import { SequelizeMasterStore, SequelizeAdapter } from '@kosan/sequelize';
-import { TenantRegistry } from '@kosan/core';
-import { withConcurrency } from '../pool.js';
-import { loadMigrationsFromDir, runMigrationsForTenant } from '../runner.js';
-import type { KosanConfig, TenantMigrationResult } from '../types.js';
+import path from "node:path";
+import { TenantRegistry } from "@kosan/core";
+import { SequelizeAdapter, SequelizeMasterStore } from "@kosan/sequelize";
+import { Sequelize } from "sequelize";
+import { withConcurrency } from "../pool.js";
+import { loadMigrationsFromDir, runMigrationsForTenant } from "../runner.js";
+import type { KosanConfig, TenantMigrationResult } from "../types.js";
 
 export interface MigrateOptions {
   config: KosanConfig;
@@ -14,7 +14,7 @@ export interface MigrateOptions {
   concurrency: number;
   /** When set, only migrate this tenant slug. */
   tenant?: string;
-  logger?: Pick<Console, 'info' | 'warn' | 'error'>;
+  logger?: Pick<Console, "info" | "warn" | "error">;
 }
 
 export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationResult[]> {
@@ -26,9 +26,11 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
   // ---------------------------------------------------------------------------
 
   const masterSequelize =
-    typeof config.master === 'string'
+    typeof config.master === "string"
       ? new Sequelize(config.master, { logging: false })
-      : new Sequelize({ ...(config.master as object), logging: false } as ConstructorParameters<typeof Sequelize>[0]);
+      : new Sequelize({ ...(config.master as object), logging: false } as ConstructorParameters<
+          typeof Sequelize
+        >[0]);
 
   const masterStore = await SequelizeMasterStore.create(masterSequelize);
   const adapter = new SequelizeAdapter({ logging: false });
@@ -39,18 +41,16 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
     // Tenant selection
     // ---------------------------------------------------------------------------
 
-    const allTenants = await registry.listTenants({ status: 'active' });
+    const allTenants = await registry.listTenants({ status: "active" });
 
     const targets =
-      opts.tenant !== undefined
-        ? allTenants.filter((t) => t.slug === opts.tenant)
-        : allTenants;
+      opts.tenant !== undefined ? allTenants.filter((t) => t.slug === opts.tenant) : allTenants;
 
     if (targets.length === 0) {
       if (opts.tenant !== undefined) {
         log.warn(`No active tenant found with slug "${opts.tenant}". Nothing to migrate.`);
       } else {
-        log.warn('No active tenants found. Nothing to migrate.');
+        log.warn("No active tenants found. Nothing to migrate.");
       }
       return [];
     }
@@ -65,11 +65,11 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
     // ---------------------------------------------------------------------------
 
     const results = await withConcurrency(targets, concurrency, async (tenant) => {
-      const dialect = (tenant.meta?.['dialect'] as string | undefined) ?? 'postgres';
-      const isSqlite = dialect === 'sqlite';
+      const dialect = (tenant.meta?.dialect as string | undefined) ?? "postgres";
+      const isSqlite = dialect === "sqlite";
 
       const sequelize = new Sequelize({
-        dialect: dialect as 'postgres' | 'mysql' | 'sqlite' | 'mariadb' | 'mssql',
+        dialect: dialect as "postgres" | "mysql" | "sqlite" | "mariadb" | "mssql",
         ...(isSqlite
           ? { storage: tenant.dbName }
           : {
@@ -104,33 +104,37 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
 export function printResults(results: TenantMigrationResult[], logger = console): void {
   const pad = Math.max(...results.map((r) => r.slug.length), 4);
   const total = results.length;
-  const migrated = results.filter((r) => r.outcome === 'migrated').length;
-  const upToDate = results.filter((r) => r.outcome === 'up-to-date').length;
-  const failed = results.filter((r) => r.outcome === 'failed').length;
-  const skipped = results.filter((r) => r.outcome === 'skipped').length;
+  const migrated = results.filter((r) => r.outcome === "migrated").length;
+  const upToDate = results.filter((r) => r.outcome === "up-to-date").length;
+  const failed = results.filter((r) => r.outcome === "failed").length;
+  const skipped = results.filter((r) => r.outcome === "skipped").length;
 
-  logger.info('');
-  logger.info('─'.repeat(60));
-  logger.info(`${'TENANT'.padEnd(pad)}  OUTCOME     APPLIED  DURATION`);
-  logger.info('─'.repeat(60));
+  logger.info("");
+  logger.info("─".repeat(60));
+  logger.info(`${"TENANT".padEnd(pad)}  OUTCOME     APPLIED  DURATION`);
+  logger.info("─".repeat(60));
 
   for (const r of results) {
     const icon =
-      r.outcome === 'migrated' ? '✓' :
-      r.outcome === 'up-to-date' ? '·' :
-      r.outcome === 'failed' ? '✗' : '–';
+      r.outcome === "migrated"
+        ? "✓"
+        : r.outcome === "up-to-date"
+          ? "·"
+          : r.outcome === "failed"
+            ? "✗"
+            : "–";
     const appliedStr = String(r.applied.length);
     logger.info(
       `${r.slug.padEnd(pad)}  ${icon} ${r.outcome.padEnd(10)}  ${appliedStr.padStart(7)}  ${r.durationMs}ms`,
     );
-    if (r.outcome === 'failed' && r.error !== undefined) {
+    if (r.outcome === "failed" && r.error !== undefined) {
       logger.error(`  ↳ ${r.error.message}`);
     }
   }
 
-  logger.info('─'.repeat(60));
+  logger.info("─".repeat(60));
   logger.info(
     `Total: ${total}  migrated: ${migrated}  up-to-date: ${upToDate}  failed: ${failed}  skipped: ${skipped}`,
   );
-  logger.info('');
+  logger.info("");
 }

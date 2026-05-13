@@ -1,4 +1,4 @@
-import type { Adapter, ModelFactory, TenantConfig } from '../../src/types.js';
+import type { Adapter, ModelFactory, TenantConfig } from "../../src/types.js";
 
 export interface FakeConnection {
   tenantId: string;
@@ -32,7 +32,7 @@ export class FakeAdapter implements Adapter<FakeConnection> {
     const models: Record<string, unknown> = {};
     for (const factory of this.factories) {
       const result = factory(conn);
-      if (result !== null && typeof result === 'object' && 'name' in result) {
+      if (result !== null && typeof result === "object" && "name" in result) {
         models[(result as { name: string }).name] = result;
       }
     }

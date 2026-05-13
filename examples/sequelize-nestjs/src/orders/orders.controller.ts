@@ -1,22 +1,13 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Param,
-  Body,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
-import { CurrentTenant } from '@kosan/nestjs';
-import type { TenantContextValue } from '@kosan/core';
-import type { ModelStatic, Model } from 'sequelize';
+import type { TenantContextValue } from "@kosan/core";
+import { CurrentTenant } from "@kosan/nestjs";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from "@nestjs/common";
+import type { Model, ModelStatic } from "sequelize";
 
-@Controller('orders')
+@Controller("orders")
 export class OrdersController {
   @Get()
   async list(@CurrentTenant() ctx: TenantContextValue) {
-    const Order = ctx.models['Order'] as ModelStatic<Model>;
+    const Order = ctx.models.Order as ModelStatic<Model>;
     return Order.findAll();
   }
 
@@ -26,13 +17,13 @@ export class OrdersController {
     @CurrentTenant() ctx: TenantContextValue,
     @Body() body: { product: string; quantity: number; total: string },
   ) {
-    const Order = ctx.models['Order'] as ModelStatic<Model>;
+    const Order = ctx.models.Order as ModelStatic<Model>;
     return Order.create(body as Record<string, unknown>);
   }
 
-  @Delete(':id')
-  async remove(@CurrentTenant() ctx: TenantContextValue, @Param('id') id: string) {
-    const Order = ctx.models['Order'] as ModelStatic<Model>;
+  @Delete(":id")
+  async remove(@CurrentTenant() ctx: TenantContextValue, @Param("id") id: string) {
+    const Order = ctx.models.Order as ModelStatic<Model>;
     const deleted = await Order.destroy({ where: { id } });
     return { deleted };
   }

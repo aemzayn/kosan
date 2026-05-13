@@ -1,9 +1,7 @@
-import type { Adapter, TenantConfig } from '@kosan/core';
-import type { DrizzleAdapterOptions, DrizzleClientLike, DrizzleModels } from './types.js';
+import type { Adapter, TenantConfig } from "@kosan/core";
+import type { DrizzleAdapterOptions, DrizzleClientLike, DrizzleModels } from "./types.js";
 
-export class DrizzleAdapter<TClient extends DrizzleClientLike>
-  implements Adapter<TClient>
-{
+export class DrizzleAdapter<TClient extends DrizzleClientLike> implements Adapter<TClient> {
   private readonly options: DrizzleAdapterOptions<TClient>;
 
   constructor(options: DrizzleAdapterOptions<TClient>) {
@@ -18,11 +16,11 @@ export class DrizzleAdapter<TClient extends DrizzleClientLike>
     const underlying = client.$client;
     if (underlying === undefined) return;
 
-    if (typeof underlying.end === 'function') {
+    if (typeof underlying.end === "function") {
       await underlying.end();
-    } else if (typeof underlying.close === 'function') {
+    } else if (typeof underlying.close === "function") {
       await underlying.close();
-    } else if (typeof underlying.destroy === 'function') {
+    } else if (typeof underlying.destroy === "function") {
       underlying.destroy();
     }
   }

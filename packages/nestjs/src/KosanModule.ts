@@ -1,18 +1,24 @@
-import { Module, DynamicModule, Global } from '@nestjs/common';
-import { TenantRegistry } from '@kosan/core';
-import { KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER } from './constants.js';
-import { TenantMiddleware } from './TenantMiddleware.js';
-import { TenantGuard } from './TenantGuard.js';
-import type { KosanOptions, KosanAsyncOptions } from './types.js';
+import { TenantRegistry } from "@kosan/core";
+import { type DynamicModule, Global, Module } from "@nestjs/common";
+import { TenantGuard } from "./TenantGuard.js";
+import { TenantMiddleware } from "./TenantMiddleware.js";
+import { KOSAN_OPTIONS, KOSAN_REGISTRY, KOSAN_RESOLVER } from "./constants.js";
+import type { KosanAsyncOptions, KosanOptions } from "./types.js";
 
 function registryFactory<TConn>(options: KosanOptions<TConn>): Promise<TenantRegistry<TConn>> {
   // Strip NestJS-specific options before passing to TenantRegistry
-  const { resolver: _r, missingTenantStatus: _m, onMissingTenant: _o, ...registryOptions } = options;
+  const {
+    resolver: _r,
+    missingTenantStatus: _m,
+    onMissingTenant: _o,
+    ...registryOptions
+  } = options;
   return TenantRegistry.create(registryOptions);
 }
 
 @Global()
 @Module({})
+// biome-ignore lint/complexity/noStaticOnlyClass: NestJS requires a class decorated with @Module
 export class KosanModule {
   /**
    * Register Kosan synchronously.

@@ -1,18 +1,27 @@
+import { randomUUID } from "node:crypto";
 import type {
   CreateTenantInput,
   MasterStore,
   TenantConfig,
   TenantStatus,
   UpdateTenantInput,
-} from '@kosan/core';
-import { DataTypes, Model, type Sequelize, type InferAttributes, type InferCreationAttributes } from 'sequelize';
-import { randomUUID } from 'node:crypto';
+} from "@kosan/core";
+import {
+  DataTypes,
+  type InferAttributes,
+  type InferCreationAttributes,
+  Model,
+  type Sequelize,
+} from "sequelize";
 
 // ---------------------------------------------------------------------------
 // Internal Sequelize model — not exported; users interact via MasterStore API
 // ---------------------------------------------------------------------------
 
-class TenantModel extends Model<InferAttributes<TenantModel>, InferCreationAttributes<TenantModel>> {
+class TenantModel extends Model<
+  InferAttributes<TenantModel>,
+  InferCreationAttributes<TenantModel>
+> {
   declare id: string;
   declare slug: string;
   declare host: string;
@@ -45,9 +54,9 @@ function defineTenantModel(sequelize: Sequelize): typeof TenantModel {
       user: { type: DataTypes.STRING(255), allowNull: false },
       password: { type: DataTypes.TEXT, allowNull: false },
       status: {
-        type: DataTypes.ENUM('active', 'suspended', 'deleted'),
+        type: DataTypes.ENUM("active", "suspended", "deleted"),
         allowNull: false,
-        defaultValue: 'active',
+        defaultValue: "active",
       },
       meta: { type: DataTypes.JSON, allowNull: true },
       createdAt: { type: DataTypes.DATE, allowNull: false },
@@ -55,8 +64,8 @@ function defineTenantModel(sequelize: Sequelize): typeof TenantModel {
     },
     {
       sequelize,
-      tableName: 'tenants',
-      modelName: 'Tenant',
+      tableName: "tenants",
+      modelName: "Tenant",
       underscored: true,
     },
   );
@@ -131,7 +140,7 @@ export class SequelizeMasterStore implements MasterStore {
       dbName: data.dbName,
       user: data.user,
       password: data.password,
-      status: data.status ?? 'active',
+      status: data.status ?? "active",
       meta: data.meta ?? null,
     });
     return toConfig(row);

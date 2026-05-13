@@ -4,14 +4,7 @@
   "description": "Prisma adapter for Kosan — one PrismaClient per tenant with per-tenant datasource URL",
   "author": "Kosan Contributors",
   "license": "MIT",
-  "keywords": [
-    "multi-tenancy",
-    "prisma",
-    "database-per-tenant",
-    "saas",
-    "orm",
-    "typescript"
-  ],
+  "keywords": ["multi-tenancy", "prisma", "database-per-tenant", "saas", "orm", "typescript"],
   "repository": {
     "type": "git",
     "url": "https://github.com/kosan-dev/kosan.git",
@@ -33,10 +26,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "LICENSE"
-  ],
+  "files": ["dist", "LICENSE"],
   "publishConfig": {
     "access": "public"
   },

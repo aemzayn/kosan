@@ -1,12 +1,12 @@
-import { Module, MiddlewareConsumer } from '@nestjs/common';
-import { KosanModule, TenantMiddleware } from '@kosan/nestjs';
-import { SubdomainResolver } from '@kosan/core';
-import { SequelizeMasterStore, SequelizeAdapter } from '@kosan/sequelize';
-import { Sequelize } from 'sequelize';
-import { OrdersModule } from './orders/orders.module';
-import { HealthModule } from './health/health.module';
-import { TenantsModule } from './tenants/tenants.module';
-import { AppService } from './app.service';
+import { SubdomainResolver } from "@kosan/core";
+import { KosanModule, TenantMiddleware } from "@kosan/nestjs";
+import { SequelizeAdapter, SequelizeMasterStore } from "@kosan/sequelize";
+import { type MiddlewareConsumer, Module } from "@nestjs/common";
+import { Sequelize } from "sequelize";
+import { AppService } from "./app.service";
+import { HealthModule } from "./health/health.module";
+import { OrdersModule } from "./orders/orders.module";
+import { TenantsModule } from "./tenants/tenants.module";
 
 @Module({
   imports: [
@@ -17,19 +17,19 @@ import { AppService } from './app.service';
     KosanModule.forRootAsync({
       useFactory: async () => {
         const master = new Sequelize({
-          dialect: 'postgres',
-          host: 'localhost',
+          dialect: "postgres",
+          host: "localhost",
           port: 5432,
-          database: 'master',
-          username: 'admin',
-          password: 'admin',
+          database: "master",
+          username: "admin",
+          password: "admin",
           logging: false,
         });
 
         const masterStore = await SequelizeMasterStore.create(master);
 
         const adapter = new SequelizeAdapter({
-          defaultDialect: 'postgres',
+          defaultDialect: "postgres",
           pool: { max: 5, idle: 30_000 },
           logging: false,
         });
@@ -62,9 +62,6 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     // Apply tenant resolution to all routes except /tenants and /health —
     // those are admin routes that don't need a per-tenant context.
-    consumer
-      .apply(TenantMiddleware)
-      .exclude('/tenants(.*)', '/health(.*)')
-      .forRoutes('*');
+    consumer.apply(TenantMiddleware).exclude("/tenants(.*)", "/health(.*)").forRoutes("*");
   }
 }

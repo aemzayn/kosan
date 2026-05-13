@@ -1,6 +1,11 @@
-import type { Adapter, ModelFactory, TenantConfig } from '@kosan/core';
-import { Sequelize } from 'sequelize';
-import type { AdapterContext, SequelizeAdapterOptions, SequelizeModelFactory, SlowQueryInfo } from './types.js';
+import type { Adapter, ModelFactory, TenantConfig } from "@kosan/core";
+import { Sequelize } from "sequelize";
+import type {
+  AdapterContext,
+  SequelizeAdapterOptions,
+  SequelizeModelFactory,
+  SlowQueryInfo,
+} from "./types.js";
 
 export class SequelizeAdapter implements Adapter<Sequelize> {
   private readonly options: SequelizeAdapterOptions;
@@ -14,9 +19,10 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
     const logging = this.buildLogging(tenant);
 
     const sequelize = new Sequelize({
-      dialect: (tenant.meta?.['dialect'] as SequelizeAdapterOptions['defaultDialect']) ??
+      dialect:
+        (tenant.meta?.dialect as SequelizeAdapterOptions["defaultDialect"]) ??
         this.options.defaultDialect ??
-        'postgres',
+        "postgres",
       host: tenant.host,
       port: tenant.port,
       database: tenant.dbName,
@@ -58,9 +64,7 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
     this.factories = factories as SequelizeModelFactory[];
   }
 
-  private buildLogging(
-    tenant: TenantConfig,
-  ): boolean | ((sql: string, timing?: number) => void) {
+  private buildLogging(tenant: TenantConfig): boolean | ((sql: string, timing?: number) => void) {
     const { onSlowQuery, slowQueryThresholdMs = 1000, logging } = this.options;
 
     if (onSlowQuery === undefined) {
@@ -70,7 +74,7 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
     // benchmark: true makes Sequelize pass timing (ms) as the second argument.
     return (sql: string, timing?: number) => {
       if (logging !== false && logging !== undefined) {
-        if (typeof logging === 'function') {
+        if (typeof logging === "function") {
           logging(sql, timing);
         } else if (logging === true) {
           console.log(sql);

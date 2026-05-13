@@ -1,4 +1,4 @@
-import type { Resolver } from '../types.js';
+import type { Resolver } from "../types.js";
 
 interface RequestLike {
   path?: string;
@@ -18,10 +18,10 @@ export class PathResolver implements Resolver {
   }
 
   resolve(req: RequestLike): string | null {
-    const raw = req.path ?? req.url ?? '';
+    const raw = req.path ?? req.url ?? "";
     // Strip query string before splitting.
-    const pathname = raw.split('?')[0] ?? '';
-    const segments = pathname.split('/').filter(Boolean);
+    const pathname = raw.split("?")[0] ?? "";
+    const segments = pathname.split("/").filter(Boolean);
     return segments[this.segment] ?? null;
   }
 }

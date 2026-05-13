@@ -1,5 +1,5 @@
-import { getCurrentTenant } from './TenantContext.js';
-import type { TenantRegistry } from './TenantRegistry.js';
+import { getCurrentTenant } from "./TenantContext.js";
+import type { TenantRegistry } from "./TenantRegistry.js";
 
 export interface TenantLogContext {
   tenantId: string;

@@ -1,23 +1,23 @@
-import { TenantRegistry } from '@kosan/core';
-import { SequelizeAdapter, SequelizeMasterStore } from '@kosan/sequelize';
-import { Sequelize } from 'sequelize';
-import { UserModel } from './models/User.js';
-import { TodoModel } from './models/Todo.js';
+import { TenantRegistry } from "@kosan/core";
+import { SequelizeAdapter, SequelizeMasterStore } from "@kosan/sequelize";
+import { Sequelize } from "sequelize";
+import { TodoModel } from "./models/Todo.js";
+import { UserModel } from "./models/User.js";
 
 const master = new Sequelize({
-  dialect: 'postgres',
-  host: process.env['MASTER_HOST'] ?? 'localhost',
-  port: Number(process.env['MASTER_PORT'] ?? 5432),
-  database: process.env['MASTER_DB'] ?? 'master',
-  username: process.env['MASTER_USER'] ?? 'admin',
-  password: process.env['MASTER_PASS'] ?? 'admin',
+  dialect: "postgres",
+  host: process.env.MASTER_HOST ?? "localhost",
+  port: Number(process.env.MASTER_PORT ?? 5432),
+  database: process.env.MASTER_DB ?? "master",
+  username: process.env.MASTER_USER ?? "admin",
+  password: process.env.MASTER_PASS ?? "admin",
   logging: false,
 });
 
 const masterStore = await SequelizeMasterStore.create(master);
 
 const adapter = new SequelizeAdapter({
-  defaultDialect: 'postgres',
+  defaultDialect: "postgres",
   pool: { max: 5, min: 0, acquire: 30_000, idle: 10_000 },
   logging: false,
 });

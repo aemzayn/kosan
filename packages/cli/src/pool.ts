@@ -14,16 +14,11 @@ export async function withConcurrency<T, R>(
   async function worker(): Promise<void> {
     while (nextIndex < items.length) {
       const index = nextIndex++;
-      // Safe access — we checked bounds above.
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      results[index] = await fn(items[index]!, index);
+      results[index] = await fn(items[index] as T, index);
     }
   }
 
-  const workers = Array.from(
-    { length: Math.min(concurrency, items.length) },
-    () => worker(),
-  );
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, () => worker());
   await Promise.all(workers);
 
   return results;

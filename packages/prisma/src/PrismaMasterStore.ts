@@ -1,12 +1,12 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from "node:crypto";
 import type {
   CreateTenantInput,
   MasterStore,
   TenantConfig,
   TenantStatus,
   UpdateTenantInput,
-} from '@kosan/core';
-import type { TenantDelegate, TenantRow } from './types.js';
+} from "@kosan/core";
+import type { TenantDelegate, TenantRow } from "./types.js";
 
 function toConfig(row: TenantRow): TenantConfig {
   return {
@@ -72,7 +72,7 @@ export class PrismaMasterStore implements MasterStore {
         dbName: data.dbName,
         user: data.user,
         password: data.password,
-        status: data.status ?? 'active',
+        status: data.status ?? "active",
         meta: data.meta ?? null,
       },
     });

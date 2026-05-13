@@ -1,4 +1,4 @@
-export type TenantStatus = 'active' | 'suspended' | 'deleted';
+export type TenantStatus = "active" | "suspended" | "deleted";
 
 export interface TenantConfig {
   id: string;

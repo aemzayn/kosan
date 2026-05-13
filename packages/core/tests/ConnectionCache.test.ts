@@ -1,25 +1,27 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ConnectionCache } from '../src/ConnectionCache.js';
-import { FakeAdapter } from './helpers/FakeAdapter.js';
-import type { TenantConfig } from '../src/types.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ConnectionCache } from "../src/ConnectionCache.js";
+import type { TenantConfig } from "../src/types.js";
+import { FakeAdapter } from "./helpers/FakeAdapter.js";
 
 function makeTenant(overrides: Partial<TenantConfig> = {}): TenantConfig {
   return {
-    id: 'tenant-1',
-    slug: 'acme',
-    host: 'localhost',
+    id: "tenant-1",
+    slug: "acme",
+    host: "localhost",
     port: 5432,
-    dbName: 'acme_db',
-    user: 'acme',
-    password: 'secret',
-    status: 'active',
+    dbName: "acme_db",
+    user: "acme",
+    password: "secret",
+    status: "active",
     ...overrides,
   };
 }
 
-describe('ConnectionCache', () => {
+describe("ConnectionCache", () => {
   let adapter: FakeAdapter;
-  let cache: ConnectionCache<ReturnType<FakeAdapter['connect']> extends Promise<infer T> ? T : never>;
+  let cache: ConnectionCache<
+    ReturnType<FakeAdapter["connect"]> extends Promise<infer T> ? T : never
+  >;
 
   beforeEach(() => {
     adapter = new FakeAdapter();
@@ -31,14 +33,14 @@ describe('ConnectionCache', () => {
     vi.useRealTimers();
   });
 
-  it('connects on first access', async () => {
+  it("connects on first access", async () => {
     const tenant = makeTenant();
     await cache.getOrConnect(tenant);
     expect(adapter.connectCallCount).toBe(1);
     expect(cache.size).toBe(1);
   });
 
-  it('returns the cached connection on subsequent calls', async () => {
+  it("returns the cached connection on subsequent calls", async () => {
     const tenant = makeTenant();
     const first = await cache.getOrConnect(tenant);
     const second = await cache.getOrConnect(tenant);
@@ -46,7 +48,7 @@ describe('ConnectionCache', () => {
     expect(adapter.connectCallCount).toBe(1);
   });
 
-  it('evicts and disconnects a specific tenant', async () => {
+  it("evicts and disconnects a specific tenant", async () => {
     const tenant = makeTenant();
     const conn = await cache.getOrConnect(tenant);
     await cache.evict(tenant.id);
@@ -54,13 +56,13 @@ describe('ConnectionCache', () => {
     expect(cache.size).toBe(0);
   });
 
-  it('is a no-op when evicting a non-existent tenant', async () => {
-    await expect(cache.evict('missing')).resolves.toBeUndefined();
+  it("is a no-op when evicting a non-existent tenant", async () => {
+    await expect(cache.evict("missing")).resolves.toBeUndefined();
   });
 
-  it('disconnects all entries on disconnectAll', async () => {
-    const t1 = makeTenant({ id: 't1', slug: 'a' });
-    const t2 = makeTenant({ id: 't2', slug: 'b' });
+  it("disconnects all entries on disconnectAll", async () => {
+    const t1 = makeTenant({ id: "t1", slug: "a" });
+    const t2 = makeTenant({ id: "t2", slug: "b" });
     await cache.getOrConnect(t1);
     await cache.getOrConnect(t2);
     await cache.disconnectAll();
@@ -68,12 +70,12 @@ describe('ConnectionCache', () => {
     expect(cache.size).toBe(0);
   });
 
-  it('evicts the least-recently-used entry when maxSize is reached', async () => {
+  it("evicts the least-recently-used entry when maxSize is reached", async () => {
     const smallCache = new ConnectionCache(adapter, { maxSize: 2, idleTimeoutMs: 60_000 });
 
-    const t1 = makeTenant({ id: 't1', slug: 'a' });
-    const t2 = makeTenant({ id: 't2', slug: 'b' });
-    const t3 = makeTenant({ id: 't3', slug: 'c' });
+    const t1 = makeTenant({ id: "t1", slug: "a" });
+    const t2 = makeTenant({ id: "t2", slug: "b" });
+    const t3 = makeTenant({ id: "t3", slug: "c" });
 
     const conn1 = await smallCache.getOrConnect(t1);
     await smallCache.getOrConnect(t2);
@@ -83,12 +85,12 @@ describe('ConnectionCache', () => {
     await smallCache.getOrConnect(t3);
 
     expect(conn1.disconnected).toBe(false); // t1 survived
-    expect(smallCache.has('t2')).toBe(false); // t2 was evicted
-    expect(smallCache.has('t3')).toBe(true);
+    expect(smallCache.has("t2")).toBe(false); // t2 was evicted
+    expect(smallCache.has("t3")).toBe(true);
     await smallCache.disconnectAll();
   });
 
-  it('evicts entry after idle timeout', async () => {
+  it("evicts entry after idle timeout", async () => {
     vi.useFakeTimers();
     const tenant = makeTenant();
     await cache.getOrConnect(tenant);
@@ -101,7 +103,7 @@ describe('ConnectionCache', () => {
     expect(adapter.disconnectCallCount).toBe(1);
   });
 
-  it('resets idle timer on cache hit', async () => {
+  it("resets idle timer on cache hit", async () => {
     vi.useFakeTimers();
     const tenant = makeTenant();
     await cache.getOrConnect(tenant);
@@ -119,12 +121,12 @@ describe('ConnectionCache', () => {
     await cache.disconnectAll();
   });
 
-  it('returns cache stats', async () => {
+  it("returns cache stats", async () => {
     const tenant = makeTenant();
     await cache.getOrConnect(tenant);
     const stats = cache.stats();
     expect(stats).toHaveLength(1);
-    expect(stats[0]?.tenantId).toBe('tenant-1');
-    expect(typeof stats[0]?.lastUsed).toBe('number');
+    expect(stats[0]?.tenantId).toBe("tenant-1");
+    expect(typeof stats[0]?.lastUsed).toBe("number");
   });
 });

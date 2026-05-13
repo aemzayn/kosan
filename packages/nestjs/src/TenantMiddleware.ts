@@ -1,15 +1,15 @@
-import { Injectable, Inject, HttpException } from '@nestjs/common';
-import type { NestMiddleware } from '@nestjs/common';
-import type { Request, Response, NextFunction } from 'express';
 import {
-  TenantRegistry,
-  TenantNotFoundError,
   TenantNotActiveError,
+  TenantNotFoundError,
+  type TenantRegistry,
   runWithTenant,
-} from '@kosan/core';
-import type { Resolver } from '@kosan/core';
-import { KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER } from './constants.js';
-import type { KosanOptions } from './types.js';
+} from "@kosan/core";
+import type { Resolver } from "@kosan/core";
+import { HttpException, Inject, Injectable } from "@nestjs/common";
+import type { NestMiddleware } from "@nestjs/common";
+import type { NextFunction, Request, Response } from "express";
+import { KOSAN_OPTIONS, KOSAN_REGISTRY, KOSAN_RESOLVER } from "./constants.js";
+import type { KosanOptions } from "./types.js";
 
 /**
  * NestJS middleware that resolves the current tenant and wraps the rest of
@@ -36,7 +36,7 @@ export class TenantMiddleware implements NestMiddleware {
 
     if (slug === null) {
       const status = this.options.missingTenantStatus ?? 404;
-      throw new HttpException('Tenant not found', status);
+      throw new HttpException("Tenant not found", status);
     }
 
     try {
