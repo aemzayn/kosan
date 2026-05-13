@@ -44,7 +44,7 @@
     "@kosan/core": "workspace:*",
     "@kosan/sequelize": "workspace:*",
     "commander": "^12.0.0",
-    "jiti": "^2.0.0",
+    "jiti": "^2.7.0",
     "sequelize": "^6.37.0",
     "umzug": "^3.8.0"
   },
