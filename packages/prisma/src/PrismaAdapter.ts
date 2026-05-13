@@ -48,8 +48,8 @@ export class PrismaAdapter<TClient extends PrismaClientLike> implements Adapter<
    *
    * Or use the `usePrisma()` helper from `@kosan/prisma` for a typed shortcut.
    */
-  getModels(client: TClient): PrismaModels<TClient> {
-    return { prisma: client };
+  getModels(client: TClient): Record<string, unknown> {
+    return { prisma: client } satisfies PrismaModels<TClient>;
   }
 
   /**

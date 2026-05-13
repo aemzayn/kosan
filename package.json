@@ -1,13 +1,13 @@
 {
   "name": "kosan",
   "private": true,
-  "engines": { "node": ">=18" },
+  "engines": { "node": ">=20" },
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm --filter @kosan/core --filter @kosan/sequelize build && pnpm -r typecheck"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.0",

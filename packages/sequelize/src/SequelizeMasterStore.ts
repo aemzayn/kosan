@@ -7,6 +7,7 @@ import type {
   UpdateTenantInput,
 } from "@kosan/core";
 import {
+  type CreationOptional,
   DataTypes,
   type InferAttributes,
   type InferCreationAttributes,
@@ -31,8 +32,8 @@ class TenantModel extends Model<
   declare password: string;
   declare status: TenantStatus;
   declare meta: Record<string, unknown> | null;
-  declare createdAt: Date;
-  declare updatedAt: Date;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 function defineTenantModel(sequelize: Sequelize): typeof TenantModel {
@@ -82,7 +83,7 @@ function toConfig(row: TenantModel): TenantConfig {
     user: row.user,
     password: row.password,
     status: row.status,
-    meta: row.meta ?? undefined,
+    ...(row.meta !== null ? { meta: row.meta } : {}),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -115,9 +116,9 @@ export class SequelizeMasterStore implements MasterStore {
   }
 
   async findAll(filter?: { status?: TenantStatus }): Promise<TenantConfig[]> {
-    const rows = await this.model.findAll({
-      where: filter?.status !== undefined ? { status: filter.status } : undefined,
-    });
+    const rows = await this.model.findAll(
+      filter?.status !== undefined ? { where: { status: filter.status } } : {},
+    );
     return rows.map(toConfig);
   }
 

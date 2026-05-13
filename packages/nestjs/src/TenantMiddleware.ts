@@ -43,7 +43,7 @@ export class TenantMiddleware implements NestMiddleware {
       const ctx = await this.registry.resolveBySlug(slug);
       // runWithTenant wraps next() inside AsyncLocalStorage.run() so the entire
       // downstream Express/NestJS chain inherits the tenant context.
-      runWithTenant(ctx, next as () => void);
+      await runWithTenant(ctx, () => Promise.resolve(next()));
     } catch (err) {
       if (err instanceof TenantNotFoundError || err instanceof TenantNotActiveError) {
         const status = this.options.missingTenantStatus ?? 404;

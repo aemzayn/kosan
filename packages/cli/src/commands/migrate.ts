@@ -1,7 +1,7 @@
 import path from "node:path";
 import { TenantRegistry } from "@kosan/core";
 import { SequelizeAdapter, SequelizeMasterStore } from "@kosan/sequelize";
-import { Sequelize } from "sequelize";
+import { type Options, Sequelize } from "sequelize";
 import { withConcurrency } from "../pool.js";
 import { loadMigrationsFromDir, runMigrationsForTenant } from "../runner.js";
 import type { KosanConfig, TenantMigrationResult } from "../types.js";
@@ -28,9 +28,7 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
   const masterSequelize =
     typeof config.master === "string"
       ? new Sequelize(config.master, { logging: false })
-      : new Sequelize({ ...(config.master as object), logging: false } as ConstructorParameters<
-          typeof Sequelize
-        >[0]);
+      : new Sequelize({ ...(config.master as Options), logging: false });
 
   const masterStore = await SequelizeMasterStore.create(masterSequelize);
   const adapter = new SequelizeAdapter({ logging: false });

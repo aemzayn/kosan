@@ -9,7 +9,9 @@
       "Bash(xargs sed *)",
       "Bash(pnpm *)",
       "Bash(gh run *)",
-      "Bash(xargs ls)"
+      "Bash(xargs ls)",
+      "Bash(grep -E \"error TS|Done$|passed|Failed|ERR_PNPM\")",
+      "Bash(npm show *)"
     ]
   }
 }

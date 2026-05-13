@@ -18,7 +18,7 @@ function toConfig(row: TenantRow): TenantConfig {
     user: row.user,
     password: row.password,
     status: row.status,
-    meta: row.meta ?? undefined,
+    ...(row.meta !== null && row.meta !== undefined ? { meta: row.meta } : {}),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };

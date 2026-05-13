@@ -18,8 +18,8 @@ export class TenantRegistry<TConn = unknown> {
   private readonly master: MasterStore;
   private readonly adapter: Adapter<TConn>;
   readonly cache: ConnectionCache<TConn>;
-  private readonly cipher?: Cipher;
-  private readonly hooks?: LifecycleHooks<TConn>;
+  private readonly cipher: Cipher | undefined;
+  private readonly hooks: LifecycleHooks<TConn> | undefined;
 
   private constructor(options: TenantRegistryOptions<TConn>) {
     this.master = options.master;

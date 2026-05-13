@@ -1,5 +1,4 @@
 import path from "node:path";
-import { createJiti } from "jiti";
 import type { KosanConfig } from "./types.js";
 
 /**
@@ -10,6 +9,7 @@ import type { KosanConfig } from "./types.js";
  */
 export async function loadConfig(configPath: string): Promise<KosanConfig> {
   const absolutePath = path.resolve(configPath);
+  const { default: createJiti } = await import("jiti");
   const jiti = createJiti(import.meta.url, { interopDefault: true });
 
   let mod: unknown;

@@ -13,7 +13,7 @@
   "homepage": "https://kosan.dev/packages/prisma",
   "bugs": "https://github.com/kosan-dev/kosan/issues",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "type": "module",
   "exports": {

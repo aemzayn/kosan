@@ -34,7 +34,9 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
         acquire: this.options.pool?.acquire ?? 30_000,
         idle: this.options.pool?.idle ?? 10_000,
       },
-      dialectOptions: this.options.dialectOptions,
+      ...(this.options.dialectOptions !== undefined
+        ? { dialectOptions: this.options.dialectOptions }
+        : {}),
       logging,
       benchmark: this.options.onSlowQuery !== undefined,
     });
@@ -61,7 +63,7 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
   }
 
   registerModelFactories(factories: ModelFactory<Sequelize>[]): void {
-    this.factories = factories as SequelizeModelFactory[];
+    this.factories = factories as unknown as SequelizeModelFactory[];
   }
 
   private buildLogging(tenant: TenantConfig): boolean | ((sql: string, timing?: number) => void) {

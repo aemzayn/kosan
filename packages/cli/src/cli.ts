@@ -31,7 +31,7 @@ program
       config,
       migrationsDir,
       concurrency,
-      tenant: opts.tenant,
+      ...(opts.tenant !== undefined ? { tenant: opts.tenant } : {}),
     });
 
     if (results.length > 0) {
