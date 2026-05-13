@@ -1,14 +1,14 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Huni',
+  title: 'Kosan',
   description: 'First-class database-per-tenant multi-tenancy for Node.js',
   srcDir: './docs',
 
   themeConfig: {
     nav: [
       { text: 'Docs', link: '/intro' },
-      { text: 'GitHub', link: 'https://github.com/huni-dev/huni' },
+      { text: 'GitHub', link: 'https://github.com/kosan-dev/kosan' },
     ],
 
     sidebar: [
@@ -25,15 +25,15 @@ export default defineConfig({
         text: 'Packages',
         collapsed: false,
         items: [
-          { text: '@huni/core', link: '/packages/core' },
-          { text: '@huni/sequelize', link: '/packages/sequelize' },
-          { text: '@huni/prisma', link: '/packages/prisma' },
-          { text: '@huni/drizzle', link: '/packages/drizzle' },
-          { text: '@huni/express', link: '/packages/express' },
-          { text: '@huni/fastify', link: '/packages/fastify' },
-          { text: '@huni/koa', link: '/packages/koa' },
-          { text: '@huni/nestjs', link: '/packages/nestjs' },
-          { text: '@huni/cli', link: '/packages/cli' },
+          { text: '@kosan/core', link: '/packages/core' },
+          { text: '@kosan/sequelize', link: '/packages/sequelize' },
+          { text: '@kosan/prisma', link: '/packages/prisma' },
+          { text: '@kosan/drizzle', link: '/packages/drizzle' },
+          { text: '@kosan/express', link: '/packages/express' },
+          { text: '@kosan/fastify', link: '/packages/fastify' },
+          { text: '@kosan/koa', link: '/packages/koa' },
+          { text: '@kosan/nestjs', link: '/packages/nestjs' },
+          { text: '@kosan/cli', link: '/packages/cli' },
         ],
       },
       {
@@ -65,12 +65,12 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/huni-dev/huni' },
+      { icon: 'github', link: 'https://github.com/kosan-dev/kosan' },
     ],
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: `Copyright © ${new Date().getFullYear()} Huni`,
+      copyright: `Copyright © ${new Date().getFullYear()} Kosan`,
     },
 
     search: {

@@ -1,4 +1,4 @@
-import type { Adapter, ModelFactory, TenantConfig } from '@huni/core';
+import type { Adapter, ModelFactory, TenantConfig } from '@kosan/core';
 import { Sequelize } from 'sequelize';
 import type { AdapterContext, SequelizeAdapterOptions, SequelizeModelFactory, SlowQueryInfo } from './types.js';
 

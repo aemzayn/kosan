@@ -5,7 +5,7 @@
 
 A complete multi-tenant Todo API with **Users** and **Todos** tables. Every tenant gets its own isolated Postgres database. The tenant is identified by the `X-Tenant` request header.
 
-**Source:** [`examples/todo-sequelize-express/`](https://github.com/huni-dev/huni/tree/main/examples/todo-sequelize-express)
+**Source:** [`examples/todo-sequelize-express/`](https://github.com/kosan-dev/kosan/tree/main/examples/todo-sequelize-express)
 
 ---
 
@@ -90,8 +90,8 @@ pnpm start
 
 ```ts
 // src/registry.ts
-import { TenantRegistry } from '@huni/core';
-import { SequelizeAdapter, SequelizeMasterStore } from '@huni/sequelize';
+import { TenantRegistry } from '@kosan/core';
+import { SequelizeAdapter, SequelizeMasterStore } from '@kosan/sequelize';
 import { UserModel } from './models/User.js';
 import { TodoModel } from './models/Todo.js';
 
@@ -121,8 +121,8 @@ registry.registerModels([UserModel, TodoModel]);
 
 ```ts
 // src/server.ts
-import { HeaderResolver } from '@huni/core';
-import { tenantMiddleware } from '@huni/express';
+import { HeaderResolver } from '@kosan/core';
+import { tenantMiddleware } from '@kosan/express';
 
 app.use(
   tenantMiddleware({
@@ -142,7 +142,7 @@ app.use('/users/:userId/todos', todosRouter);
 
 ```ts
 // src/routes/todos.ts
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 
 router.post('/', async (req, res) => {
   const { models } = useTenant();

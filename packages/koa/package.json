@@ -1,8 +1,8 @@
 {
-  "name": "@huni/koa",
+  "name": "@kosan/koa",
   "version": "0.1.0",
-  "description": "Koa middleware for Huni — resolves tenant on every request and scopes the connection via AsyncLocalStorage",
-  "author": "Huni Contributors",
+  "description": "Koa middleware for Kosan — resolves tenant on every request and scopes the connection via AsyncLocalStorage",
+  "author": "Kosan Contributors",
   "license": "MIT",
   "keywords": [
     "multi-tenancy",
@@ -13,11 +13,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/huni-dev/huni.git",
+    "url": "https://github.com/kosan-dev/kosan.git",
     "directory": "packages/koa"
   },
-  "homepage": "https://huni.dev/packages/koa",
-  "bugs": "https://github.com/huni-dev/huni/issues",
+  "homepage": "https://kosan.dev/packages/koa",
+  "bugs": "https://github.com/kosan-dev/kosan/issues",
   "engines": {
     "node": ">=18"
   },
@@ -47,7 +47,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@huni/core": "workspace:*"
+    "@kosan/core": "workspace:*"
   },
   "peerDependencies": {
     "koa": "^2.0.0"

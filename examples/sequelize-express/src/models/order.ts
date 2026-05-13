@@ -1,4 +1,4 @@
-import type { AdapterContext } from '@huni/sequelize';
+import type { AdapterContext } from '@kosan/sequelize';
 import { DataTypes } from 'sequelize';
 
 export function OrderModel({ sequelize }: AdapterContext) {

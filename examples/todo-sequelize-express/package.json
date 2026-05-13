@@ -9,9 +9,9 @@
     "dev": "tsx watch src/server.ts"
   },
   "dependencies": {
-    "@huni/core": "workspace:*",
-    "@huni/express": "workspace:*",
-    "@huni/sequelize": "workspace:*",
+    "@kosan/core": "workspace:*",
+    "@kosan/express": "workspace:*",
+    "@kosan/sequelize": "workspace:*",
     "express": "^4.21.0",
     "pg": "^8.13.0",
     "sequelize": "^6.37.0"

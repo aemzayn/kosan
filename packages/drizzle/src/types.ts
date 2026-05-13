@@ -1,4 +1,4 @@
-import type { TenantConfig, CreateTenantInput, UpdateTenantInput, TenantStatus } from '@huni/core';
+import type { TenantConfig, CreateTenantInput, UpdateTenantInput, TenantStatus } from '@kosan/core';
 
 /**
  * A Drizzle client instance. We use structural typing so the adapter works

@@ -7,14 +7,14 @@ import { printResults, runMigrate } from './commands/migrate.js';
 const program = new Command();
 
 program
-  .name('huni')
-  .description('Huni CLI — multi-tenant database tooling')
+  .name('kosan')
+  .description('Kosan CLI — multi-tenant database tooling')
   .version('0.1.0');
 
 program
   .command('migrate')
   .description('Run pending migrations across all active tenants (or a specific one)')
-  .requiredOption('-c, --config <path>', 'Path to huni.config.ts / .js', 'huni.config.ts')
+  .requiredOption('-c, --config <path>', 'Path to kosan.config.ts / .js', 'kosan.config.ts')
   .option('-n, --concurrency <n>', 'Max parallel tenant migrations', '4')
   .option('-t, --tenant <slug>', 'Migrate only this tenant slug')
   .action(async (opts: { config: string; concurrency: string; tenant?: string }) => {
@@ -22,7 +22,7 @@ program
     try {
       config = await loadConfig(opts.config);
     } catch (err) {
-      console.error(`[huni] Config error: ${String(err)}`);
+      console.error(`[kosan] Config error: ${String(err)}`);
       process.exit(1);
     }
 
@@ -46,6 +46,6 @@ program
   });
 
 program.parseAsync(process.argv).catch((err: unknown) => {
-  console.error(`[huni] Unexpected error: ${String(err)}`);
+  console.error(`[kosan] Unexpected error: ${String(err)}`);
   process.exit(1);
 });

@@ -1,6 +1,6 @@
 import express, { type Request, type Response } from 'express';
-import { HeaderResolver, useTenant, getTenantLogContext, getHealthPayload } from '@huni/core';
-import { tenantMiddleware } from '@huni/express';
+import { HeaderResolver, useTenant, getTenantLogContext, getHealthPayload } from '@kosan/core';
+import { tenantMiddleware } from '@kosan/express';
 import { registry } from './registry.js';
 import usersRouter from './routes/users.js';
 import todosRouter from './routes/todos.js';

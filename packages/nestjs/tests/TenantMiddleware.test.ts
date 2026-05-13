@@ -6,10 +6,10 @@ import {
   TenantNotActiveError,
   getCurrentTenant,
   runWithTenant,
-} from '@huni/core';
-import type { TenantConfig, TenantContextValue, TenantRegistry, Resolver } from '@huni/core';
+} from '@kosan/core';
+import type { TenantConfig, TenantContextValue, TenantRegistry, Resolver } from '@kosan/core';
 import { TenantMiddleware } from '../src/TenantMiddleware.js';
-import { HUNI_REGISTRY, HUNI_OPTIONS, HUNI_RESOLVER } from '../src/constants.js';
+import { KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER } from '../src/constants.js';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -57,9 +57,9 @@ function makeMiddleware(
 ): TenantMiddleware {
   // Manually construct since we're not using the NestJS DI container.
   const mw = Object.create(TenantMiddleware.prototype) as TenantMiddleware;
-  (mw as unknown as Record<symbol, unknown>)[HUNI_REGISTRY] = registry;
-  (mw as unknown as Record<symbol, unknown>)[HUNI_RESOLVER] = resolver;
-  (mw as unknown as Record<symbol, unknown>)[HUNI_OPTIONS] = options;
+  (mw as unknown as Record<symbol, unknown>)[KOSAN_REGISTRY] = registry;
+  (mw as unknown as Record<symbol, unknown>)[KOSAN_RESOLVER] = resolver;
+  (mw as unknown as Record<symbol, unknown>)[KOSAN_OPTIONS] = options;
   // Assign via normal properties since @Inject binds by symbol key at runtime
   Object.assign(mw, { registry, resolver, options });
   return mw;

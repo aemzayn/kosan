@@ -1,10 +1,10 @@
 import { Inject, createParamDecorator } from '@nestjs/common';
 import type { ExecutionContext } from '@nestjs/common';
-import { useTenant } from '@huni/core';
-import { HUNI_REGISTRY } from './constants.js';
+import { useTenant } from '@kosan/core';
+import { KOSAN_REGISTRY } from './constants.js';
 
 /** Inject the TenantRegistry instance. */
-export const InjectRegistry = (): ReturnType<typeof Inject> => Inject(HUNI_REGISTRY);
+export const InjectRegistry = (): ReturnType<typeof Inject> => Inject(KOSAN_REGISTRY);
 
 /**
  * Route-handler parameter decorator — resolves to the current TenantContextValue.

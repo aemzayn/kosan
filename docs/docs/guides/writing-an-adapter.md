@@ -3,7 +3,7 @@
 
 # Writing an Adapter
 
-An `Adapter<TConn>` is the bridge between Huni's connection cache and your ORM or database driver. If you use an ORM that Huni doesn't ship an adapter for, you can write one in a few dozen lines.
+An `Adapter<TConn>` is the bridge between Kosan's connection cache and your ORM or database driver. If you use an ORM that Kosan doesn't ship an adapter for, you can write one in a few dozen lines.
 
 ---
 
@@ -30,7 +30,7 @@ interface Adapter<TConn = unknown> {
 ## Minimal example: TypeORM
 
 ```ts
-import type { Adapter, ModelFactory, TenantConfig } from '@huni/core';
+import type { Adapter, ModelFactory, TenantConfig } from '@kosan/core';
 import { DataSource } from 'typeorm';
 
 export class TypeOrmAdapter implements Adapter<DataSource> {
@@ -94,7 +94,7 @@ const users = await userRepo.find();
 For cases where you want raw SQL access without an ORM:
 
 ```ts
-import type { Adapter, TenantConfig } from '@huni/core';
+import type { Adapter, TenantConfig } from '@kosan/core';
 import { Pool } from 'pg';
 
 export class PgAdapter implements Adapter<Pool> {
@@ -142,7 +142,7 @@ res.json(result.rows);
 ## Example: Drizzle ORM
 
 ```ts
-import type { Adapter, TenantConfig } from '@huni/core';
+import type { Adapter, TenantConfig } from '@kosan/core';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from './schema.js';
@@ -173,7 +173,7 @@ export class DrizzleAdapter implements Adapter<NodePgDatabase<typeof schema>> {
 Usage:
 
 ```ts
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from './schema.js';
 
@@ -235,4 +235,4 @@ If your ORM manages models globally (TypeORM entities, Prisma's generated client
 
 ## Publishing a community adapter
 
-If you build an adapter, consider publishing it as `@huni-community/<orm>` and opening a PR to add it to the docs.
+If you build an adapter, consider publishing it as `@kosan-community/<orm>` and opening a PR to add it to the docs.

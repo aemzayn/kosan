@@ -1,4 +1,4 @@
-# Huni
+# Kosan
 
 First-class multi-tenancy with database-per-tenant support for Node.js — the layer that Sequelize, Prisma, and TypeORM don't ship.
 
@@ -12,29 +12,29 @@ Every major Node.js ORM requires you to hand-roll the same things:
 - LRU eviction and idle-connection cleanup
 - Per-tenant migration orchestration
 
-Huni does all of this for you, with a clean adapter model so you keep using the ORM you already know.
+Kosan does all of this for you, with a clean adapter model so you keep using the ORM you already know.
 
 ## Packages
 
 | Package | Description |
 |---|---|
-| [`@huni/core`](./packages/core) | ORM-agnostic registry, cache, context, resolvers |
-| [`@huni/sequelize`](./packages/sequelize) | Sequelize v6 adapter |
-| [`@huni/express`](./packages/express) | Express middleware |
-| [`@huni/fastify`](./packages/fastify) | Fastify plugin |
-| [`@huni/cli`](./packages/cli) | Migration orchestrator |
+| [`@kosan/core`](./packages/core) | ORM-agnostic registry, cache, context, resolvers |
+| [`@kosan/sequelize`](./packages/sequelize) | Sequelize v6 adapter |
+| [`@kosan/express`](./packages/express) | Express middleware |
+| [`@kosan/fastify`](./packages/fastify) | Fastify plugin |
+| [`@kosan/cli`](./packages/cli) | Migration orchestrator |
 
 ## Quick Start
 
 ```bash
-npm install @huni/core @huni/sequelize @huni/express
+npm install @kosan/core @kosan/sequelize @kosan/express
 ```
 
 ### 1 — Connect to the master database
 
 ```ts
-import { TenantRegistry } from '@huni/core';
-import { SequelizeAdapter, SequelizeMasterStore } from '@huni/sequelize';
+import { TenantRegistry } from '@kosan/core';
+import { SequelizeAdapter, SequelizeMasterStore } from '@kosan/sequelize';
 import { Sequelize } from 'sequelize';
 
 const master = new Sequelize('postgres://admin:pass@localhost/master');
@@ -66,7 +66,7 @@ const tenant = await registry.createTenant({
 
 ```ts
 // models/order.ts
-import type { AdapterContext } from '@huni/sequelize';
+import type { AdapterContext } from '@kosan/sequelize';
 import { DataTypes } from 'sequelize';
 
 export function OrderModel({ sequelize }: AdapterContext) {
@@ -83,8 +83,8 @@ registry.registerModels([OrderModel]);
 
 ```ts
 import express from 'express';
-import { tenantMiddleware } from '@huni/express';
-import { SubdomainResolver } from '@huni/core';
+import { tenantMiddleware } from '@kosan/express';
+import { SubdomainResolver } from '@kosan/core';
 
 const app = express();
 
@@ -94,7 +94,7 @@ app.use(tenantMiddleware({ registry, resolver: new SubdomainResolver() }));
 ### 5 — Use models in a handler
 
 ```ts
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 
 app.get('/orders', async (req, res) => {
   const { models } = useTenant();
@@ -122,7 +122,7 @@ TenantRegistry.create({
 ### 7 — Run migrations across all tenants
 
 ```bash
-npx huni migrate --config huni.config.ts --concurrency 4
+npx kosan migrate --config kosan.config.ts --concurrency 4
 ```
 
 ### Optional — credential encryption

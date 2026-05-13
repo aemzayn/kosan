@@ -1,4 +1,4 @@
-import type { TenantConfig, TenantStatus } from '@huni/core';
+import type { TenantConfig, TenantStatus } from '@kosan/core';
 
 // ---------------------------------------------------------------------------
 // Minimal structural interfaces — avoids a hard dependency on @prisma/client.

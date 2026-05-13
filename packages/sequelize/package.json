@@ -1,8 +1,8 @@
 {
-  "name": "@huni/sequelize",
+  "name": "@kosan/sequelize",
   "version": "0.1.0",
-  "description": "Sequelize v6 adapter for Huni — one connection pool per tenant, model factories, slow-query detection",
-  "author": "Huni Contributors",
+  "description": "Sequelize v6 adapter for Kosan — one connection pool per tenant, model factories, slow-query detection",
+  "author": "Kosan Contributors",
   "license": "MIT",
   "keywords": [
     "multi-tenancy",
@@ -14,11 +14,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/huni-dev/huni.git",
+    "url": "https://github.com/kosan-dev/kosan.git",
     "directory": "packages/sequelize"
   },
-  "homepage": "https://huni.dev/packages/sequelize",
-  "bugs": "https://github.com/huni-dev/huni/issues",
+  "homepage": "https://kosan.dev/packages/sequelize",
+  "bugs": "https://github.com/kosan-dev/kosan/issues",
   "engines": {
     "node": ">=18"
   },
@@ -48,7 +48,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@huni/core": "workspace:*"
+    "@kosan/core": "workspace:*"
   },
   "peerDependencies": {
     "sequelize": "^6.0.0"

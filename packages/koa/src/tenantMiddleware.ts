@@ -2,8 +2,8 @@ import {
   TenantNotActiveError,
   TenantNotFoundError,
   runWithTenant,
-} from '@huni/core';
-import type { Resolver, TenantRegistry } from '@huni/core';
+} from '@kosan/core';
+import type { Resolver, TenantRegistry } from '@kosan/core';
 import type { Context, Next } from 'koa';
 
 export interface TenantMiddlewareOptions {

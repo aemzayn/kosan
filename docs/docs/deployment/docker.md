@@ -3,7 +3,7 @@
 
 # Docker Deployment
 
-This guide shows how to deploy a Huni application with Docker Compose — a master Postgres database for tenant records and separate databases (or containers) for tenant data.
+This guide shows how to deploy a Kosan application with Docker Compose — a master Postgres database for tenant records and separate databases (or containers) for tenant data.
 
 ---
 
@@ -205,7 +205,7 @@ Or using the CLI:
 docker run --rm \
   -e MASTER_DATABASE_URL=$MASTER_DATABASE_URL \
   myapp:latest \
-  npx huni migrate --concurrency 5
+  npx kosan migrate --concurrency 5
 ```
 
 ---

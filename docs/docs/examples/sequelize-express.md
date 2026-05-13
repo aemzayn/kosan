@@ -5,7 +5,7 @@
 
 End-to-end demo: 3 tenants on separate Postgres databases, resolved by subdomain.
 
-**Source:** [`examples/sequelize-express/`](https://github.com/huni-dev/huni/tree/main/examples/sequelize-express)
+**Source:** [`examples/sequelize-express/`](https://github.com/kosan-dev/kosan/tree/main/examples/sequelize-express)
 
 ---
 

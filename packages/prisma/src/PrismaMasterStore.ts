@@ -5,7 +5,7 @@ import type {
   TenantConfig,
   TenantStatus,
   UpdateTenantInput,
-} from '@huni/core';
+} from '@kosan/core';
 import type { TenantDelegate, TenantRow } from './types.js';
 
 function toConfig(row: TenantRow): TenantConfig {
@@ -36,7 +36,7 @@ function toConfig(row: TenantRow): TenantConfig {
  * ```
  *
  * The Prisma schema required for this store is documented on the
- * `TenantDelegate` type in `@huni/prisma`.
+ * `TenantDelegate` type in `@kosan/prisma`.
  */
 export class PrismaMasterStore implements MasterStore {
   private readonly delegate: TenantDelegate;

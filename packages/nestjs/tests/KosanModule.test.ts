@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { HuniModule } from '../src/HuniModule.js';
-import { HUNI_REGISTRY, HUNI_OPTIONS, HUNI_RESOLVER } from '../src/constants.js';
+import { KosanModule } from '../src/KosanModule.js';
+import { KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER } from '../src/constants.js';
 import { TenantMiddleware } from '../src/TenantMiddleware.js';
 import { TenantGuard } from '../src/TenantGuard.js';
 
@@ -14,44 +14,44 @@ const fakeOptions = {
   resolver: { resolve: () => null },
 };
 
-describe('HuniModule.forRoot', () => {
+describe('KosanModule.forRoot', () => {
   it('returns a DynamicModule with the correct module class', () => {
-    const mod = HuniModule.forRoot(fakeOptions);
-    expect(mod.module).toBe(HuniModule);
+    const mod = KosanModule.forRoot(fakeOptions);
+    expect(mod.module).toBe(KosanModule);
   });
 
-  it('exports HUNI_REGISTRY, HUNI_OPTIONS, HUNI_RESOLVER, TenantMiddleware, TenantGuard', () => {
-    const mod = HuniModule.forRoot(fakeOptions);
-    expect(mod.exports).toContain(HUNI_REGISTRY);
-    expect(mod.exports).toContain(HUNI_OPTIONS);
-    expect(mod.exports).toContain(HUNI_RESOLVER);
+  it('exports KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER, TenantMiddleware, TenantGuard', () => {
+    const mod = KosanModule.forRoot(fakeOptions);
+    expect(mod.exports).toContain(KOSAN_REGISTRY);
+    expect(mod.exports).toContain(KOSAN_OPTIONS);
+    expect(mod.exports).toContain(KOSAN_RESOLVER);
     expect(mod.exports).toContain(TenantMiddleware);
     expect(mod.exports).toContain(TenantGuard);
   });
 
-  it('includes HUNI_REGISTRY provider with factory', () => {
-    const mod = HuniModule.forRoot(fakeOptions);
+  it('includes KOSAN_REGISTRY provider with factory', () => {
+    const mod = KosanModule.forRoot(fakeOptions);
     const providers = mod.providers as { provide: unknown; useFactory?: unknown }[];
-    const registryProvider = providers.find((p) => p.provide === HUNI_REGISTRY);
+    const registryProvider = providers.find((p) => p.provide === KOSAN_REGISTRY);
     expect(registryProvider).toBeDefined();
     expect(registryProvider?.useFactory).toBeTypeOf('function');
   });
 });
 
-describe('HuniModule.forRootAsync', () => {
+describe('KosanModule.forRootAsync', () => {
   it('returns a DynamicModule with async providers', () => {
-    const mod = HuniModule.forRootAsync({
+    const mod = KosanModule.forRootAsync({
       useFactory: () => fakeOptions,
     });
-    expect(mod.module).toBe(HuniModule);
+    expect(mod.module).toBe(KosanModule);
     const providers = mod.providers as { provide: unknown }[];
-    const optionsProvider = providers.find((p) => p.provide === HUNI_OPTIONS);
+    const optionsProvider = providers.find((p) => p.provide === KOSAN_OPTIONS);
     expect(optionsProvider).toBeDefined();
   });
 
   it('includes imports when provided', () => {
     const FakeModule = class {};
-    const mod = HuniModule.forRootAsync({
+    const mod = KosanModule.forRootAsync({
       imports: [FakeModule],
       useFactory: () => fakeOptions,
     });

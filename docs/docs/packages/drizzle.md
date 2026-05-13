@@ -1,12 +1,12 @@
 ---
 ---
 
-# @huni/drizzle
+# @kosan/drizzle
 
-Drizzle ORM adapter for Huni — creates one typed Drizzle client per tenant and exposes it via the `useDrizzle()` shortcut.
+Drizzle ORM adapter for Kosan — creates one typed Drizzle client per tenant and exposes it via the `useDrizzle()` shortcut.
 
 ```bash
-npm install @huni/drizzle drizzle-orm
+npm install @kosan/drizzle drizzle-orm
 ```
 
 ---
@@ -22,8 +22,8 @@ Drizzle doesn't use a centralized model registry — the client **is** the query
 ```ts
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { DrizzleAdapter, DrizzleMasterStore, useDrizzle } from '@huni/drizzle';
-import { TenantRegistry, SubdomainResolver, runWithTenant } from '@huni/core';
+import { DrizzleAdapter, DrizzleMasterStore, useDrizzle } from '@kosan/drizzle';
+import { TenantRegistry, SubdomainResolver, runWithTenant } from '@kosan/core';
 import { eq } from 'drizzle-orm';
 import * as schema from './schema.js'; // your Drizzle schema
 import { tenants } from './schema.js'; // the tenants table
@@ -135,7 +135,7 @@ export interface DrizzleMasterStoreQueries {
 Typed shortcut that returns the current tenant's Drizzle client.
 
 ```ts
-import { useDrizzle } from '@huni/drizzle';
+import { useDrizzle } from '@kosan/drizzle';
 import type { TenantDb } from './db.js';
 
 const db = useDrizzle<TenantDb>();
@@ -174,7 +174,7 @@ export const tenants = pgTable('tenants', {
 Or import the snippet from the library:
 
 ```ts
-import { TENANT_DRIZZLE_SCHEMA_PG } from '@huni/drizzle';
+import { TENANT_DRIZZLE_SCHEMA_PG } from '@kosan/drizzle';
 console.log(TENANT_DRIZZLE_SCHEMA_PG); // copy-paste ready
 ```
 

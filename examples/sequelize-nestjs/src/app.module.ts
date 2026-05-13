@@ -1,7 +1,7 @@
 import { Module, MiddlewareConsumer } from '@nestjs/common';
-import { HuniModule, TenantMiddleware } from '@huni/nestjs';
-import { SubdomainResolver } from '@huni/core';
-import { SequelizeMasterStore, SequelizeAdapter } from '@huni/sequelize';
+import { KosanModule, TenantMiddleware } from '@kosan/nestjs';
+import { SubdomainResolver } from '@kosan/core';
+import { SequelizeMasterStore, SequelizeAdapter } from '@kosan/sequelize';
 import { Sequelize } from 'sequelize';
 import { OrdersModule } from './orders/orders.module';
 import { HealthModule } from './health/health.module';
@@ -11,10 +11,10 @@ import { AppService } from './app.service';
 @Module({
   imports: [
     /**
-     * HuniModule.forRootAsync performs async initialisation (waiting on
+     * KosanModule.forRootAsync performs async initialisation (waiting on
      * SequelizeMasterStore.create) inside NestJS's DI lifecycle.
      */
-    HuniModule.forRootAsync({
+    KosanModule.forRootAsync({
       useFactory: async () => {
         const master = new Sequelize({
           dialect: 'postgres',
@@ -40,12 +40,12 @@ import { AppService } from './app.service';
           adapter,
           missingTenantStatus: 400,
           onMissingTenant: (slug: string) => {
-            console.warn(`[huni] unknown tenant slug: "${slug}"`);
+            console.warn(`[kosan] unknown tenant slug: "${slug}"`);
           },
           hooks: {
             async onCreate(tenant, conn) {
               await conn.sync({ force: false });
-              console.log(`[huni] provisioned schema for tenant: ${tenant.slug}`);
+              console.log(`[kosan] provisioned schema for tenant: ${tenant.slug}`);
             },
           },
         };

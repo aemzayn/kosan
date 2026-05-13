@@ -1,4 +1,4 @@
-import type { Adapter, TenantConfig } from '@huni/core';
+import type { Adapter, TenantConfig } from '@kosan/core';
 import type { DrizzleAdapterOptions, DrizzleClientLike, DrizzleModels } from './types.js';
 
 export class DrizzleAdapter<TClient extends DrizzleClientLike>

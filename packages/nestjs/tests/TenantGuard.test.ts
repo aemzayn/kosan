@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { UnauthorizedException } from '@nestjs/common';
-import { runWithTenant } from '@huni/core';
-import type { TenantConfig, TenantContextValue } from '@huni/core';
+import { runWithTenant } from '@kosan/core';
+import type { TenantConfig, TenantContextValue } from '@kosan/core';
 import { TenantGuard } from '../src/TenantGuard.js';
 
 const TENANT: TenantConfig = {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DrizzleAdapter } from '../src/DrizzleAdapter.js';
 import type { DrizzleClientLike } from '../src/types.js';
-import type { TenantConfig } from '@huni/core';
+import type { TenantConfig } from '@kosan/core';
 
 const TENANT: TenantConfig = {
   id: 't-1',

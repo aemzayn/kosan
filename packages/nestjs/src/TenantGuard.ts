@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
-import { getCurrentTenant } from '@huni/core';
+import { getCurrentTenant } from '@kosan/core';
 
 /**
  * Guard that enforces a tenant is present in the current request context.

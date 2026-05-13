@@ -1,8 +1,8 @@
 {
-  "name": "@huni/fastify",
+  "name": "@kosan/fastify",
   "version": "0.1.0",
-  "description": "Fastify plugin for Huni — resolves tenant on every request and scopes the connection via AsyncLocalStorage",
-  "author": "Huni Contributors",
+  "description": "Fastify plugin for Kosan — resolves tenant on every request and scopes the connection via AsyncLocalStorage",
+  "author": "Kosan Contributors",
   "license": "MIT",
   "keywords": [
     "multi-tenancy",
@@ -13,11 +13,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/huni-dev/huni.git",
+    "url": "https://github.com/kosan-dev/kosan.git",
     "directory": "packages/fastify"
   },
-  "homepage": "https://huni.dev/packages/fastify",
-  "bugs": "https://github.com/huni-dev/huni/issues",
+  "homepage": "https://kosan.dev/packages/fastify",
+  "bugs": "https://github.com/kosan-dev/kosan/issues",
   "engines": {
     "node": ">=18"
   },
@@ -47,7 +47,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@huni/core": "workspace:*",
+    "@kosan/core": "workspace:*",
     "fastify-plugin": "^4.5.1"
   },
   "peerDependencies": {

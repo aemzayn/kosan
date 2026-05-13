@@ -1,12 +1,12 @@
 ---
 ---
 
-# @huni/sequelize
+# @kosan/sequelize
 
-Sequelize v6 adapter for Huni. Provides `SequelizeAdapter` (one Sequelize instance per tenant) and `SequelizeMasterStore` (the `tenants` table backed by Sequelize).
+Sequelize v6 adapter for Kosan. Provides `SequelizeAdapter` (one Sequelize instance per tenant) and `SequelizeMasterStore` (the `tenants` table backed by Sequelize).
 
 ```bash
-npm install @huni/sequelize sequelize
+npm install @kosan/sequelize sequelize
 ```
 
 ---
@@ -17,7 +17,7 @@ Implements `MasterStore` using Sequelize. Stores tenant records in a `tenants` t
 
 ```ts
 import { Sequelize } from 'sequelize';
-import { SequelizeMasterStore } from '@huni/sequelize';
+import { SequelizeMasterStore } from '@kosan/sequelize';
 
 const master = new Sequelize('postgres://admin:pass@localhost/master', {
   logging: false,
@@ -55,7 +55,7 @@ The `tenants` table schema:
 Implements `Adapter<Sequelize>`. Creates one Sequelize instance per tenant, applies model factories, and handles graceful shutdown.
 
 ```ts
-import { SequelizeAdapter } from '@huni/sequelize';
+import { SequelizeAdapter } from '@kosan/sequelize';
 
 const adapter = new SequelizeAdapter({
   defaultDialect: 'postgres', // fallback if tenant.meta.dialect is not set
@@ -101,7 +101,7 @@ Model factories are functions that receive an `AdapterContext` and register mode
 
 ```ts
 import { DataTypes } from 'sequelize';
-import type { AdapterContext } from '@huni/sequelize';
+import type { AdapterContext } from '@kosan/sequelize';
 
 export function OrderModel({ sequelize }: AdapterContext) {
   return sequelize.define('Order', {
@@ -135,7 +135,7 @@ registry.registerModels([OrderModel, UserModel]);
 Access them in handlers:
 
 ```ts
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 import type { ModelStatic, Model } from 'sequelize';
 
 const { models } = useTenant();
@@ -150,8 +150,8 @@ const order = await Order.findByPk(id);
 When `onSlowQuery` is configured, the adapter wraps Sequelize's `logging` option with `benchmark: true` and fires the callback for any query that exceeds the threshold.
 
 ```ts
-import { SequelizeAdapter } from '@huni/sequelize';
-import type { SlowQueryInfo } from '@huni/sequelize';
+import { SequelizeAdapter } from '@kosan/sequelize';
+import type { SlowQueryInfo } from '@kosan/sequelize';
 import pino from 'pino';
 
 const logger = pino();
@@ -214,8 +214,8 @@ await registry.createTenant({
 
 ```ts
 import { Sequelize } from 'sequelize';
-import { SequelizeAdapter, SequelizeMasterStore } from '@huni/sequelize';
-import { TenantRegistry } from '@huni/core';
+import { SequelizeAdapter, SequelizeMasterStore } from '@kosan/sequelize';
+import { TenantRegistry } from '@kosan/core';
 
 const master = new Sequelize({ dialect: 'sqlite', storage: ':memory:', logging: false });
 const masterStore = await SequelizeMasterStore.create(master);

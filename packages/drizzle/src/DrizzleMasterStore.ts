@@ -1,4 +1,4 @@
-import type { MasterStore, TenantConfig, CreateTenantInput, UpdateTenantInput, TenantStatus } from '@huni/core';
+import type { MasterStore, TenantConfig, CreateTenantInput, UpdateTenantInput, TenantStatus } from '@kosan/core';
 import type { DrizzleMasterStoreQueries } from './types.js';
 
 export class DrizzleMasterStore implements MasterStore {

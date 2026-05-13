@@ -2,8 +2,8 @@ import {
   TenantNotActiveError,
   TenantNotFoundError,
   wrapWithTenantContext,
-} from '@huni/core';
-import type { Resolver, TenantRegistry } from '@huni/core';
+} from '@kosan/core';
+import type { Resolver, TenantRegistry } from '@kosan/core';
 import type {
   FastifyPluginCallback,
   FastifyReply,
@@ -92,8 +92,8 @@ const tenantPluginImpl: FastifyPluginCallback<TenantPluginOptions> = (
  * `AsyncLocalStorage` context so `useTenant()` is available in any handler.
  *
  * ```ts
- * import tenantPlugin from '@huni/fastify';
- * import { SubdomainResolver } from '@huni/core';
+ * import tenantPlugin from '@kosan/fastify';
+ * import { SubdomainResolver } from '@kosan/core';
  *
  * await fastify.register(tenantPlugin, {
  *   registry,
@@ -103,5 +103,5 @@ const tenantPluginImpl: FastifyPluginCallback<TenantPluginOptions> = (
  */
 export default fp(tenantPluginImpl, {
   fastify: '4.x || 5.x',
-  name: '@huni/fastify',
+  name: '@kosan/fastify',
 });

@@ -4,7 +4,7 @@ import type {
   TenantConfig,
   TenantStatus,
   UpdateTenantInput,
-} from '@huni/core';
+} from '@kosan/core';
 import { DataTypes, Model, type Sequelize, type InferAttributes, type InferCreationAttributes } from 'sequelize';
 import { randomUUID } from 'node:crypto';
 

@@ -3,7 +3,7 @@
 
 # Tenant Resolvers
 
-A resolver extracts the tenant identifier from an incoming HTTP request. Huni ships three built-in resolvers and accepts any plain function.
+A resolver extracts the tenant identifier from an incoming HTTP request. Kosan ships three built-in resolvers and accepts any plain function.
 
 ---
 
@@ -14,7 +14,7 @@ A resolver extracts the tenant identifier from an incoming HTTP request. Huni sh
 Reads the first subdomain label from the `Host` header.
 
 ```ts
-import { SubdomainResolver } from '@huni/core';
+import { SubdomainResolver } from '@kosan/core';
 
 // acme.myapp.com       → "acme"
 // www.myapp.com        → null  (ignored by default)
@@ -46,7 +46,7 @@ Local development with `*.localhost` works in most browsers without DNS changes.
 Reads a custom HTTP header.
 
 ```ts
-import { HeaderResolver } from '@huni/core';
+import { HeaderResolver } from '@kosan/core';
 
 // Request: X-Tenant-ID: acme
 const resolver = new HeaderResolver('X-Tenant-ID');
@@ -61,7 +61,7 @@ Useful for internal APIs, machine-to-machine calls, or when you control the clie
 Extracts a URL path segment by zero-based index.
 
 ```ts
-import { PathResolver } from '@huni/core';
+import { PathResolver } from '@kosan/core';
 
 // /acme/orders        → "acme"  (segment 0)
 // /api/v1/acme/data   → "acme"  (segment 2)
@@ -90,7 +90,7 @@ app.use(tenantMiddleware({
 Or implement the `Resolver` interface for reusability:
 
 ```ts
-import type { Resolver } from '@huni/core';
+import type { Resolver } from '@kosan/core';
 import type { IncomingMessage } from 'http';
 
 export class JwtResolver implements Resolver {

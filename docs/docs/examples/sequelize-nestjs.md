@@ -5,7 +5,7 @@
 
 End-to-end demo: 3 tenants on separate Postgres databases, resolved by subdomain, served by NestJS.
 
-**Source:** [`examples/sequelize-nestjs/`](https://github.com/huni-dev/huni/tree/main/examples/sequelize-nestjs)
+**Source:** [`examples/sequelize-nestjs/`](https://github.com/kosan-dev/kosan/tree/main/examples/sequelize-nestjs)
 
 ---
 
@@ -13,7 +13,7 @@ End-to-end demo: 3 tenants on separate Postgres databases, resolved by subdomain
 
 | Feature | Where |
 |---|---|
-| `HuniModule.forRootAsync` | `app.module.ts` |
+| `KosanModule.forRootAsync` | `app.module.ts` |
 | Subdomain-based tenant resolution | `app.module.ts` → `SubdomainResolver` |
 | `TenantMiddleware` applied globally | `AppModule.configure()` |
 | Excluding admin routes from middleware | `AppModule.configure()` → `.exclude()` |
@@ -74,7 +74,7 @@ curl http://localhost:3000/health
 
 ```
 src/
-  app.module.ts         — HuniModule.forRootAsync + TenantMiddleware wiring
+  app.module.ts         — KosanModule.forRootAsync + TenantMiddleware wiring
   app.service.ts        — registers model factories via onModuleInit
   main.ts               — NestJS bootstrap
   provision.ts          — seed script (run once after docker-compose up)
@@ -96,12 +96,12 @@ src/
 
 ## Key patterns
 
-### `HuniModule.forRootAsync`
+### `KosanModule.forRootAsync`
 
 Use this when setup requires async work (e.g., `SequelizeMasterStore.create`):
 
 ```ts
-HuniModule.forRootAsync({
+KosanModule.forRootAsync({
   useFactory: async () => {
     const masterStore = await SequelizeMasterStore.create(master);
     return {
@@ -126,7 +126,7 @@ configure(consumer: MiddlewareConsumer) {
 
 ### Model registration in `onModuleInit`
 
-Because `HuniModule.forRootAsync` creates the registry internally, call
+Because `KosanModule.forRootAsync` creates the registry internally, call
 `registerModels` on the injected registry in a service lifecycle hook:
 
 ```ts

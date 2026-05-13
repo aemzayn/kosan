@@ -1,4 +1,4 @@
-# Huni — Project Handoff
+# Kosan — Project Handoff
 
 Everything you need to understand, build, test, and publish this project.
 
@@ -6,26 +6,26 @@ Everything you need to understand, build, test, and publish this project.
 
 ## What this is
 
-Huni is a **database-per-tenant multi-tenancy layer for Node.js**. It fills the gap that no major ORM covers: managing one isolated connection pool per tenant, resolving which tenant owns an HTTP request, propagating that context through the application stack without prop-drilling, and orchestrating schema migrations across all tenants.
+Kosan is a **database-per-tenant multi-tenancy layer for Node.js**. It fills the gap that no major ORM covers: managing one isolated connection pool per tenant, resolving which tenant owns an HTTP request, propagating that context through the application stack without prop-drilling, and orchestrating schema migrations across all tenants.
 
-The Java ecosystem has Hibernate multi-tenancy. The PHP ecosystem has stancl/tenancy. Node.js has nothing equivalent. Huni is that thing.
+The Java ecosystem has Hibernate multi-tenancy. The PHP ecosystem has stancl/tenancy. Node.js has nothing equivalent. Kosan is that thing.
 
 ---
 
 ## Repository layout
 
 ```
-huni/
+kosan/
 ├── packages/
-│   ├── core/         @huni/core       — registry, cache, context, resolvers
-│   ├── sequelize/    @huni/sequelize  — Sequelize v6 adapter
-│   ├── prisma/       @huni/prisma     — Prisma adapter
-│   ├── drizzle/      @huni/drizzle    — Drizzle ORM adapter
-│   ├── express/      @huni/express    — Express middleware
-│   ├── fastify/      @huni/fastify    — Fastify plugin
-│   ├── koa/          @huni/koa        — Koa middleware
-│   ├── nestjs/       @huni/nestjs     — NestJS module + middleware + decorators
-│   └── cli/          @huni/cli        — Migration orchestrator CLI
+│   ├── core/         @kosan/core       — registry, cache, context, resolvers
+│   ├── sequelize/    @kosan/sequelize  — Sequelize v6 adapter
+│   ├── prisma/       @kosan/prisma     — Prisma adapter
+│   ├── drizzle/      @kosan/drizzle    — Drizzle ORM adapter
+│   ├── express/      @kosan/express    — Express middleware
+│   ├── fastify/      @kosan/fastify    — Fastify plugin
+│   ├── koa/          @kosan/koa        — Koa middleware
+│   ├── nestjs/       @kosan/nestjs     — NestJS module + middleware + decorators
+│   └── cli/          @kosan/cli        — Migration orchestrator CLI
 ├── examples/
 │   └── sequelize-express/             — Docker Compose demo
 ├── docs/                              — Docusaurus site
@@ -99,7 +99,7 @@ interface Adapter<TConn> {
 
 ### 5 — Migration orchestrator
 
-`@huni/cli` reads `huni.config.ts` (loaded via `jiti` for TypeScript support), collects active tenants from the master DB, and runs Umzug migrations against each using bounded parallel execution (`withConcurrency`).
+`@kosan/cli` reads `kosan.config.ts` (loaded via `jiti` for TypeScript support), collects active tenants from the master DB, and runs Umzug migrations against each using bounded parallel execution (`withConcurrency`).
 
 Migration files must export `up(qi)` and `down(qi)`. File loading (`loadMigrationsFromDir`) uses `pathToFileURL` for Windows-safe dynamic import.
 
@@ -109,7 +109,7 @@ The runner and file loader are intentionally decoupled: tests inject migration o
 
 ## Package-by-package API
 
-### @huni/core
+### @kosan/core
 
 ```ts
 // Setup
@@ -154,7 +154,7 @@ CacheOptions, TenantRegistryOptions, Resolver, TenantContextValue,
 CacheStats, TenantLogContext, HealthPayload, SubdomainResolverOptions
 ```
 
-### @huni/sequelize
+### @kosan/sequelize
 
 ```ts
 const masterStore = await SequelizeMasterStore.create(sequelize, syncOptions?);
@@ -175,7 +175,7 @@ registry.registerModels([OrderModel, UserModel]);
 SequelizeAdapterOptions, AdapterContext, SequelizeModelFactory, SlowQueryInfo
 ```
 
-### @huni/prisma
+### @kosan/prisma
 
 ```ts
 const masterStore = new PrismaMasterStore(masterPrisma.tenant);
@@ -192,7 +192,7 @@ TENANT_PRISMA_SCHEMA      // Prisma model block as a string
 PrismaClientLike, PrismaClientConstructor, TenantDelegate, PrismaAdapterOptions, PrismaModels
 ```
 
-### @huni/express
+### @kosan/express
 
 ```ts
 app.use(tenantMiddleware({
@@ -203,7 +203,7 @@ app.use(tenantMiddleware({
 // 404 on TenantNotFoundError, 403 on TenantNotActiveError, 500 on unexpected
 ```
 
-### @huni/fastify
+### @kosan/fastify
 
 ```ts
 await fastify.register(tenantPlugin, {
@@ -214,7 +214,7 @@ await fastify.register(tenantPlugin, {
 // fp(fastify-plugin) wraps it so hooks apply globally
 ```
 
-### @huni/koa
+### @kosan/koa
 
 ```ts
 app.use(tenantMiddleware({
@@ -224,7 +224,7 @@ app.use(tenantMiddleware({
 }));
 ```
 
-### @huni/drizzle
+### @kosan/drizzle
 
 ```ts
 // Adapter — creates one Drizzle client per tenant
@@ -251,15 +251,15 @@ TENANT_DRIZZLE_SCHEMA_SQLITE
 TENANT_DRIZZLE_SCHEMA_MYSQL
 ```
 
-### @huni/nestjs
+### @kosan/nestjs
 
 ```ts
 // app.module.ts
 @Module({
   imports: [
-    HuniModule.forRoot({ resolver, master, adapter, missingTenantStatus? }),
+    KosanModule.forRoot({ resolver, master, adapter, missingTenantStatus? }),
     // or:
-    HuniModule.forRootAsync({ imports, inject, useFactory }),
+    KosanModule.forRootAsync({ imports, inject, useFactory }),
   ],
 })
 export class AppModule {
@@ -282,21 +282,21 @@ constructor(@InjectRegistry() private registry: TenantRegistry) {}
 @UseGuards(TenantGuard)
 ```
 
-### @huni/cli
+### @kosan/cli
 
 ```ts
-// huni.config.ts
-import type { HuniConfig } from '@huni/cli';
+// kosan.config.ts
+import type { KosanConfig } from '@kosan/cli';
 export default {
   master: 'postgres://...',  // or SequelizeOptions object
   migrationsPath: './migrations',
   migrationsTableName?: 'sequelize_meta',
   concurrency?: 5,
-} satisfies HuniConfig;
+} satisfies KosanConfig;
 ```
 
 ```bash
-npx huni migrate --config huni.config.ts --concurrency 4 --tenant acme
+npx kosan migrate --config kosan.config.ts --concurrency 4 --tenant acme
 ```
 
 Migration file shape:
@@ -317,7 +317,7 @@ pnpm install
 pnpm test
 
 # Run tests for a single package
-pnpm --filter @huni/core test
+pnpm --filter @kosan/core test
 
 # Build all packages (produces dist/ in each)
 pnpm build
@@ -338,8 +338,8 @@ cd docs && pnpm start
 ### Adding a new package
 
 1. Create `packages/<name>/` with `src/index.ts`, `package.json`, `tsconfig.json`, `vitest.config.ts`, `tsup.config.ts`
-2. Add `@huni/core` to `dependencies` in its `package.json`
-3. Add vitest alias: `'@huni/core': path.resolve('../core/src/index.ts')`
+2. Add `@kosan/core` to `dependencies` in its `package.json`
+3. Add vitest alias: `'@kosan/core': path.resolve('../core/src/index.ts')`
 4. Add to `pnpm-workspace.yaml` (already covered by `packages/*`)
 5. Write a page in `docs/docs/packages/<name>.md`
 
@@ -379,7 +379,7 @@ The `package.json` `exports` field routes consumers to the correct format automa
 ## Testing architecture
 
 - **Framework**: Vitest, `vitest run` (no watch in CI)
-- **No built packages needed**: every `vitest.config.ts` aliases `@huni/core` and `@huni/sequelize` to their TypeScript source (`../core/src/index.ts`), so tests run directly against source without a build step
+- **No built packages needed**: every `vitest.config.ts` aliases `@kosan/core` and `@kosan/sequelize` to their TypeScript source (`../core/src/index.ts`), so tests run directly against source without a build step
 - **SQLite in-memory**: Sequelize and CLI tests use `dialect: 'sqlite', storage: ':memory:'` — no Postgres required for tests
 - **Isolated fakes**: `InMemoryMasterStore` and `FakeAdapter` in `packages/core/tests/helpers/` are used by all packages that need a registry
 
@@ -391,9 +391,9 @@ Test counts: 168 across 14 test files across 7 packages.
 
 ### One-time setup
 
-- [ ] Create npm organisation `@huni` at npmjs.com
+- [ ] Create npm organisation `@kosan` at npmjs.com
 - [ ] `npm login` (or `pnpm login`) with a token that has publish rights
-- [ ] Confirm the GitHub repo URL matches the `repository` field in all `package.json` files (currently set to `https://github.com/huni-dev/huni.git` — update if different)
+- [ ] Confirm the GitHub repo URL matches the `repository` field in all `package.json` files (currently set to `https://github.com/kosan-dev/kosan.git` — update if different)
 
 ### Before first publish
 
@@ -409,16 +409,16 @@ cd packages/core
 npm publish --dry-run --access public
 # Review the file list — should only contain dist/ and LICENSE
 
-# 4. Publish all packages (in dependency order — @huni/core must go first)
-pnpm --filter @huni/core publish --access public --no-git-checks
-pnpm --filter @huni/sequelize publish --access public --no-git-checks
-pnpm --filter @huni/prisma publish --access public --no-git-checks
-pnpm --filter @huni/drizzle publish --access public --no-git-checks
-pnpm --filter @huni/express publish --access public --no-git-checks
-pnpm --filter @huni/fastify publish --access public --no-git-checks
-pnpm --filter @huni/koa publish --access public --no-git-checks
-pnpm --filter @huni/nestjs publish --access public --no-git-checks
-pnpm --filter @huni/cli publish --access public --no-git-checks
+# 4. Publish all packages (in dependency order — @kosan/core must go first)
+pnpm --filter @kosan/core publish --access public --no-git-checks
+pnpm --filter @kosan/sequelize publish --access public --no-git-checks
+pnpm --filter @kosan/prisma publish --access public --no-git-checks
+pnpm --filter @kosan/drizzle publish --access public --no-git-checks
+pnpm --filter @kosan/express publish --access public --no-git-checks
+pnpm --filter @kosan/fastify publish --access public --no-git-checks
+pnpm --filter @kosan/koa publish --access public --no-git-checks
+pnpm --filter @kosan/nestjs publish --access public --no-git-checks
+pnpm --filter @kosan/cli publish --access public --no-git-checks
 ```
 
 ### Version management (future)
@@ -461,18 +461,18 @@ pnpm changeset init
 Fastify's lifecycle hook model means `storage.run()` must be called synchronously with `done` as the callback — this is why `wrapWithTenantContext(ctx, done)` exists. Using `async onRequest` with `enterWith` causes context leaks and doesn't propagate to route handlers. This is tested and working correctly.
 
 ### CLI uses jiti for TypeScript config loading
-`huni.config.ts` is loaded via `jiti` (a lightweight TypeScript runner). This means the config file is **not** transpiled by tsup — it's executed at runtime. Avoid complex TypeScript features in the config (they work, but error messages from jiti are less friendly).
+`kosan.config.ts` is loaded via `jiti` (a lightweight TypeScript runner). This means the config file is **not** transpiled by tsup — it's executed at runtime. Avoid complex TypeScript features in the config (they work, but error messages from jiti are less friendly).
 
 ### Dynamic imports in CLI are Windows-safe via `pathToFileURL`
 `loadMigrationsFromDir` uses `pathToFileURL(filePath).href` before `await import(...)`. Raw Windows paths (`C:\...`) fail inside `import()`. This is already handled.
 
 ### Prisma adapter has no hard `@prisma/client` dependency
-`@huni/prisma` uses structural typing — `PrismaClientLike`, `PrismaClientConstructor<T>` — so you can use any Prisma client version or a fake in tests without installing `@prisma/client` as a hard dep. It is listed as an optional peer dependency.
+`@kosan/prisma` uses structural typing — `PrismaClientLike`, `PrismaClientConstructor<T>` — so you can use any Prisma client version or a fake in tests without installing `@prisma/client` as a hard dep. It is listed as an optional peer dependency.
 
-### `@huni/core` is in `dependencies` (not `peerDependencies`) of adapter packages
-This is intentional for the 0.1.0 release. When published, pnpm replaces `workspace:*` with the actual version. Users installing e.g. `@huni/express` will automatically get `@huni/core`. Revisit this if version conflicts become a problem (the fix is moving `@huni/core` to `peerDependencies + devDependencies`).
+### `@kosan/core` is in `dependencies` (not `peerDependencies`) of adapter packages
+This is intentional for the 0.1.0 release. When published, pnpm replaces `workspace:*` with the actual version. Users installing e.g. `@kosan/express` will automatically get `@kosan/core`. Revisit this if version conflicts become a problem (the fix is moving `@kosan/core` to `peerDependencies + devDependencies`).
 
-### `HuniConfig.master` accepts string or SequelizeOptions
+### `KosanConfig.master` accepts string or SequelizeOptions
 The CLI config accepts either a connection string or a full `Sequelize` options object. The runner uses `new Sequelize(connectionString)` or `new Sequelize(options)` accordingly.
 
 ---
@@ -499,13 +499,13 @@ Content lives in `docs/docs/`. Add a new guide by creating a `.md` file and addi
 
 | Milestone | Status | What shipped |
 |---|---|---|
-| 1 — Core + Sequelize + Express + Demo | ✅ | `@huni/core`, `@huni/sequelize`, `@huni/express`, Docker Compose example |
-| 2 — CLI | ✅ | `@huni/cli` with `huni migrate`, concurrency, failure isolation |
-| 3 — Prisma | ✅ | `@huni/prisma` with structural typing, no hard client dep |
-| 4 — Fastify + Koa | ✅ | `@huni/fastify` (callback hook), `@huni/koa`, `wrapWithTenantContext` |
+| 1 — Core + Sequelize + Express + Demo | ✅ | `@kosan/core`, `@kosan/sequelize`, `@kosan/express`, Docker Compose example |
+| 2 — CLI | ✅ | `@kosan/cli` with `kosan migrate`, concurrency, failure isolation |
+| 3 — Prisma | ✅ | `@kosan/prisma` with structural typing, no hard client dep |
+| 4 — Fastify + Koa | ✅ | `@kosan/fastify` (callback hook), `@kosan/koa`, `wrapWithTenantContext` |
 | 5 — Observability | ✅ | `getStats()`, `getHealthPayload()`, `getTenantLogContext()`, slow-query detection |
 | 6 — Docs | ✅ | VitePress site with 17 pages across all packages and guides |
-| 7 — NestJS | ✅ | `@huni/nestjs` (module, guard, decorators) + `examples/sequelize-nestjs` demo |
+| 7 — NestJS | ✅ | `@kosan/nestjs` (module, guard, decorators) + `examples/sequelize-nestjs` demo |
 
 **Planned (not started):**
-- `@huni/drizzle` — Drizzle ORM adapter
+- `@kosan/drizzle` — Drizzle ORM adapter

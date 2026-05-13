@@ -13,9 +13,9 @@
     "outDir": "dist",
     "rootDir": "src",
     "paths": {
-      "@huni/core": ["../../packages/core/src/index.ts"],
-      "@huni/nestjs": ["../../packages/nestjs/src/index.ts"],
-      "@huni/sequelize": ["../../packages/sequelize/src/index.ts"]
+      "@kosan/core": ["../../packages/core/src/index.ts"],
+      "@kosan/nestjs": ["../../packages/nestjs/src/index.ts"],
+      "@kosan/sequelize": ["../../packages/sequelize/src/index.ts"]
     }
   },
   "include": ["src"],

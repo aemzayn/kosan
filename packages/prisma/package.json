@@ -1,8 +1,8 @@
 {
-  "name": "@huni/prisma",
+  "name": "@kosan/prisma",
   "version": "0.1.0",
-  "description": "Prisma adapter for Huni — one PrismaClient per tenant with per-tenant datasource URL",
-  "author": "Huni Contributors",
+  "description": "Prisma adapter for Kosan — one PrismaClient per tenant with per-tenant datasource URL",
+  "author": "Kosan Contributors",
   "license": "MIT",
   "keywords": [
     "multi-tenancy",
@@ -14,11 +14,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/huni-dev/huni.git",
+    "url": "https://github.com/kosan-dev/kosan.git",
     "directory": "packages/prisma"
   },
-  "homepage": "https://huni.dev/packages/prisma",
-  "bugs": "https://github.com/huni-dev/huni/issues",
+  "homepage": "https://kosan.dev/packages/prisma",
+  "bugs": "https://github.com/kosan-dev/kosan/issues",
   "engines": {
     "node": ">=18"
   },
@@ -48,7 +48,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@huni/core": "workspace:*"
+    "@kosan/core": "workspace:*"
   },
   "peerDependencies": {
     "@prisma/client": ">=5.0.0"

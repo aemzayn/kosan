@@ -1,4 +1,4 @@
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 import type { PrismaClientLike } from './types.js';
 
 /**
@@ -8,7 +8,7 @@ import type { PrismaClientLike } from './types.js';
  * Throws if called outside of a tenant context.
  *
  * ```ts
- * import { usePrisma } from '@huni/prisma';
+ * import { usePrisma } from '@kosan/prisma';
  * import type { PrismaClient } from '@prisma/client';
  *
  * app.get('/orders', async (req, res) => {

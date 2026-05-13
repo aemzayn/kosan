@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Sequelize, DataTypes } from 'sequelize';
 import { SequelizeAdapter } from '../src/SequelizeAdapter.js';
-import type { TenantConfig } from '@huni/core';
+import type { TenantConfig } from '@kosan/core';
 import type { AdapterContext } from '../src/types.js';
 
 function makeTenant(overrides: Partial<TenantConfig> = {}): TenantConfig {
@@ -122,7 +122,7 @@ describe('SequelizeAdapter', () => {
 
   describe('integration with TenantRegistry', () => {
     it('round-trips through registry resolve → useTenant models', async () => {
-      const { TenantRegistry, runWithTenant } = await import('@huni/core');
+      const { TenantRegistry, runWithTenant } = await import('@kosan/core');
       const { InMemoryMasterStore } = await import(
         '../../core/tests/helpers/InMemoryMasterStore.js'
       );
@@ -152,7 +152,7 @@ describe('SequelizeAdapter', () => {
       openConnections.push(ctx.connection as Sequelize);
 
       await runWithTenant(ctx, async () => {
-        const { useTenant } = await import('@huni/core');
+        const { useTenant } = await import('@kosan/core');
         const { models } = useTenant<Sequelize>();
         expect(models['Item']).toBeDefined();
       });

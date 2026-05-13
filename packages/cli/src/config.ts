@@ -1,14 +1,14 @@
 import path from 'node:path';
 import { createJiti } from 'jiti';
-import type { HuniConfig } from './types.js';
+import type { KosanConfig } from './types.js';
 
 /**
- * Loads a `huni.config.ts` (or `.js` / `.mjs`) file from the given path.
+ * Loads a `kosan.config.ts` (or `.js` / `.mjs`) file from the given path.
  *
  * Uses `jiti` so TypeScript config files are supported without a separate
  * build step.
  */
-export async function loadConfig(configPath: string): Promise<HuniConfig> {
+export async function loadConfig(configPath: string): Promise<KosanConfig> {
   const absolutePath = path.resolve(configPath);
   const jiti = createJiti(import.meta.url, { interopDefault: true });
 
@@ -33,5 +33,5 @@ export async function loadConfig(configPath: string): Promise<HuniConfig> {
     throw new Error(`Config is missing required field: "migrationsPath" (string)`);
   }
 
-  return config as unknown as HuniConfig;
+  return config as unknown as KosanConfig;
 }

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Sequelize } from 'sequelize';
 import { SequelizeAdapter } from '../src/SequelizeAdapter.js';
 import type { SlowQueryInfo } from '../src/types.js';
-import type { TenantConfig } from '@huni/core';
+import type { TenantConfig } from '@kosan/core';
 
 function makeTenant(overrides: Partial<TenantConfig> = {}): TenantConfig {
   return {

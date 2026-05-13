@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
-import { InjectRegistry } from '@huni/nestjs';
-import { TenantRegistry } from '@huni/core';
-import type { CreateTenantInput } from '@huni/core';
+import { InjectRegistry } from '@kosan/nestjs';
+import { TenantRegistry } from '@kosan/core';
+import type { CreateTenantInput } from '@kosan/core';
 
 @Controller('tenants')
 export class TenantsController {

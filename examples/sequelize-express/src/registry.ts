@@ -1,5 +1,5 @@
-import { TenantRegistry } from '@huni/core';
-import { SequelizeAdapter, SequelizeMasterStore } from '@huni/sequelize';
+import { TenantRegistry } from '@kosan/core';
+import { SequelizeAdapter, SequelizeMasterStore } from '@kosan/sequelize';
 import { Sequelize } from 'sequelize';
 import { OrderModel } from './models/order.js';
 
@@ -28,7 +28,7 @@ export const registry = await TenantRegistry.create({
     async onCreate(tenant, conn) {
       // Sync all models for the new tenant's database.
       await conn.sync({ force: false });
-      console.log(`[huni] provisioned tenant: ${tenant.slug}`);
+      console.log(`[kosan] provisioned tenant: ${tenant.slug}`);
     },
   },
 });

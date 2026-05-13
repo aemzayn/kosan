@@ -3,7 +3,7 @@
 
 # Introduction
 
-Huni is a **database-per-tenant multi-tenancy layer** for Node.js. It fills the gap that every major ORM leaves open: first-class support for opening one isolated connection pool per tenant, resolving which tenant owns a request, and propagating that context through your application without prop-drilling.
+Kosan is a **database-per-tenant multi-tenancy layer** for Node.js. It fills the gap that every major ORM leaves open: first-class support for opening one isolated connection pool per tenant, resolving which tenant owns a request, and propagating that context through your application without prop-drilling.
 
 ## The problem
 
@@ -17,7 +17,7 @@ Every production multi-tenant Node.js application ends up hand-rolling the same 
 
 None of the major ORMs — Sequelize, Prisma, TypeORM, MikroORM, Drizzle — ship this out of the box.
 
-## What Huni provides
+## What Kosan provides
 
 | Concern | Solution |
 |---|---|
@@ -25,9 +25,9 @@ None of the major ORMs — Sequelize, Prisma, TypeORM, MikroORM, Drizzle — shi
 | Tenant resolution | `SubdomainResolver`, `HeaderResolver`, `PathResolver`, or a custom function |
 | Request context | `AsyncLocalStorage` via `runWithTenant` / `useTenant` |
 | LRU eviction + idle timeout | `ConnectionCache` with configurable `maxSize` and `idleTimeoutMs` |
-| Per-tenant migrations | `@huni/cli` — parallel, failure-isolated |
-| ORM integration | `@huni/sequelize`, `@huni/prisma` |
-| Framework integration | `@huni/express`, `@huni/fastify`, `@huni/koa` |
+| Per-tenant migrations | `@kosan/cli` — parallel, failure-isolated |
+| ORM integration | `@kosan/sequelize`, `@kosan/prisma` |
+| Framework integration | `@kosan/express`, `@kosan/fastify`, `@kosan/koa` |
 | Observability | Pool stats, slow-query hooks, structured log context |
 
 ## Architecture
@@ -67,13 +67,13 @@ None of the major ORMs — Sequelize, Prisma, TypeORM, MikroORM, Drizzle — shi
 
 | Package | Install |
 |---|---|
-| [`@huni/core`](./packages/core) | `npm i @huni/core` |
-| [`@huni/sequelize`](./packages/sequelize) | `npm i @huni/sequelize` |
-| [`@huni/prisma`](./packages/prisma) | `npm i @huni/prisma` |
-| [`@huni/express`](./packages/express) | `npm i @huni/express` |
-| [`@huni/fastify`](./packages/fastify) | `npm i @huni/fastify` |
-| [`@huni/koa`](./packages/koa) | `npm i @huni/koa` |
-| [`@huni/cli`](./packages/cli) | `npm i -D @huni/cli` |
+| [`@kosan/core`](./packages/core) | `npm i @kosan/core` |
+| [`@kosan/sequelize`](./packages/sequelize) | `npm i @kosan/sequelize` |
+| [`@kosan/prisma`](./packages/prisma) | `npm i @kosan/prisma` |
+| [`@kosan/express`](./packages/express) | `npm i @kosan/express` |
+| [`@kosan/fastify`](./packages/fastify) | `npm i @kosan/fastify` |
+| [`@kosan/koa`](./packages/koa) | `npm i @kosan/koa` |
+| [`@kosan/cli`](./packages/cli) | `npm i -D @kosan/cli` |
 
 ## Requirements
 

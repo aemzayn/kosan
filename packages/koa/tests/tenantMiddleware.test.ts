@@ -6,8 +6,8 @@ import {
   TenantNotFoundError,
   getCurrentTenant,
   useTenant,
-} from '@huni/core';
-import type { TenantConfig, TenantRegistry } from '@huni/core';
+} from '@kosan/core';
+import type { TenantConfig, TenantRegistry } from '@kosan/core';
 import { tenantMiddleware } from '../src/tenantMiddleware.js';
 
 // ---------------------------------------------------------------------------
