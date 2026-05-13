@@ -3,6 +3,7 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "Kosan",
   description: "First-class database-per-tenant multi-tenancy for Node.js",
+  base: "/kosan/",
   srcDir: "./docs",
 
   themeConfig: {

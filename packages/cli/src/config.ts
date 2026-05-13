@@ -1,4 +1,5 @@
 import path from "node:path";
+import { createJiti } from "jiti";
 import type { KosanConfig } from "./types.js";
 
 /**
@@ -9,12 +10,11 @@ import type { KosanConfig } from "./types.js";
  */
 export async function loadConfig(configPath: string): Promise<KosanConfig> {
   const absolutePath = path.resolve(configPath);
-  const { default: createJiti } = await import("jiti");
-  const jiti = createJiti(import.meta.url, { interopDefault: true });
+  const jiti = createJiti(import.meta.url);
 
   let mod: unknown;
   try {
-    mod = await jiti.import(absolutePath);
+    mod = await jiti.import(absolutePath, { default: true });
   } catch (err) {
     throw new Error(`Failed to load config from "${absolutePath}": ${String(err)}`);
   }
