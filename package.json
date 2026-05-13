@@ -1,16 +1,22 @@
 {
   "name": "kosan",
   "private": true,
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "typecheck": "pnpm --filter @kosan/core --filter @kosan/sequelize build && pnpm -r typecheck"
+    "typecheck": "pnpm --filter @kosan/core --filter @kosan/sequelize build && pnpm -r typecheck",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.0",
+    "@changesets/cli": "^2.31.0",
     "typescript": "^5.4.0"
   },
   "pnpm": {

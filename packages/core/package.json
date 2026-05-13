@@ -1,6 +1,6 @@
 {
   "name": "@kosan/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ORM-agnostic multi-tenancy core — tenant registry, connection cache, AsyncLocalStorage context, and pluggable resolvers",
   "author": "Kosan Contributors",
   "license": "MIT",
@@ -34,7 +34,11 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "LICENSE"],
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "publishConfig": {
     "access": "public"
   },
