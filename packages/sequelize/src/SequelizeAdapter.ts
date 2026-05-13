@@ -1,7 +1,6 @@
 import type { Adapter, ModelFactory, TenantConfig } from "@kosan/core";
 import { Sequelize } from "sequelize";
 import type {
-  AdapterContext,
   SequelizeAdapterOptions,
   SequelizeModelFactory,
   SlowQueryInfo,
@@ -45,9 +44,8 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
 
     // Apply all registered model factories. Each factory calls sequelize.define()
     // which registers the model on this Sequelize instance automatically.
-    const ctx: AdapterContext = { sequelize };
     for (const factory of this.factories) {
-      factory(ctx);
+      factory(sequelize);
     }
 
     return sequelize;
@@ -63,7 +61,7 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
   }
 
   registerModelFactories(factories: ModelFactory<Sequelize>[]): void {
-    this.factories = factories as unknown as SequelizeModelFactory[];
+    this.factories = factories;
   }
 
   private buildLogging(tenant: TenantConfig): boolean | ((sql: string, timing?: number) => void) {

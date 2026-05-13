@@ -12,7 +12,8 @@
       "Bash(xargs ls)",
       "Bash(grep -E \"error TS|Done$|passed|Failed|ERR_PNPM\")",
       "Bash(npm show *)",
-      "Bash(grep -E \"error TS|Done$|Failed|ERR_PNPM\")"
+      "Bash(grep -E \"error TS|Done$|Failed|ERR_PNPM\")",
+      "Bash(grep -E \"^\\(packages|examples\\).*build\\\\$|Error:|error TS|Failed|ERR_PNPM\")"
     ]
   }
 }
