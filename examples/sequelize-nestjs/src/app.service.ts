@@ -1,7 +1,7 @@
 import type { TenantRegistry } from "@kosan/core";
 import { InjectRegistry } from "@kosan/nestjs";
 import { Injectable, type OnModuleInit } from "@nestjs/common";
-import { Sequelize } from "sequelize";
+import type { Sequelize } from "sequelize";
 import { OrderModel } from "./models/order";
 
 /**

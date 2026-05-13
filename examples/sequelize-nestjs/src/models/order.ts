@@ -1,5 +1,5 @@
-import { DataTypes, Sequelize } from "sequelize";
-import type { ModelStatic, Model } from "sequelize";
+import { DataTypes } from "sequelize";
+import type { Model, ModelStatic, Sequelize } from "sequelize";
 
 export function OrderModel(sequelize: Sequelize): ModelStatic<Model> {
   return sequelize.define(

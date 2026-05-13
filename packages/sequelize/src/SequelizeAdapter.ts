@@ -1,10 +1,6 @@
 import type { Adapter, ModelFactory, TenantConfig } from "@kosan/core";
 import { Sequelize } from "sequelize";
-import type {
-  SequelizeAdapterOptions,
-  SequelizeModelFactory,
-  SlowQueryInfo,
-} from "./types.js";
+import type { SequelizeAdapterOptions, SequelizeModelFactory, SlowQueryInfo } from "./types.js";
 
 export class SequelizeAdapter implements Adapter<Sequelize> {
   private readonly options: SequelizeAdapterOptions;
