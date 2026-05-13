@@ -3,7 +3,7 @@
 
 # Credential Encryption
 
-Tenant database passwords are stored in the master database. Huni's `Cipher` interface lets you encrypt them at rest so that a database dump does not expose credentials.
+Tenant database passwords are stored in the master database. Kosan's `Cipher` interface lets you encrypt them at rest so that a database dump does not expose credentials.
 
 ---
 

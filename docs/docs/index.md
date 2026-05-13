@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: Huni
+  name: Kosan
   tagline: First-class database-per-tenant multi-tenancy for Node.js
   actions:
     - theme: brand
@@ -13,7 +13,7 @@ hero:
       link: /intro
     - theme: alt
       text: GitHub
-      link: https://github.com/huni-dev/huni
+      link: https://github.com/kosan-dev/kosan
 
 features:
   - title: One pool per tenant
@@ -27,5 +27,5 @@ features:
   - title: Framework middleware
     details: Thin middleware adapters for Express, Fastify, Koa, and NestJS. Wires resolution and context into your framework with two lines.
   - title: Migration orchestrator
-    details: "@huni/cli iterates all active tenants and runs Umzug migrations against each in parallel, with failure isolation and concurrency control."
+    details: "@kosan/cli iterates all active tenants and runs Umzug migrations against each in parallel, with failure isolation and concurrency control."
 ---

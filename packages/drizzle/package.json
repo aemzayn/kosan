@@ -1,8 +1,8 @@
 {
-  "name": "@huni/drizzle",
+  "name": "@kosan/drizzle",
   "version": "0.1.0",
-  "description": "Drizzle ORM adapter for Huni — one connection pool per tenant, typed schema, dialect-agnostic",
-  "author": "Huni Contributors",
+  "description": "Drizzle ORM adapter for Kosan — one connection pool per tenant, typed schema, dialect-agnostic",
+  "author": "Kosan Contributors",
   "license": "MIT",
   "keywords": [
     "multi-tenancy",
@@ -15,11 +15,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/huni-dev/huni.git",
+    "url": "https://github.com/kosan-dev/kosan.git",
     "directory": "packages/drizzle"
   },
-  "homepage": "https://huni.dev/packages/drizzle",
-  "bugs": "https://github.com/huni-dev/huni/issues",
+  "homepage": "https://kosan.dev/packages/drizzle",
+  "bugs": "https://github.com/kosan-dev/kosan/issues",
   "engines": {
     "node": ">=18"
   },
@@ -49,7 +49,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@huni/core": "workspace:*"
+    "@kosan/core": "workspace:*"
   },
   "peerDependencies": {
     "drizzle-orm": ">=0.30.0"

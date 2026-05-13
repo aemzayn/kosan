@@ -6,7 +6,7 @@ Build the library from core outward, ending in a runnable demo against real Post
 
 ---
 
-### 1.1 `@huni/core` ✅
+### 1.1 `@kosan/core` ✅
 
 > ORM-agnostic: registry, cache, context, resolvers. No framework dependencies.
 
@@ -20,7 +20,7 @@ Build the library from core outward, ending in a runnable demo against real Post
 
 ---
 
-### 1.2 `@huni/sequelize` ✅
+### 1.2 `@kosan/sequelize` ✅
 
 > Sequelize v6 adapter — connection factory, model registration, master store.
 
@@ -31,7 +31,7 @@ Build the library from core outward, ending in a runnable demo against real Post
 
 ---
 
-### 1.3 `@huni/express` ✅
+### 1.3 `@kosan/express` ✅
 
 > Thin Express middleware — resolves tenant, runs handler inside `runWithTenant`.
 
@@ -58,12 +58,12 @@ Build the library from core outward, ending in a runnable demo against real Post
 
 ## Milestone 2 — CLI migration orchestrator ✅
 
-> `@huni/cli` — runs Sequelize migrations across all active tenants.
+> `@kosan/cli` — runs Sequelize migrations across all active tenants.
 
-- [x] `huni migrate` command — iterates active tenants, runs migrations per tenant
+- [x] `kosan migrate` command — iterates active tenants, runs migrations per tenant
 - [x] `--concurrency N` flag — parallel migrations with failure isolation (per-tenant errors captured, siblings continue)
 - [x] `--tenant <slug>` flag — target a single tenant
-- [x] `HuniConfig` type — `master`, `migrationsPath`, `migrationsTableName`, `concurrency`
+- [x] `KosanConfig` type — `master`, `migrationsPath`, `migrationsTableName`, `concurrency`
 - [x] Config loaded via `jiti` (supports `.ts`, `.js`, `.mjs` config files)
 - [x] Per-tenant result summary — `printResults()` table with outcome, applied count, duration
 - [x] `Migration` interface — `name`, `up(qi)`, `down(qi)` — decoupled from file loading
@@ -75,7 +75,7 @@ Build the library from core outward, ending in a runnable demo against real Post
 
 ## Milestone 3 — Prisma adapter ✅
 
-> `@huni/prisma` — adapter for Prisma Client.
+> `@kosan/prisma` — adapter for Prisma Client.
 
 - [x] `PrismaAdapter` — one `PrismaClient` per tenant, datasource URL override via `buildUrl`
 - [x] `PrismaMasterStore` — master tenant table via structural `TenantDelegate` type (pass `prisma.tenant`)
@@ -89,8 +89,8 @@ Build the library from core outward, ending in a runnable demo against real Post
 
 ## Milestone 4 — Fastify plugin & Koa middleware ✅
 
-- [x] `@huni/fastify` — Fastify plugin (callback-based `onRequest` hook; `wrapWithTenantContext` for correct async propagation)
-- [x] `@huni/koa` — Koa middleware (`runWithTenant` wrapping `next()` — works cleanly with Koa's Promise chain)
+- [x] `@kosan/fastify` — Fastify plugin (callback-based `onRequest` hook; `wrapWithTenantContext` for correct async propagation)
+- [x] `@kosan/koa` — Koa middleware (`runWithTenant` wrapping `next()` — works cleanly with Koa's Promise chain)
 - [x] Core addition: `wrapWithTenantContext(value, callback)` — calls `callback` inside `storage.run()` for frameworks that can't use async closures
 - [x] Tests — 10 Fastify + 11 Koa (happy path, errors, resolver types, concurrent isolation)
 
@@ -105,8 +105,8 @@ Build the library from core outward, ending in a runnable demo against real Post
 - [x] `getHealthPayload(registry)` — builds a serialisable health payload from cache state
 - [x] `SlowQueryInfo` type + `onSlowQuery` callback + `slowQueryThresholdMs` option in `SequelizeAdapterOptions`
 - [x] Slow-query detection in `SequelizeAdapter` via wrapped `logging` + `benchmark: true`
-- [x] Tests — 7 observability tests in `@huni/core`, 5 slow-query tests in `@huni/sequelize`
-- [x] All exports added to `@huni/core` and `@huni/sequelize` index files
+- [x] Tests — 7 observability tests in `@kosan/core`, 5 slow-query tests in `@kosan/sequelize`
+- [x] All exports added to `@kosan/core` and `@kosan/sequelize` index files
 
 ---
 
@@ -124,14 +124,14 @@ Build the library from core outward, ending in a runnable demo against real Post
 
 ## Milestone 7 — NestJS support ✅
 
-> `@huni/nestjs` — NestJS module, guard, and decorator integration.
+> `@kosan/nestjs` — NestJS module, guard, and decorator integration.
 
-- [x] `HuniModule.forRoot` — synchronous registration
-- [x] `HuniModule.forRootAsync` — async registration (useFactory, inject)
+- [x] `KosanModule.forRoot` — synchronous registration
+- [x] `KosanModule.forRootAsync` — async registration (useFactory, inject)
 - [x] `TenantMiddleware` — NestJS middleware wrapping `runWithTenant(ctx, next)`
 - [x] `TenantGuard` — optional guard asserting tenant context is present
 - [x] `@CurrentTenant()` — parameter decorator returning `TenantContextValue`
 - [x] `@InjectRegistry()` — constructor decorator injecting the `TenantRegistry`
-- [x] Tests — 16/16 (HuniModule structure, TenantGuard, TenantMiddleware with context isolation)
+- [x] Tests — 16/16 (KosanModule structure, TenantGuard, TenantMiddleware with context isolation)
 - [x] Example — `examples/sequelize-nestjs/` — runnable NestJS app with Docker Compose, 3 tenants
 - [x] Docs — `docs/docs/packages/nestjs.md` updated + `docs/docs/examples/sequelize-nestjs.md`

@@ -3,7 +3,7 @@
 
 # Observability
 
-Huni exposes connection pool stats, slow-query detection, structured logging helpers, and a health payload — giving you visibility into what every tenant's database connection is doing.
+Kosan exposes connection pool stats, slow-query detection, structured logging helpers, and a health payload — giving you visibility into what every tenant's database connection is doing.
 
 ---
 
@@ -43,7 +43,7 @@ const entries = registry.cache.stats(); // CacheStats[]
 `getHealthPayload(registry)` builds a serialisable payload suitable for a `/health` route:
 
 ```ts
-import { getHealthPayload } from '@huni/core';
+import { getHealthPayload } from '@kosan/core';
 
 // Express
 app.get('/health', (_req, res) => {
@@ -97,8 +97,8 @@ Example response:
 Configure `onSlowQuery` on the adapter to receive a callback whenever a query exceeds the threshold:
 
 ```ts
-import { SequelizeAdapter } from '@huni/sequelize';
-import type { SlowQueryInfo } from '@huni/sequelize';
+import { SequelizeAdapter } from '@kosan/sequelize';
+import type { SlowQueryInfo } from '@kosan/sequelize';
 
 const adapter = new SequelizeAdapter({
   onSlowQuery: (info: SlowQueryInfo) => {
@@ -154,7 +154,7 @@ const adapter = new SequelizeAdapter({
 
 ```ts
 import pino from 'pino';
-import { getTenantLogContext } from '@huni/core';
+import { getTenantLogContext } from '@kosan/core';
 
 const baseLogger = pino();
 
@@ -176,7 +176,7 @@ app.post('/orders', async (req, res) => {
 
 ```ts
 import winston from 'winston';
-import { getTenantLogContext } from '@huni/core';
+import { getTenantLogContext } from '@kosan/core';
 
 const logger = winston.createLogger({ transports: [new winston.transports.Console()] });
 
@@ -192,7 +192,7 @@ Because `getTenantLogContext()` reads `AsyncLocalStorage`, it works from deep in
 
 ```ts
 // services/order-service.ts — no request object needed
-import { getTenantLogContext } from '@huni/core';
+import { getTenantLogContext } from '@kosan/core';
 import { logger } from '../logger.js';
 
 export async function processOrder(id: string) {
@@ -208,16 +208,16 @@ export async function processOrder(id: string) {
 Poll `getStats()` to push metrics to your monitoring system:
 
 ```ts
-import { getHealthPayload } from '@huni/core';
+import { getHealthPayload } from '@kosan/core';
 import { metrics } from './monitoring.js';
 
 setInterval(() => {
   const { cacheSize, entries } = getHealthPayload(registry);
 
-  metrics.gauge('huni.cache.size', cacheSize);
+  metrics.gauge('kosan.cache.size', cacheSize);
 
   for (const entry of entries) {
-    metrics.gauge('huni.connection.idle_ms', entry.idleMs, {
+    metrics.gauge('kosan.connection.idle_ms', entry.idleMs, {
       tenant: entry.tenantSlug,
     });
   }

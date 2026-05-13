@@ -13,8 +13,8 @@ This guide walks through a complete Sequelize + Express setup in five minutes. B
 ## 1 — Master database connection
 
 ```ts [src/registry.ts]
-import { TenantRegistry } from '@huni/core';
-import { SequelizeAdapter, SequelizeMasterStore } from '@huni/sequelize';
+import { TenantRegistry } from '@kosan/core';
+import { SequelizeAdapter, SequelizeMasterStore } from '@kosan/sequelize';
 import { Sequelize } from 'sequelize';
 
 const master = new Sequelize(
@@ -55,7 +55,7 @@ const tenant = await registry.createTenant({
   meta: { plan: 'pro' }, // any JSON you like
 });
 
-console.log(tenant.id); // UUID assigned by Huni
+console.log(tenant.id); // UUID assigned by Kosan
 ```
 
 ## 3 — Define models
@@ -64,7 +64,7 @@ Model factories are registered once on the registry and called per-connection:
 
 ```ts [src/models/order.ts]
 import { DataTypes } from 'sequelize';
-import type { AdapterContext } from '@huni/sequelize';
+import type { AdapterContext } from '@kosan/sequelize';
 
 export function OrderModel({ sequelize }: AdapterContext) {
   return sequelize.define('Order', {
@@ -86,8 +86,8 @@ registry.registerModels([OrderModel]);
 
 ```ts [src/app.ts]
 import express from 'express';
-import { tenantMiddleware } from '@huni/express';
-import { SubdomainResolver } from '@huni/core';
+import { tenantMiddleware } from '@kosan/express';
+import { SubdomainResolver } from '@kosan/core';
 import { registry } from './registry.js';
 
 export const app = express();
@@ -108,7 +108,7 @@ app.use(
 ## 5 — Use models in a route handler
 
 ```ts [src/routes/orders.ts]
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 import type { ModelStatic, Model } from 'sequelize';
 import { app } from '../app.js';
 

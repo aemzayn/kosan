@@ -1,11 +1,11 @@
 import { Module, DynamicModule, Global } from '@nestjs/common';
-import { TenantRegistry } from '@huni/core';
-import { HUNI_REGISTRY, HUNI_OPTIONS, HUNI_RESOLVER } from './constants.js';
+import { TenantRegistry } from '@kosan/core';
+import { KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER } from './constants.js';
 import { TenantMiddleware } from './TenantMiddleware.js';
 import { TenantGuard } from './TenantGuard.js';
-import type { HuniOptions, HuniAsyncOptions } from './types.js';
+import type { KosanOptions, KosanAsyncOptions } from './types.js';
 
-function registryFactory<TConn>(options: HuniOptions<TConn>): Promise<TenantRegistry<TConn>> {
+function registryFactory<TConn>(options: KosanOptions<TConn>): Promise<TenantRegistry<TConn>> {
   // Strip NestJS-specific options before passing to TenantRegistry
   const { resolver: _r, missingTenantStatus: _m, onMissingTenant: _o, ...registryOptions } = options;
   return TenantRegistry.create(registryOptions);
@@ -13,37 +13,37 @@ function registryFactory<TConn>(options: HuniOptions<TConn>): Promise<TenantRegi
 
 @Global()
 @Module({})
-export class HuniModule {
+export class KosanModule {
   /**
-   * Register Huni synchronously.
+   * Register Kosan synchronously.
    *
-   *   HuniModule.forRoot({
+   *   KosanModule.forRoot({
    *     resolver: new SubdomainResolver(),
    *     master: new SequelizeMasterStore(masterSequelize),
    *     adapter: new SequelizeAdapter({ ... }),
    *   })
    */
-  static forRoot<TConn = unknown>(options: HuniOptions<TConn>): DynamicModule {
+  static forRoot<TConn = unknown>(options: KosanOptions<TConn>): DynamicModule {
     return {
-      module: HuniModule,
+      module: KosanModule,
       providers: [
-        { provide: HUNI_OPTIONS, useValue: options },
-        { provide: HUNI_RESOLVER, useValue: options.resolver },
+        { provide: KOSAN_OPTIONS, useValue: options },
+        { provide: KOSAN_RESOLVER, useValue: options.resolver },
         {
-          provide: HUNI_REGISTRY,
+          provide: KOSAN_REGISTRY,
           useFactory: () => registryFactory(options),
         },
         TenantMiddleware,
         TenantGuard,
       ],
-      exports: [HUNI_REGISTRY, HUNI_OPTIONS, HUNI_RESOLVER, TenantMiddleware, TenantGuard],
+      exports: [KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER, TenantMiddleware, TenantGuard],
     };
   }
 
   /**
-   * Register Huni asynchronously (e.g., options come from ConfigService).
+   * Register Kosan asynchronously (e.g., options come from ConfigService).
    *
-   *   HuniModule.forRootAsync({
+   *   KosanModule.forRootAsync({
    *     imports: [ConfigModule],
    *     inject: [ConfigService],
    *     useFactory: (config: ConfigService) => ({
@@ -53,30 +53,30 @@ export class HuniModule {
    *     }),
    *   })
    */
-  static forRootAsync<TConn = unknown>(asyncOptions: HuniAsyncOptions<TConn>): DynamicModule {
+  static forRootAsync<TConn = unknown>(asyncOptions: KosanAsyncOptions<TConn>): DynamicModule {
     return {
-      module: HuniModule,
+      module: KosanModule,
       imports: asyncOptions.imports ?? [],
       providers: [
         {
-          provide: HUNI_OPTIONS,
+          provide: KOSAN_OPTIONS,
           useFactory: asyncOptions.useFactory,
           inject: (asyncOptions.inject ?? []) as never[],
         },
         {
-          provide: HUNI_REGISTRY,
-          useFactory: (options: HuniOptions<TConn>) => registryFactory(options),
-          inject: [HUNI_OPTIONS],
+          provide: KOSAN_REGISTRY,
+          useFactory: (options: KosanOptions<TConn>) => registryFactory(options),
+          inject: [KOSAN_OPTIONS],
         },
         {
-          provide: HUNI_RESOLVER,
-          useFactory: (options: HuniOptions<TConn>) => options.resolver,
-          inject: [HUNI_OPTIONS],
+          provide: KOSAN_RESOLVER,
+          useFactory: (options: KosanOptions<TConn>) => options.resolver,
+          inject: [KOSAN_OPTIONS],
         },
         TenantMiddleware,
         TenantGuard,
       ],
-      exports: [HUNI_REGISTRY, HUNI_OPTIONS, HUNI_RESOLVER, TenantMiddleware, TenantGuard],
+      exports: [KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER, TenantMiddleware, TenantGuard],
     };
   }
 }

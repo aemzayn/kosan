@@ -1,6 +1,6 @@
 import express, { type Request, type Response } from 'express';
-import { SubdomainResolver, useTenant } from '@huni/core';
-import { tenantMiddleware } from '@huni/express';
+import { SubdomainResolver, useTenant } from '@kosan/core';
+import { tenantMiddleware } from '@kosan/express';
 import { registry } from './registry.js';
 import type { ModelStatic, Model } from 'sequelize';
 

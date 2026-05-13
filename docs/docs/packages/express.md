@@ -1,12 +1,12 @@
 ---
 ---
 
-# @huni/express
+# @kosan/express
 
 Express middleware that resolves the tenant for every request and makes `useTenant()` available inside handlers.
 
 ```bash
-npm install @huni/express
+npm install @kosan/express
 ```
 
 ---
@@ -14,7 +14,7 @@ npm install @huni/express
 ## tenantMiddleware
 
 ```ts
-import { tenantMiddleware } from '@huni/express';
+import { tenantMiddleware } from '@kosan/express';
 
 app.use(tenantMiddleware({
   registry,
@@ -48,8 +48,8 @@ app.use(tenantMiddleware({
 
 ```ts
 import express from 'express';
-import { tenantMiddleware } from '@huni/express';
-import { SubdomainResolver } from '@huni/core';
+import { tenantMiddleware } from '@kosan/express';
+import { SubdomainResolver } from '@kosan/core';
 
 const app = express();
 
@@ -124,7 +124,7 @@ app.use('/api', tenantRouter);
 ## Using the context in handlers
 
 ```ts
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 
 app.get('/orders', async (req, res) => {
   const { tenant, models } = useTenant();
@@ -145,7 +145,7 @@ app.get('/orders', async (req, res) => {
 ### Accessing tenant info without models
 
 ```ts
-import { getCurrentTenant } from '@huni/core';
+import { getCurrentTenant } from '@kosan/core';
 
 // Safe to call outside a tenant context — returns undefined instead of throwing.
 const tenant = getCurrentTenant();
@@ -158,7 +158,7 @@ console.log(tenant?.slug);
 
 ```ts
 import pino from 'pino';
-import { getTenantLogContext } from '@huni/core';
+import { getTenantLogContext } from '@kosan/core';
 
 const baseLogger = pino();
 
@@ -180,7 +180,7 @@ app.get('/orders', async (req, res) => {
 ## Health endpoint
 
 ```ts
-import { getHealthPayload } from '@huni/core';
+import { getHealthPayload } from '@kosan/core';
 
 app.get('/health', (_req, res) => {
   res.json({

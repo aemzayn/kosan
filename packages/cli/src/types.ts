@@ -1,19 +1,19 @@
 import type { Options as SequelizeOptions } from 'sequelize';
 
 /**
- * Shape of `huni.config.ts` (or `.js` / `.mjs`).
+ * Shape of `kosan.config.ts` (or `.js` / `.mjs`).
  *
  * @example
  * ```ts
- * // huni.config.ts
- * import type { HuniConfig } from '@huni/cli';
+ * // kosan.config.ts
+ * import type { KosanConfig } from '@kosan/cli';
  * export default {
  *   master: 'postgres://admin:pass@localhost/master',
  *   migrationsPath: './migrations',
- * } satisfies HuniConfig;
+ * } satisfies KosanConfig;
  * ```
  */
-export interface HuniConfig {
+export interface KosanConfig {
   /** Connection string or Sequelize constructor options for the master DB. */
   master: string | SequelizeOptions;
 
@@ -26,7 +26,7 @@ export interface HuniConfig {
    */
   migrationsTableName?: string;
 
-  /** Default concurrency for `huni migrate`. Can be overridden with --concurrency. */
+  /** Default concurrency for `kosan migrate`. Can be overridden with --concurrency. */
   concurrency?: number;
 }
 

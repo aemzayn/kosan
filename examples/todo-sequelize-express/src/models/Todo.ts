@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import type { AdapterContext } from '@huni/sequelize';
+import type { AdapterContext } from '@kosan/sequelize';
 
 export function TodoModel({ sequelize }: AdapterContext) {
   return sequelize.define(

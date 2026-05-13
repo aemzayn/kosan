@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { DrizzleMasterStore } from '../src/DrizzleMasterStore.js';
 import type { DrizzleMasterStoreQueries } from '../src/types.js';
-import type { TenantConfig, CreateTenantInput, UpdateTenantInput } from '@huni/core';
+import type { TenantConfig, CreateTenantInput, UpdateTenantInput } from '@kosan/core';
 
 // ---------------------------------------------------------------------------
 // Fixture

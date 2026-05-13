@@ -1,8 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { PrismaAdapter } from '../src/PrismaAdapter.js';
 import { usePrisma } from '../src/context.js';
-import { runWithTenant, TenantRegistry } from '@huni/core';
-import type { TenantConfig } from '@huni/core';
+import { runWithTenant, TenantRegistry } from '@kosan/core';
+import type { TenantConfig } from '@kosan/core';
 import type { PrismaClientLike } from '../src/types.js';
 
 // ---------------------------------------------------------------------------

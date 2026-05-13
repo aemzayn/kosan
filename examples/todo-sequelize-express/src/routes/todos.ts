@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from 'express';
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 import type { ModelStatic, Model } from 'sequelize';
 
 const router = Router({ mergeParams: true });

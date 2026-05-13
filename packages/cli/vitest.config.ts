@@ -4,8 +4,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   resolve: {
     alias: {
-      '@huni/core': path.resolve('../core/src/index.ts'),
-      '@huni/sequelize': path.resolve('../sequelize/src/index.ts'),
+      '@kosan/core': path.resolve('../core/src/index.ts'),
+      '@kosan/sequelize': path.resolve('../sequelize/src/index.ts'),
     },
   },
   test: {

@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { PrismaMasterStore } from '../src/PrismaMasterStore.js';
 import type { TenantDelegate, TenantRow } from '../src/types.js';
-import type { CreateTenantInput } from '@huni/core';
+import type { CreateTenantInput } from '@kosan/core';
 
 // ---------------------------------------------------------------------------
 // In-memory delegate mock

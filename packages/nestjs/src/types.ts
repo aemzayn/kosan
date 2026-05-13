@@ -1,7 +1,7 @@
 import type { ModuleMetadata, Type } from '@nestjs/common';
-import type { TenantRegistryOptions, Resolver } from '@huni/core';
+import type { TenantRegistryOptions, Resolver } from '@kosan/core';
 
-export interface HuniOptions<TConn = unknown> extends TenantRegistryOptions<TConn> {
+export interface KosanOptions<TConn = unknown> extends TenantRegistryOptions<TConn> {
   /** Resolver used by TenantGuard to identify the current tenant. */
   resolver: Resolver;
   /**
@@ -17,8 +17,8 @@ export interface HuniOptions<TConn = unknown> extends TenantRegistryOptions<TCon
   onMissingTenant?: (slug: string) => void | Promise<void>;
 }
 
-export interface HuniAsyncOptions<TConn = unknown>
+export interface KosanAsyncOptions<TConn = unknown>
   extends Pick<ModuleMetadata, 'imports'> {
-  useFactory: (...args: unknown[]) => HuniOptions<TConn> | Promise<HuniOptions<TConn>>;
+  useFactory: (...args: unknown[]) => KosanOptions<TConn> | Promise<KosanOptions<TConn>>;
   inject?: (string | symbol | Type<unknown>)[];
 }

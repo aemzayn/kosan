@@ -3,8 +3,8 @@
     "allow": [
       "Bash(pnpm install *)",
       "Bash(pnpm test *)",
-      "Bash(pnpm --filter @huni/core test --reporter=verbose)",
-      "Bash(pnpm --filter @huni/sequelize test --reporter=verbose)",
+      "Bash(pnpm --filter @kosan/core test --reporter=verbose)",
+      "Bash(pnpm --filter @kosan/sequelize test --reporter=verbose)",
       "Bash(pnpm build *)",
       "Bash(xargs sed *)",
       "Bash(pnpm *)"

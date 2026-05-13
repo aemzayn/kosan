@@ -11,47 +11,47 @@
 
 ## Choose your stack
 
-Install `@huni/core` plus the packages that match your ORM and framework.
+Install `@kosan/core` plus the packages that match your ORM and framework.
 
 ### Sequelize + Express
 
 ```bash
-npm install @huni/core @huni/sequelize @huni/express
+npm install @kosan/core @kosan/sequelize @kosan/express
 ```
 
 ### Sequelize + Fastify
 
 ```bash
-npm install @huni/core @huni/sequelize @huni/fastify fastify-plugin
+npm install @kosan/core @kosan/sequelize @kosan/fastify fastify-plugin
 ```
 
 ### Sequelize + Koa
 
 ```bash
-npm install @huni/core @huni/sequelize @huni/koa
+npm install @kosan/core @kosan/sequelize @kosan/koa
 ```
 
 ### Prisma + Express
 
 ```bash
-npm install @huni/core @huni/prisma @huni/express
+npm install @kosan/core @kosan/prisma @kosan/express
 ```
 
 ### Prisma + Fastify
 
 ```bash
-npm install @huni/core @huni/prisma @huni/fastify fastify-plugin
+npm install @kosan/core @kosan/prisma @kosan/fastify fastify-plugin
 ```
 
 ### Migration CLI (dev dependency)
 
 ```bash
-npm install -D @huni/cli
+npm install -D @kosan/cli
 ```
 
 ## TypeScript configuration
 
-Huni is ESM-first. Make sure your `tsconfig.json` targets a modern module system:
+Kosan is ESM-first. Make sure your `tsconfig.json` targets a modern module system:
 
 ```json [tsconfig.json]
 {
@@ -65,15 +65,15 @@ Huni is ESM-first. Make sure your `tsconfig.json` targets a modern module system
 }
 ```
 
-If you use CommonJS (`"module": "CommonJS"`), Huni ships a CJS build and will work, but the ESM build is preferred.
+If you use CommonJS (`"module": "CommonJS"`), Kosan ships a CJS build and will work, but the ESM build is preferred.
 
 ## Peer dependencies
 
 | Package | Peer dep |
 |---|---|
-| `@huni/sequelize` | `sequelize ^6` |
-| `@huni/prisma` | `@prisma/client ^5` (generated client only) |
-| `@huni/express` | `express ^4 \|\| ^5` |
-| `@huni/fastify` | `fastify ^4 \|\| ^5`, `fastify-plugin ^4` |
-| `@huni/koa` | `koa ^2` |
-| `@huni/cli` | `sequelize ^6` (for migration storage) |
+| `@kosan/sequelize` | `sequelize ^6` |
+| `@kosan/prisma` | `@prisma/client ^5` (generated client only) |
+| `@kosan/express` | `express ^4 \|\| ^5` |
+| `@kosan/fastify` | `fastify ^4 \|\| ^5`, `fastify-plugin ^4` |
+| `@kosan/koa` | `koa ^2` |
+| `@kosan/cli` | `sequelize ^6` (for migration storage) |

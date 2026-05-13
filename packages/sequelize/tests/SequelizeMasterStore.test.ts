@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Sequelize } from 'sequelize';
 import { SequelizeMasterStore } from '../src/SequelizeMasterStore.js';
-import type { CreateTenantInput } from '@huni/core';
+import type { CreateTenantInput } from '@kosan/core';
 
 const BASE: CreateTenantInput = {
   slug: 'acme',

@@ -1,21 +1,21 @@
 ---
 ---
 
-# @huni/nestjs
+# @kosan/nestjs
 
-> **Example:** see [`examples/sequelize-nestjs/`](https://github.com/huni-dev/huni/tree/main/examples/sequelize-nestjs) for a complete runnable demo.
+> **Example:** see [`examples/sequelize-nestjs/`](https://github.com/kosan-dev/kosan/tree/main/examples/sequelize-nestjs) for a complete runnable demo.
 
 NestJS module that resolves the tenant on every request, scopes the connection via `AsyncLocalStorage`, and provides DI-friendly decorators so `useTenant()` is available in controllers and services.
 
 ```bash
-npm install @huni/nestjs
+npm install @kosan/nestjs
 ```
 
 ---
 
 ## How it works
 
-NestJS uses Express (or Fastify) under the hood. `@huni/nestjs` registers a **NestJS Middleware** — not a guard — that wraps the entire handler chain inside `runWithTenant()`. This means `useTenant()` is available everywhere downstream: guards, interceptors, pipes, and route handlers.
+NestJS uses Express (or Fastify) under the hood. `@kosan/nestjs` registers a **NestJS Middleware** — not a guard — that wraps the entire handler chain inside `runWithTenant()`. This means `useTenant()` is available everywhere downstream: guards, interceptors, pipes, and route handlers.
 
 ```
 Request → TenantMiddleware
@@ -31,19 +31,19 @@ Request → TenantMiddleware
 
 ## Registration
 
-### 1. Import `HuniModule`
+### 1. Import `KosanModule`
 
 ```ts
 // app.module.ts
 import { Module, MiddlewareConsumer } from '@nestjs/common';
-import { HuniModule, TenantMiddleware } from '@huni/nestjs';
-import { SubdomainResolver } from '@huni/core';
-import { SequelizeAdapter } from '@huni/sequelize';
+import { KosanModule, TenantMiddleware } from '@kosan/nestjs';
+import { SubdomainResolver } from '@kosan/core';
+import { SequelizeAdapter } from '@kosan/sequelize';
 import { masterStore } from './master-store.js';
 
 @Module({
   imports: [
-    HuniModule.forRoot({
+    KosanModule.forRoot({
       resolver: new SubdomainResolver(),
       master: masterStore,
       adapter: new SequelizeAdapter({ models: [Order] }),
@@ -62,7 +62,7 @@ export class AppModule {
 
 ```ts
 import { Controller, Get } from '@nestjs/common';
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 
 @Controller('orders')
 export class OrdersController {
@@ -79,8 +79,8 @@ export class OrdersController {
 
 ```ts
 import { Controller, Get } from '@nestjs/common';
-import { CurrentTenant } from '@huni/nestjs';
-import type { TenantContextValue } from '@huni/core';
+import { CurrentTenant } from '@kosan/nestjs';
+import type { TenantContextValue } from '@kosan/core';
 
 @Controller('orders')
 export class OrdersController {
@@ -99,7 +99,7 @@ export class OrdersController {
 When options depend on NestJS's DI (e.g., `ConfigService`):
 
 ```ts
-HuniModule.forRootAsync({
+KosanModule.forRootAsync({
   imports: [ConfigModule],
   inject: [ConfigService],
   useFactory: (config: ConfigService) => ({
@@ -116,7 +116,7 @@ HuniModule.forRootAsync({
 
 ## API reference
 
-### `HuniModule.forRoot(options)`
+### `KosanModule.forRoot(options)`
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -170,8 +170,8 @@ export class TenantService {
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { InjectRegistry } from '@huni/nestjs';
-import { TenantRegistry } from '@huni/core';
+import { InjectRegistry } from '@kosan/nestjs';
+import { TenantRegistry } from '@kosan/core';
 
 @Injectable()
 export class TenantProvisioningService {
@@ -200,14 +200,14 @@ export class TenantProvisioningService {
 
 ## Registering model factories
 
-Because `HuniModule` creates the `TenantRegistry` internally, you can't call
+Because `KosanModule` creates the `TenantRegistry` internally, you can't call
 `registry.registerModels()` before the DI container is ready. The idiomatic
 solution is a lightweight service with `onModuleInit`:
 
 ```ts
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { InjectRegistry } from '@huni/nestjs';
-import { TenantRegistry } from '@huni/core';
+import { InjectRegistry } from '@kosan/nestjs';
+import { TenantRegistry } from '@kosan/core';
 import { OrderModel } from './models/order';
 
 @Injectable()

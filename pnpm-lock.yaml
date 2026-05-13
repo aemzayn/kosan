@@ -23,13 +23,13 @@ importers:
 
   examples/sequelize-express:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@huni/express':
+      '@kosan/express':
         specifier: workspace:*
         version: link:../../packages/express
-      '@huni/sequelize':
+      '@kosan/sequelize':
         specifier: workspace:*
         version: link:../../packages/sequelize
       express:
@@ -60,13 +60,13 @@ importers:
 
   examples/sequelize-nestjs:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@huni/nestjs':
+      '@kosan/nestjs':
         specifier: workspace:*
         version: link:../../packages/nestjs
-      '@huni/sequelize':
+      '@kosan/sequelize':
         specifier: workspace:*
         version: link:../../packages/sequelize
       '@nestjs/common':
@@ -115,13 +115,13 @@ importers:
 
   examples/todo-sequelize-express:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@huni/express':
+      '@kosan/express':
         specifier: workspace:*
         version: link:../../packages/express
-      '@huni/sequelize':
+      '@kosan/sequelize':
         specifier: workspace:*
         version: link:../../packages/sequelize
       express:
@@ -152,10 +152,10 @@ importers:
 
   packages/cli:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../core
-      '@huni/sequelize':
+      '@kosan/sequelize':
         specifier: workspace:*
         version: link:../sequelize
       commander:
@@ -204,7 +204,7 @@ importers:
 
   packages/drizzle:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -232,7 +232,7 @@ importers:
 
   packages/express:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -263,7 +263,7 @@ importers:
 
   packages/fastify:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../core
       fastify-plugin:
@@ -288,7 +288,7 @@ importers:
 
   packages/koa:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -319,7 +319,7 @@ importers:
 
   packages/nestjs:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -359,7 +359,7 @@ importers:
 
   packages/prisma:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../core
       '@prisma/client':
@@ -381,7 +381,7 @@ importers:
 
   packages/sequelize:
     dependencies:
-      '@huni/core':
+      '@kosan/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:

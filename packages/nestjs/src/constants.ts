@@ -1,3 +1,3 @@
-export const HUNI_REGISTRY = Symbol('HUNI_REGISTRY');
-export const HUNI_OPTIONS = Symbol('HUNI_OPTIONS');
-export const HUNI_RESOLVER = Symbol('HUNI_RESOLVER');
+export const KOSAN_REGISTRY = Symbol('KOSAN_REGISTRY');
+export const KOSAN_OPTIONS = Symbol('KOSAN_OPTIONS');
+export const KOSAN_RESOLVER = Symbol('KOSAN_RESOLVER');

@@ -1,9 +1,9 @@
 /**
  * Standalone registry factory used by the provision script.
- * The NestJS app initialises its own registry via HuniModule.forRootAsync.
+ * The NestJS app initialises its own registry via KosanModule.forRootAsync.
  */
-import { TenantRegistry } from '@huni/core';
-import { SequelizeMasterStore, SequelizeAdapter } from '@huni/sequelize';
+import { TenantRegistry } from '@kosan/core';
+import { SequelizeMasterStore, SequelizeAdapter } from '@kosan/sequelize';
 import { Sequelize } from 'sequelize';
 import { OrderModel } from './models/order';
 
@@ -32,7 +32,7 @@ export async function createRegistry(): Promise<TenantRegistry> {
     hooks: {
       async onCreate(tenant, conn) {
         await conn.sync({ force: false });
-        console.log(`[huni] provisioned schema for tenant: ${tenant.slug}`);
+        console.log(`[kosan] provisioned schema for tenant: ${tenant.slug}`);
       },
     },
   });

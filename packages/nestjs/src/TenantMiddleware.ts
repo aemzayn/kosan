@@ -6,10 +6,10 @@ import {
   TenantNotFoundError,
   TenantNotActiveError,
   runWithTenant,
-} from '@huni/core';
-import type { Resolver } from '@huni/core';
-import { HUNI_REGISTRY, HUNI_OPTIONS, HUNI_RESOLVER } from './constants.js';
-import type { HuniOptions } from './types.js';
+} from '@kosan/core';
+import type { Resolver } from '@kosan/core';
+import { KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER } from './constants.js';
+import type { KosanOptions } from './types.js';
 
 /**
  * NestJS middleware that resolves the current tenant and wraps the rest of
@@ -26,9 +26,9 @@ import type { HuniOptions } from './types.js';
 @Injectable()
 export class TenantMiddleware implements NestMiddleware {
   constructor(
-    @Inject(HUNI_REGISTRY) private readonly registry: TenantRegistry,
-    @Inject(HUNI_RESOLVER) private readonly resolver: Resolver,
-    @Inject(HUNI_OPTIONS) private readonly options: HuniOptions,
+    @Inject(KOSAN_REGISTRY) private readonly registry: TenantRegistry,
+    @Inject(KOSAN_RESOLVER) private readonly resolver: Resolver,
+    @Inject(KOSAN_OPTIONS) private readonly options: KosanOptions,
   ) {}
 
   async use(req: Request, _res: Response, next: NextFunction): Promise<void> {

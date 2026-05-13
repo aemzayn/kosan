@@ -1,12 +1,12 @@
 ---
 ---
 
-# @huni/core
+# @kosan/core
 
 The ORM-agnostic foundation. Contains the registry, connection cache, request context, and resolver interfaces. All other packages depend on this one.
 
 ```bash
-npm install @huni/core
+npm install @kosan/core
 ```
 
 ---
@@ -18,7 +18,7 @@ The central coordinator. Owns the master store, connection cache, and lifecycle 
 ### `TenantRegistry.create(options)`
 
 ```ts
-import { TenantRegistry } from '@huni/core';
+import { TenantRegistry } from '@kosan/core';
 
 const registry = await TenantRegistry.create({
   master,        // MasterStore implementation
@@ -137,7 +137,7 @@ Request-scoped context powered by `AsyncLocalStorage`. Once the middleware runs 
 ### `runWithTenant(ctx, fn)`
 
 ```ts
-import { runWithTenant } from '@huni/core';
+import { runWithTenant } from '@kosan/core';
 
 // Used internally by middleware — you rarely call this directly.
 await runWithTenant({ tenant, connection, models }, async () => {
@@ -149,7 +149,7 @@ await runWithTenant({ tenant, connection, models }, async () => {
 ### `useTenant<TConn>()`
 
 ```ts
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 
 function processOrder() {
   const { tenant, connection, models } = useTenant();
@@ -164,7 +164,7 @@ Throws `Error` if called outside a tenant context.
 ### `getCurrentTenant()`
 
 ```ts
-import { getCurrentTenant } from '@huni/core';
+import { getCurrentTenant } from '@kosan/core';
 
 // Returns TenantConfig | undefined — safe to call anywhere, won't throw.
 const tenant = getCurrentTenant();
@@ -175,7 +175,7 @@ const tenant = getCurrentTenant();
 For frameworks with callback-style middleware (Fastify's `onRequest` hook). Runs `callback` inside `storage.run(ctx, callback)` so the framework's continuation inherits the context.
 
 ```ts
-import { wrapWithTenantContext } from '@huni/core';
+import { wrapWithTenantContext } from '@kosan/core';
 
 // Fastify example (simplified):
 fastify.addHook('onRequest', (req, reply, done) => {
@@ -194,7 +194,7 @@ Built-in implementations of the `Resolver` interface.
 Extracts the first subdomain label and uses it as the tenant slug.
 
 ```ts
-import { SubdomainResolver } from '@huni/core';
+import { SubdomainResolver } from '@kosan/core';
 
 // acme.myapp.com  →  "acme"
 // www.myapp.com   →  null (configured via ignoredSubdomains)
@@ -208,7 +208,7 @@ const resolver = new SubdomainResolver({
 Reads a custom HTTP header.
 
 ```ts
-import { HeaderResolver } from '@huni/core';
+import { HeaderResolver } from '@kosan/core';
 
 // X-Tenant-ID: acme  →  "acme"
 const resolver = new HeaderResolver('X-Tenant-ID');
@@ -219,7 +219,7 @@ const resolver = new HeaderResolver('X-Tenant-ID');
 Extracts a URL path segment by index.
 
 ```ts
-import { PathResolver } from '@huni/core';
+import { PathResolver } from '@kosan/core';
 
 // /acme/orders  →  "acme"  (segment 0)
 // /api/acme/v1  →  "acme"  (segment 1)
@@ -250,7 +250,7 @@ app.use(tenantMiddleware({
 Returns structured log fields for the current tenant. Returns `{}` when called outside a tenant context (safe to call anywhere).
 
 ```ts
-import { getTenantLogContext } from '@huni/core';
+import { getTenantLogContext } from '@kosan/core';
 import pino from 'pino';
 
 const logger = pino();
@@ -270,7 +270,7 @@ app.use((req, res, next) => {
 Serialisable snapshot of the cache state — drop it directly into a `/health` response.
 
 ```ts
-import { getHealthPayload } from '@huni/core';
+import { getHealthPayload } from '@kosan/core';
 
 app.get('/health', (_req, res) => {
   res.json(getHealthPayload(registry));
@@ -349,7 +349,7 @@ interface LifecycleHooks<TConn> {
 ## Error classes
 
 ```ts
-import { TenantNotFoundError, TenantNotActiveError } from '@huni/core';
+import { TenantNotFoundError, TenantNotActiveError } from '@kosan/core';
 
 try {
   await registry.resolveBySlug('unknown');

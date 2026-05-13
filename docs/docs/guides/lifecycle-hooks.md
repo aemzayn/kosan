@@ -12,7 +12,7 @@ Lifecycle hooks let you run custom logic when tenants are created, suspended, or
 Pass `hooks` when calling `TenantRegistry.create()`:
 
 ```ts
-import { TenantRegistry } from '@huni/core';
+import { TenantRegistry } from '@kosan/core';
 
 const registry = await TenantRegistry.create({
   master: masterStore,
@@ -155,9 +155,9 @@ Consider wrapping critical provisioning steps in retry logic.
 ## Full provisioning example
 
 ```ts
-import { TenantRegistry } from '@huni/core';
-import { SequelizeAdapter, SequelizeMasterStore } from '@huni/sequelize';
-import { runMigrate, loadMigrationsFromDir } from '@huni/cli';
+import { TenantRegistry } from '@kosan/core';
+import { SequelizeAdapter, SequelizeMasterStore } from '@kosan/sequelize';
+import { runMigrate, loadMigrationsFromDir } from '@kosan/cli';
 import { Sequelize } from 'sequelize';
 
 const migrations = loadMigrationsFromDir('./migrations', Sequelize);

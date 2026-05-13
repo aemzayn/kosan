@@ -49,7 +49,7 @@ curl http://localhost:3000/health
 
 | Feature | Where |
 |---|---|
-| `HuniModule.forRoot` | `src/app.module.ts` |
+| `KosanModule.forRoot` | `src/app.module.ts` |
 | Subdomain resolution | `AppModule` → `SubdomainResolver` |
 | `TenantMiddleware` applied globally | `AppModule.configure()` |
 | `@CurrentTenant()` decorator | `src/orders/orders.controller.ts` |

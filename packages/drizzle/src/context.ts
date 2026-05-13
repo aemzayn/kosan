@@ -1,4 +1,4 @@
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 import type { DrizzleClientLike, DrizzleModels } from './types.js';
 
 /**
@@ -6,7 +6,7 @@ import type { DrizzleClientLike, DrizzleModels } from './types.js';
  *
  * @example
  * ```ts
- * import { useDrizzle } from '@huni/drizzle';
+ * import { useDrizzle } from '@kosan/drizzle';
  * import type { MyDb } from './db';
  *
  * app.get('/orders', (req, res) => {

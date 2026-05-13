@@ -1,27 +1,27 @@
 ---
 ---
 
-# @huni/cli
+# @kosan/cli
 
 Migration orchestrator that runs database migrations across all active tenants — in parallel, with per-tenant failure isolation.
 
 ```bash
-npm install -D @huni/cli
+npm install -D @kosan/cli
 ```
 
 ---
 
-## huni migrate
+## kosan migrate
 
 ```bash
-npx huni migrate [options]
+npx kosan migrate [options]
 ```
 
 ### Options
 
 | Flag | Default | Description |
 |---|---|---|
-| `--config <path>` | `huni.config.ts` | Path to config file |
+| `--config <path>` | `kosan.config.ts` | Path to config file |
 | `--concurrency <n>` | `5` | Max parallel tenant migrations |
 | `--tenant <slug>` | all active | Target a single tenant by slug |
 
@@ -29,34 +29,34 @@ npx huni migrate [options]
 
 ```bash
 # Migrate all active tenants (5 at a time)
-npx huni migrate --config huni.config.ts
+npx kosan migrate --config kosan.config.ts
 
 # Migrate 10 tenants at a time
-npx huni migrate --concurrency 10
+npx kosan migrate --concurrency 10
 
 # Migrate only the "acme" tenant
-npx huni migrate --tenant acme
+npx kosan migrate --tenant acme
 ```
 
 ---
 
 ## Configuration file
 
-Create `huni.config.ts` (or `.js` / `.mjs`) at the root of your project:
+Create `kosan.config.ts` (or `.js` / `.mjs`) at the root of your project:
 
-```ts [huni.config.ts]
+```ts [kosan.config.ts]
 import { Sequelize } from 'sequelize';
-import { SequelizeMasterStore } from '@huni/sequelize';
-import { SequelizeAdapter } from '@huni/sequelize';
-import { TenantRegistry } from '@huni/core';
-import type { HuniConfig } from '@huni/cli';
+import { SequelizeMasterStore } from '@kosan/sequelize';
+import { SequelizeAdapter } from '@kosan/sequelize';
+import { TenantRegistry } from '@kosan/core';
+import type { KosanConfig } from '@kosan/cli';
 
 const master = new Sequelize(process.env.MASTER_DATABASE_URL!, { logging: false });
 const masterStore = await SequelizeMasterStore.create(master);
 const adapter = new SequelizeAdapter({ defaultDialect: 'postgres' });
 const registry = await TenantRegistry.create({ master: masterStore, adapter });
 
-const config: HuniConfig = {
+const config: KosanConfig = {
   registry,
   migrationsPath: './migrations',          // directory containing migration files
   migrationsTableName: 'sequelize_meta',   // default
@@ -66,10 +66,10 @@ const config: HuniConfig = {
 export default config;
 ```
 
-### HuniConfig
+### KosanConfig
 
 ```ts
-interface HuniConfig {
+interface KosanConfig {
   registry: TenantRegistry;
   migrationsPath: string;
   migrationsTableName?: string; // default: 'sequelize_meta'
@@ -142,7 +142,7 @@ Failed tenants do not stop other tenants from completing.
 You can run migrations from application code without the CLI:
 
 ```ts
-import { runMigrate, loadMigrationsFromDir, printResults } from '@huni/cli';
+import { runMigrate, loadMigrationsFromDir, printResults } from '@kosan/cli';
 import { Sequelize } from 'sequelize';
 
 const migrations = loadMigrationsFromDir('./migrations', Sequelize);
@@ -199,11 +199,11 @@ printResults(results, {
 
 ## CI integration
 
-In a CI pipeline, `huni migrate` exits with code `0` if all tenants succeed and `1` if any tenant fails. Use `--concurrency 1` for sequential runs:
+In a CI pipeline, `kosan migrate` exits with code `0` if all tenants succeed and `1` if any tenant fails. Use `--concurrency 1` for sequential runs:
 
 ```yaml [.github/workflows/migrate.yml]
 - name: Run tenant migrations
-  run: npx huni migrate --concurrency 1
+  run: npx kosan migrate --concurrency 1
   env:
     MASTER_DATABASE_URL: ${{ secrets.MASTER_DATABASE_URL }}
 ```

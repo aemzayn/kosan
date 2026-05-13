@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
-import { InjectRegistry } from '@huni/nestjs';
-import { TenantRegistry, getHealthPayload } from '@huni/core';
+import { InjectRegistry } from '@kosan/nestjs';
+import { TenantRegistry, getHealthPayload } from '@kosan/core';
 
 @Controller('health')
 export class HealthController {

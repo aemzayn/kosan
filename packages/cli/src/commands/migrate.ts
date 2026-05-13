@@ -1,13 +1,13 @@
 import path from 'node:path';
 import { Sequelize } from 'sequelize';
-import { SequelizeMasterStore, SequelizeAdapter } from '@huni/sequelize';
-import { TenantRegistry } from '@huni/core';
+import { SequelizeMasterStore, SequelizeAdapter } from '@kosan/sequelize';
+import { TenantRegistry } from '@kosan/core';
 import { withConcurrency } from '../pool.js';
 import { loadMigrationsFromDir, runMigrationsForTenant } from '../runner.js';
-import type { HuniConfig, TenantMigrationResult } from '../types.js';
+import type { KosanConfig, TenantMigrationResult } from '../types.js';
 
 export interface MigrateOptions {
-  config: HuniConfig;
+  config: KosanConfig;
   /** Absolute path to the directory containing migration files. */
   migrationsDir: string;
   /** Max parallel tenant migrations. */

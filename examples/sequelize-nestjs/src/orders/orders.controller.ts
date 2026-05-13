@@ -8,8 +8,8 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { CurrentTenant } from '@huni/nestjs';
-import type { TenantContextValue } from '@huni/core';
+import { CurrentTenant } from '@kosan/nestjs';
+import type { TenantContextValue } from '@kosan/core';
 import type { ModelStatic, Model } from 'sequelize';
 
 @Controller('orders')

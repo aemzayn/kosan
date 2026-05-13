@@ -103,7 +103,7 @@ const app = express();
 app.set('trust proxy', 1);
 ```
 
-`SubdomainResolver` reads `req.headers.host` directly, so this is not strictly required for Huni — but it is required for `req.hostname` and `req.protocol` to work correctly in your handlers.
+`SubdomainResolver` reads `req.headers.host` directly, so this is not strictly required for Kosan — but it is required for `req.hostname` and `req.protocol` to work correctly in your handlers.
 
 ---
 
@@ -138,7 +138,7 @@ address=/.localhost/127.0.0.1
 ## SubdomainResolver configuration
 
 ```ts
-import { SubdomainResolver } from '@huni/core';
+import { SubdomainResolver } from '@kosan/core';
 
 const resolver = new SubdomainResolver({
   // These subdomains are treated as "no tenant" and return null

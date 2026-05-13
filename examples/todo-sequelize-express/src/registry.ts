@@ -1,5 +1,5 @@
-import { TenantRegistry } from '@huni/core';
-import { SequelizeAdapter, SequelizeMasterStore } from '@huni/sequelize';
+import { TenantRegistry } from '@kosan/core';
+import { SequelizeAdapter, SequelizeMasterStore } from '@kosan/sequelize';
 import { Sequelize } from 'sequelize';
 import { UserModel } from './models/User.js';
 import { TodoModel } from './models/Todo.js';
@@ -29,7 +29,7 @@ export const registry = await TenantRegistry.create({
     async onCreate(tenant, conn) {
       // Sync schema for this tenant's isolated database on first provision.
       await conn.sync({ force: false });
-      console.log(`[huni] provisioned tenant: ${tenant.slug}`);
+      console.log(`[kosan] provisioned tenant: ${tenant.slug}`);
     },
   },
 });

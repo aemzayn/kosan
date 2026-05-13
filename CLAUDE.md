@@ -1,4 +1,4 @@
-# Project: Huni — a multi-tenant database layer for Node.js
+# Project: Kosan — a multi-tenant database layer for Node.js
 
 ## Context and motivation
 

@@ -1,12 +1,12 @@
 ---
 ---
 
-# @huni/fastify
+# @kosan/fastify
 
 Fastify plugin that resolves the tenant on every request and scopes the connection to `AsyncLocalStorage` so `useTenant()` is available in route handlers.
 
 ```bash
-npm install @huni/fastify fastify-plugin
+npm install @kosan/fastify fastify-plugin
 ```
 
 ---
@@ -15,8 +15,8 @@ npm install @huni/fastify fastify-plugin
 
 ```ts
 import Fastify from 'fastify';
-import tenantPlugin from '@huni/fastify';
-import { SubdomainResolver } from '@huni/core';
+import tenantPlugin from '@kosan/fastify';
+import { SubdomainResolver } from '@kosan/core';
 import { registry } from './registry.js';
 
 const fastify = Fastify();
@@ -62,7 +62,7 @@ interface TenantPluginOptions {
 ### Header resolver
 
 ```ts
-import { HeaderResolver } from '@huni/core';
+import { HeaderResolver } from '@kosan/core';
 
 await fastify.register(tenantPlugin, {
   registry,
@@ -117,7 +117,7 @@ fastify.register(async (app) => {
 ## Using the context
 
 ```ts
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 
 fastify.get('/profile', async (_request, _reply) => {
   const { tenant, models } = useTenant();

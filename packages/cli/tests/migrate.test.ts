@@ -4,11 +4,11 @@ import path from 'node:path';
 import type { QueryInterface } from 'sequelize';
 import { Sequelize } from 'sequelize';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { SequelizeMasterStore } from '@huni/sequelize';
+import { SequelizeMasterStore } from '@kosan/sequelize';
 import { runMigrationsForTenant, type Migration } from '../src/runner.js';
 import { printResults } from '../src/commands/migrate.js';
-import type { HuniConfig, TenantMigrationResult } from '../src/types.js';
-import type { TenantConfig } from '@huni/core';
+import type { KosanConfig, TenantMigrationResult } from '../src/types.js';
+import type { TenantConfig } from '@kosan/core';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -17,13 +17,13 @@ import type { TenantConfig } from '@huni/core';
 function makeTmpDir(): string {
   const dir = path.join(
     tmpdir(),
-    `huni-test-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    `kosan-test-${Date.now()}-${Math.random().toString(36).slice(2)}`,
   );
   mkdirSync(dir, { recursive: true });
   return dir;
 }
 
-function makeConfig(masterPath: string): HuniConfig {
+function makeConfig(masterPath: string): KosanConfig {
   return {
     master: { dialect: 'sqlite', storage: masterPath, logging: false } as never,
     migrationsPath: './migrations',
@@ -162,7 +162,7 @@ describe('runMigrationsForTenant', () => {
     const dbPath = path.join(tmpDir, 'tenant.sqlite');
     const sequelize = openSqlite(dbPath);
     const tenant = makeTenantConfig(dbPath);
-    const config: HuniConfig = {
+    const config: KosanConfig = {
       ...makeConfig(path.join(tmpDir, 'master.sqlite')),
       migrationsTableName: 'custom_migrations',
     };

@@ -1,4 +1,4 @@
-# Todo API — @huni/sequelize + @huni/express example
+# Todo API — @kosan/sequelize + @kosan/express example
 
 A multi-tenant Todo API with **Users** and **Todos** tables. Every tenant gets its own isolated Postgres database. The tenant is identified by the `X-Tenant` request header.
 
@@ -146,7 +146,7 @@ docker-compose.yml    — master DB + alpha_db + beta_db
 ## Key pattern: `useTenant()` inside a route
 
 ```ts
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 
 router.get('/', async (_req, res) => {
   const { models } = useTenant();          // ← no prop-drilling

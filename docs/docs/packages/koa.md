@@ -1,12 +1,12 @@
 ---
 ---
 
-# @huni/koa
+# @kosan/koa
 
 Koa middleware that resolves the tenant on every request and makes `useTenant()` available in downstream middleware and route handlers.
 
 ```bash
-npm install @huni/koa
+npm install @kosan/koa
 ```
 
 ---
@@ -15,8 +15,8 @@ npm install @huni/koa
 
 ```ts
 import Koa from 'koa';
-import { tenantMiddleware } from '@huni/koa';
-import { SubdomainResolver } from '@huni/core';
+import { tenantMiddleware } from '@kosan/koa';
+import { SubdomainResolver } from '@kosan/core';
 import { registry } from './registry.js';
 
 const app = new Koa();
@@ -60,7 +60,7 @@ interface TenantMiddlewareOptions {
 ### Header resolver
 
 ```ts
-import { HeaderResolver } from '@huni/core';
+import { HeaderResolver } from '@kosan/core';
 
 app.use(tenantMiddleware({
   registry,
@@ -71,7 +71,7 @@ app.use(tenantMiddleware({
 ### Path resolver
 
 ```ts
-import { PathResolver } from '@huni/core';
+import { PathResolver } from '@kosan/core';
 
 // /acme/orders → "acme"
 app.use(tenantMiddleware({
@@ -111,7 +111,7 @@ app.use(tenantMiddleware({
 
 ```ts
 import Router from '@koa/router';
-import { useTenant } from '@huni/core';
+import { useTenant } from '@kosan/core';
 
 const router = new Router();
 
@@ -145,7 +145,7 @@ app.use(tenantMiddleware(...))
 
 ```ts
 import pino from 'pino';
-import { getTenantLogContext } from '@huni/core';
+import { getTenantLogContext } from '@kosan/core';
 
 const logger = pino();
 

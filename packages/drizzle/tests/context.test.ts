@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { runWithTenant } from '@huni/core';
-import type { TenantConfig, TenantContextValue } from '@huni/core';
+import { runWithTenant } from '@kosan/core';
+import type { TenantConfig, TenantContextValue } from '@kosan/core';
 import { useDrizzle } from '../src/context.js';
 import type { DrizzleClientLike } from '../src/types.js';
 

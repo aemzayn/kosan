@@ -1,7 +1,7 @@
 import type { QueryInterface, Sequelize } from 'sequelize';
 import { SequelizeStorage, Umzug } from 'umzug';
-import type { TenantMigrationResult, HuniConfig } from './types.js';
-import type { TenantConfig } from '@huni/core';
+import type { TenantMigrationResult, KosanConfig } from './types.js';
+import type { TenantConfig } from '@kosan/core';
 
 // ---------------------------------------------------------------------------
 // Public migration shape — what callers provide to the runner
@@ -20,7 +20,7 @@ export interface Migration {
 export interface RunMigrationOptions {
   tenant: TenantConfig;
   sequelize: Sequelize;
-  config: Pick<HuniConfig, 'migrationsTableName'>;
+  config: Pick<KosanConfig, 'migrationsTableName'>;
   migrations: Migration[];
 }
 

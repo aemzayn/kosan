@@ -1,12 +1,12 @@
 ---
 ---
 
-# @huni/prisma
+# @kosan/prisma
 
-Prisma adapter for Huni. Creates one `PrismaClient` per tenant with a per-tenant datasource URL, and provides `PrismaMasterStore` for the master tenant table.
+Prisma adapter for Kosan. Creates one `PrismaClient` per tenant with a per-tenant datasource URL, and provides `PrismaMasterStore` for the master tenant table.
 
 ```bash
-npm install @huni/prisma
+npm install @kosan/prisma
 ```
 
 No hard dependency on `@prisma/client` — the adapter is fully generic and uses structural typing. Your generated client is a peer dependency.
@@ -36,7 +36,7 @@ model Tenant {
 Or copy the convenience export:
 
 ```ts
-import { TENANT_PRISMA_SCHEMA } from '@huni/prisma';
+import { TENANT_PRISMA_SCHEMA } from '@kosan/prisma';
 console.log(TENANT_PRISMA_SCHEMA); // prints the Prisma model block
 ```
 
@@ -44,8 +44,8 @@ console.log(TENANT_PRISMA_SCHEMA); // prints the Prisma model block
 
 ```ts
 import { PrismaClient } from '@prisma/client';
-import { PrismaAdapter, PrismaMasterStore } from '@huni/prisma';
-import { TenantRegistry } from '@huni/core';
+import { PrismaAdapter, PrismaMasterStore } from '@kosan/prisma';
+import { TenantRegistry } from '@kosan/core';
 
 // Master database client
 const masterPrisma = new PrismaClient();
@@ -98,7 +98,7 @@ buildUrl: (tenant) => {
 Pass `prisma.tenant` (the generated delegate) to the constructor. The store uses structural typing — as long as your `Tenant` model has the expected fields, it works:
 
 ```ts
-import { PrismaMasterStore } from '@huni/prisma';
+import { PrismaMasterStore } from '@kosan/prisma';
 
 const masterStore = new PrismaMasterStore(masterPrisma.tenant);
 ```
@@ -110,7 +110,7 @@ const masterStore = new PrismaMasterStore(masterPrisma.tenant);
 Use the `usePrisma<TClient>()` shortcut instead of casting `models` manually:
 
 ```ts
-import { usePrisma } from '@huni/prisma';
+import { usePrisma } from '@kosan/prisma';
 import type { PrismaClient } from '@prisma/client';
 
 app.get('/users', async (_req, res) => {
@@ -129,7 +129,7 @@ Under the hood this reads `useTenant().models['prisma']` with a type-safe cast.
 A convenience string with the ready-to-paste Prisma schema block:
 
 ```ts
-import { TENANT_PRISMA_SCHEMA } from '@huni/prisma';
+import { TENANT_PRISMA_SCHEMA } from '@kosan/prisma';
 // Paste into your schema.prisma or print for reference
 ```
 
@@ -164,7 +164,7 @@ For complex per-tenant schema versioning, implement a custom `Adapter<PrismaClie
 Use a structural fake that satisfies `PrismaClientLike`:
 
 ```ts
-import type { PrismaClientLike } from '@huni/prisma';
+import type { PrismaClientLike } from '@kosan/prisma';
 
 class FakePrismaClient implements PrismaClientLike {
   async $connect() {}

@@ -1,8 +1,8 @@
 {
-  "name": "@huni/core",
+  "name": "@kosan/core",
   "version": "0.1.0",
   "description": "ORM-agnostic multi-tenancy core — tenant registry, connection cache, AsyncLocalStorage context, and pluggable resolvers",
-  "author": "Huni Contributors",
+  "author": "Kosan Contributors",
   "license": "MIT",
   "keywords": [
     "multi-tenancy",
@@ -15,11 +15,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/huni-dev/huni.git",
+    "url": "https://github.com/kosan-dev/kosan.git",
     "directory": "packages/core"
   },
-  "homepage": "https://huni.dev/packages/core",
-  "bugs": "https://github.com/huni-dev/huni/issues",
+  "homepage": "https://kosan.dev/packages/core",
+  "bugs": "https://github.com/kosan-dev/kosan/issues",
   "engines": {
     "node": ">=18"
   },

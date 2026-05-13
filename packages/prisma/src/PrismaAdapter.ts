@@ -1,4 +1,4 @@
-import type { Adapter, ModelFactory, TenantConfig } from '@huni/core';
+import type { Adapter, ModelFactory, TenantConfig } from '@kosan/core';
 import type {
   PrismaAdapterOptions,
   PrismaClientLike,
@@ -11,7 +11,7 @@ import type {
  *
  * ```ts
  * import { PrismaClient } from '@prisma/client';
- * import { PrismaAdapter } from '@huni/prisma';
+ * import { PrismaAdapter } from '@kosan/prisma';
  *
  * const adapter = new PrismaAdapter({
  *   PrismaClient,
@@ -52,7 +52,7 @@ export class PrismaAdapter<TClient extends PrismaClientLike>
    * await models.prisma.order.findMany();
    * ```
    *
-   * Or use the `usePrisma()` helper from `@huni/prisma` for a typed shortcut.
+   * Or use the `usePrisma()` helper from `@kosan/prisma` for a typed shortcut.
    */
   getModels(client: TClient): PrismaModels<TClient> {
     return { prisma: client };
