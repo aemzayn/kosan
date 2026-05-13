@@ -2,7 +2,6 @@ import type { TenantConfig } from "@kosan/core";
 import { DataTypes, Sequelize } from "sequelize";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { SequelizeAdapter } from "../src/SequelizeAdapter.js";
-import type { AdapterContext } from "../src/types.js";
 
 function makeTenant(overrides: Partial<TenantConfig> = {}): TenantConfig {
   return {
@@ -77,7 +76,7 @@ describe("SequelizeAdapter", () => {
 
   describe("registerModelFactories", () => {
     it("applies factories and exposes models via getModels", async () => {
-      function NoteModel({ sequelize }: AdapterContext) {
+      function NoteModel(sequelize: Sequelize) {
         return sequelize.define("Note", {
           id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
           body: { type: DataTypes.TEXT },
@@ -95,10 +94,10 @@ describe("SequelizeAdapter", () => {
     });
 
     it("applies multiple factories independently per connection", async () => {
-      function ModelA({ sequelize }: AdapterContext) {
+      function ModelA(sequelize: Sequelize) {
         return sequelize.define("ModelA", { id: { type: DataTypes.INTEGER, primaryKey: true } });
       }
-      function ModelB({ sequelize }: AdapterContext) {
+      function ModelB(sequelize: Sequelize) {
         return sequelize.define("ModelB", { id: { type: DataTypes.INTEGER, primaryKey: true } });
       }
 
@@ -127,7 +126,7 @@ describe("SequelizeAdapter", () => {
         "../../core/tests/helpers/InMemoryMasterStore.js"
       );
 
-      function ItemModel({ sequelize }: AdapterContext) {
+      function ItemModel(sequelize: Sequelize) {
         return sequelize.define("Item", {
           id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
           name: { type: DataTypes.STRING },
