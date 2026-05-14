@@ -1,4 +1,6 @@
-# Kosan
+# Kosan [WIP]
+
+[![CI](https://github.com/aemzayn/kosan/actions/workflows/ci.yml/badge.svg)](https://github.com/aemzayn/kosan/actions/workflows/ci.yml)
 
 First-class multi-tenancy with database-per-tenant support for Node.js — the layer that Sequelize, Prisma, and Drizzle don't ship.
 
