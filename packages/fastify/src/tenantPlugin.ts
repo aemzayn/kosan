@@ -1,6 +1,13 @@
 import { TenantNotActiveError, TenantNotFoundError, wrapWithTenantContext } from "@kosan/core";
 import type { Resolver, TenantRegistry } from "@kosan/core";
-import type { FastifyPluginCallback, FastifyReply, FastifyRequest } from "fastify";
+import type {
+  FastifyBaseLogger,
+  FastifyPluginCallback,
+  FastifyReply,
+  FastifyRequest,
+  FastifyTypeProviderDefault,
+  RawServerDefault,
+} from "fastify";
 import fp from "fastify-plugin";
 
 export interface TenantPluginOptions {
@@ -24,11 +31,12 @@ function toResolver(
   return (req) => r.resolve(req);
 }
 
-const tenantPluginImpl: FastifyPluginCallback<TenantPluginOptions> = (
-  fastify,
-  options,
-  pluginDone,
-) => {
+const tenantPluginImpl: FastifyPluginCallback<
+  TenantPluginOptions,
+  RawServerDefault,
+  FastifyTypeProviderDefault,
+  FastifyBaseLogger
+> = (fastify, options, pluginDone) => {
   const resolve = toResolver(options.resolver);
 
   const onMissing =
