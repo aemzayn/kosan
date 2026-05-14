@@ -1,6 +1,10 @@
 # Kosan
 
-First-class multi-tenancy with database-per-tenant support for Node.js — the layer that Sequelize, Prisma, and TypeORM don't ship.
+First-class multi-tenancy with database-per-tenant support for Node.js — the layer that Sequelize, Prisma, and Drizzle don't ship.
+
+**[Documentation](https://aemzayn.github.io/kosan)**
+
+---
 
 ## Why
 
@@ -14,152 +18,211 @@ Every major Node.js ORM requires you to hand-roll the same things:
 
 Kosan does all of this for you, with a clean adapter model so you keep using the ORM you already know.
 
+---
+
 ## Packages
 
 | Package | Description |
 |---|---|
 | [`@kosan/core`](./packages/core) | ORM-agnostic registry, cache, context, resolvers |
 | [`@kosan/sequelize`](./packages/sequelize) | Sequelize v6 adapter |
+| [`@kosan/prisma`](./packages/prisma) | Prisma adapter |
+| [`@kosan/drizzle`](./packages/drizzle) | Drizzle ORM adapter |
 | [`@kosan/express`](./packages/express) | Express middleware |
-| [`@kosan/fastify`](./packages/fastify) | Fastify plugin |
-| [`@kosan/cli`](./packages/cli) | Migration orchestrator |
+| [`@kosan/fastify`](./packages/fastify) | Fastify plugin (v4 & v5) |
+| [`@kosan/koa`](./packages/koa) | Koa middleware |
+| [`@kosan/nestjs`](./packages/nestjs) | NestJS module |
+| [`@kosan/cli`](./packages/cli) | Migration orchestrator CLI |
+
+---
 
 ## Quick Start
+
+### Sequelize + Express
 
 ```bash
 npm install @kosan/core @kosan/sequelize @kosan/express
 ```
 
-### 1 — Connect to the master database
-
 ```ts
-import { TenantRegistry } from '@kosan/core';
+import { TenantRegistry, SubdomainResolver, useTenant } from '@kosan/core';
 import { SequelizeAdapter, SequelizeMasterStore } from '@kosan/sequelize';
-import { Sequelize } from 'sequelize';
+import { tenantMiddleware } from '@kosan/express';
+import { Sequelize, DataTypes } from 'sequelize';
+import express from 'express';
 
+// 1 — Connect to the master database
 const master = new Sequelize('postgres://admin:pass@localhost/master');
+const masterStore = await SequelizeMasterStore.create(master);
 
 const registry = await TenantRegistry.create({
-  master: new SequelizeMasterStore(master),
-  adapter: new SequelizeAdapter({
-    defaultDialect: 'postgres',
-    pool: { max: 5, idle: 30_000 },
+  master: masterStore,
+  adapter: new SequelizeAdapter({ defaultDialect: 'postgres' }),
+  hooks: {
+    async onCreate(tenant, conn) {
+      await conn.sync(); // create tables in the new tenant's database
+    },
+  },
+});
+
+// 2 — Register models (factory called once per tenant connection)
+registry.registerModels([
+  function OrderModel(sequelize: Sequelize) {
+    return sequelize.define('Order', {
+      id:    { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
+      total: { type: DataTypes.DECIMAL },
+    });
+  },
+]);
+
+// 3 — Wire up Express middleware
+const app = express();
+app.use(tenantMiddleware({ registry, resolver: new SubdomainResolver() }));
+
+// 4 — Use models in route handlers — no prop-drilling
+app.get('/orders', async (_req, res) => {
+  const { models } = useTenant();
+  res.json(await (models.Order as any).findAll());
+});
+
+app.listen(3000);
+```
+
+### Prisma + Koa
+
+```bash
+npm install @kosan/core @kosan/prisma @kosan/koa
+```
+
+```ts
+import { TenantRegistry, SubdomainResolver, useTenant } from '@kosan/core';
+import { PrismaAdapter, PrismaMasterStore, usePrisma } from '@kosan/prisma';
+import { tenantMiddleware } from '@kosan/koa';
+import { PrismaClient } from '@prisma/client';
+import Koa from 'koa';
+
+const masterPrisma = new PrismaClient();
+
+const registry = await TenantRegistry.create({
+  master: new PrismaMasterStore(masterPrisma.tenant),
+  adapter: new PrismaAdapter({
+    PrismaClient,
+    buildUrl: (t) => `postgresql://${t.user}:${t.password}@${t.host}:${t.port}/${t.dbName}`,
   }),
 });
-```
 
-### 2 — Register a tenant
-
-```ts
-const tenant = await registry.createTenant({
-  slug: 'acme',
-  host: 'localhost',
-  port: 5432,
-  dbName: 'acme_db',
-  user: 'acme_user',
-  password: 'acme_pass',
-  meta: { plan: 'pro' },
-});
-```
-
-### 3 — Define models
-
-```ts
-// models/order.ts
-import type { AdapterContext } from '@kosan/sequelize';
-import { DataTypes } from 'sequelize';
-
-export function OrderModel({ sequelize }: AdapterContext) {
-  return sequelize.define('Order', {
-    id:    { type: DataTypes.UUID, primaryKey: true },
-    total: { type: DataTypes.DECIMAL },
-  });
-}
-
-registry.registerModels([OrderModel]);
-```
-
-### 4 — Express middleware
-
-```ts
-import express from 'express';
-import { tenantMiddleware } from '@kosan/express';
-import { SubdomainResolver } from '@kosan/core';
-
-const app = express();
-
+const app = new Koa();
 app.use(tenantMiddleware({ registry, resolver: new SubdomainResolver() }));
-```
 
-### 5 — Use models in a handler
-
-```ts
-import { useTenant } from '@kosan/core';
-
-app.get('/orders', async (req, res) => {
-  const { models } = useTenant();
-  const orders = await models.Order.findAll();
-  res.json(orders);
+app.use(async (ctx) => {
+  const prisma = usePrisma<PrismaClient>();
+  ctx.body = await prisma.order.findMany();
 });
 ```
 
-### 6 — Lifecycle hooks
+### Drizzle + Fastify
+
+```bash
+npm install @kosan/core @kosan/drizzle @kosan/fastify drizzle-orm postgres
+```
+
+```ts
+import { TenantRegistry, SubdomainResolver } from '@kosan/core';
+import { DrizzleAdapter, DrizzleMasterStore, useDrizzle } from '@kosan/drizzle';
+import tenantPlugin from '@kosan/fastify';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import Fastify from 'fastify';
+import * as schema from './schema.js';
+
+type TenantDb = ReturnType<typeof drizzle<typeof schema>>;
+
+const registry = await TenantRegistry.create({
+  master: new DrizzleMasterStore({ /* query callbacks */ }),
+  adapter: new DrizzleAdapter<TenantDb>({
+    clientFactory: (t) =>
+      drizzle(postgres(`postgres://${t.user}:${t.password}@${t.host}:${t.port}/${t.dbName}`), { schema }),
+  }),
+});
+
+const fastify = Fastify();
+await fastify.register(tenantPlugin, { registry, resolver: new SubdomainResolver() });
+
+fastify.get('/orders', async () => {
+  const db = useDrizzle<TenantDb>();
+  return db.select().from(schema.orders);
+});
+```
+
+---
+
+## Tenant resolvers
+
+| Resolver | Extracts tenant from |
+|---|---|
+| `SubdomainResolver` | `acme.myapp.com` → `acme` |
+| `HeaderResolver('X-Tenant-ID')` | `X-Tenant-ID: acme` header |
+| `PathResolver({ segment: 0 })` | `/acme/orders` → `acme` |
+| Custom function | `(req) => req.user?.tenantId` |
+
+---
+
+## Lifecycle hooks
 
 ```ts
 TenantRegistry.create({
-  master: ...,
-  adapter: ...,
+  // ...
   hooks: {
     async onCreate(tenant, conn) {
-      await conn.query(`CREATE DATABASE ${tenant.dbName}`);
+      // provision the physical database, run initial migrations, etc.
     },
     async onDelete(tenant) { /* archive or drop */ },
-    async onSuspend(tenant) { /* notify */ },
+    async onSuspend(tenant) { /* notify downstream services */ },
   },
 });
 ```
 
-### 7 — Run migrations across all tenants
+---
+
+## Run migrations across all tenants
 
 ```bash
 npx kosan migrate --config kosan.config.ts --concurrency 4
 ```
 
-### Optional — credential encryption
+---
 
-```ts
-TenantRegistry.create({
-  master: ...,
-  adapter: ...,
-  cipher: {
-    encrypt: (plain) => kms.encrypt(plain),
-    decrypt: (cipher) => kms.decrypt(cipher),
-  },
-});
-```
+## Examples
 
-## Tenant resolvers
-
-| Resolver | Example |
+| Example | Stack |
 |---|---|
-| `SubdomainResolver` | `acme.myapp.com` → `acme` |
-| `HeaderResolver('X-Tenant-ID')` | `X-Tenant-ID: acme` header |
-| `PathResolver({ segment: 0 })` | `/acme/orders` → `acme` |
-| Custom async function | `(req) => req.user?.tenantId` |
+| [`sequelize-express`](./examples/sequelize-express) | Sequelize + Express |
+| [`sequelize-nestjs`](./examples/sequelize-nestjs) | Sequelize + NestJS |
+| [`drizzle-fastify`](./examples/drizzle-fastify) | Drizzle + Fastify |
+| [`prisma-koa`](./examples/prisma-koa) | Prisma + Koa |
+
+---
 
 ## Requirements
 
-- Node.js ≥ 18
-- TypeScript ≥ 5 (strict mode)
+- Node.js ≥ 20
+- TypeScript ≥ 5 (strict mode recommended)
+
+---
 
 ## Development
 
 ```bash
 pnpm install
-pnpm test        # all packages
-pnpm build       # all packages
-pnpm lint        # Biome
+pnpm test        # run all tests
+pnpm build       # build all packages
+pnpm typecheck   # type-check all packages
+pnpm lint        # Biome lint
 ```
+
+**Releasing** — see [RELEASING.md](./RELEASING.md).
+
+---
 
 ## License
 
