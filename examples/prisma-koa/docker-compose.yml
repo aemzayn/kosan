@@ -1,0 +1,36 @@
+services:
+  master:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: master
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+
+  acme:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: acme_db
+      POSTGRES_USER: acme_user
+      POSTGRES_PASSWORD: acme_pass
+    ports:
+      - "5433:5432"
+
+  globex:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: globex_db
+      POSTGRES_USER: globex_user
+      POSTGRES_PASSWORD: globex_pass
+    ports:
+      - "5434:5432"
+
+  initech:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: initech_db
+      POSTGRES_USER: initech_user
+      POSTGRES_PASSWORD: initech_pass
+    ports:
+      - "5435:5432"

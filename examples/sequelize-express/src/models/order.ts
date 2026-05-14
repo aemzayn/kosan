@@ -1,7 +1,7 @@
-import type { AdapterContext } from "@kosan/sequelize";
 import { DataTypes } from "sequelize";
+import type { Model, ModelStatic, Sequelize } from "sequelize";
 
-export function OrderModel({ sequelize }: AdapterContext) {
+export function OrderModel(sequelize: Sequelize): ModelStatic<Model> {
   return sequelize.define(
     "Order",
     {

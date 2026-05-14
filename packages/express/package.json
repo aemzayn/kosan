@@ -4,13 +4,7 @@
   "description": "Express middleware for Kosan — resolves tenant on every request and scopes the connection via AsyncLocalStorage",
   "author": "Kosan Contributors",
   "license": "MIT",
-  "keywords": [
-    "multi-tenancy",
-    "express",
-    "middleware",
-    "saas",
-    "typescript"
-  ],
+  "keywords": ["multi-tenancy", "express", "middleware", "saas", "typescript"],
   "repository": {
     "type": "git",
     "url": "https://github.com/kosan-dev/kosan.git",
@@ -32,11 +26,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md"
-  ],
+  "files": ["dist", "LICENSE", "README.md"],
   "publishConfig": {
     "access": "public"
   },

@@ -1,0 +1,21 @@
+// Tenant database schema — applied to every tenant's own Postgres database.
+// Copy this into a separate Prisma project (or a second generator) that
+// points at the tenant DATABASE_URL.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/tenant-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TENANT_DATABASE_URL")
+}
+
+model Post {
+  id    String @id @default(uuid())
+  title String
+  body  String
+
+  @@map("posts")
+}

@@ -1,0 +1,31 @@
+{
+  "name": "prisma-koa-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "provision": "tsx src/provision.ts",
+    "start": "tsx src/server.ts",
+    "dev": "tsx watch src/server.ts",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push"
+  },
+  "dependencies": {
+    "@kosan/core": "workspace:*",
+    "@kosan/prisma": "workspace:*",
+    "@kosan/koa": "workspace:*",
+    "@prisma/client": "^5.0.0",
+    "koa": "^2.15.0",
+    "koa-router": "^12.0.0",
+    "koa-bodyparser": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.15.0",
+    "@types/koa-router": "^7.4.8",
+    "@types/koa-bodyparser": "^4.3.12",
+    "@types/node": "^20.0.0",
+    "prisma": "^5.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0"
+  }
+}
