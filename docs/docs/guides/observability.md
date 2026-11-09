@@ -3,11 +3,13 @@
 
 # Observability
 
-Kosan exposes connection pool stats, slow-query detection, structured logging helpers, and a health payload — giving you visibility into what every tenant's database connection is doing.
+Kosan exposes connection cache stats, slow-query detection, structured logging helpers, and a health payload — giving you visibility into what every tenant's database connection is doing.
 
 ---
 
-## Connection pool stats
+## Connection cache stats
+
+These describe Kosan's **connection cache**: which tenants have an open connection, and how long each has been idle. Pool-level numbers (connections in use, requests waiting) aren't available yet. See *Future plans* in `MILESTONES.md`.
 
 ### `registry.getStats()`
 

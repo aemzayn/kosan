@@ -28,7 +28,7 @@ None of the major ORMs — Sequelize, Prisma, TypeORM, MikroORM, Drizzle — shi
 | Per-tenant migrations | `@kosan/cli` — parallel, failure-isolated |
 | ORM integration | `@kosan/sequelize`, `@kosan/prisma` |
 | Framework integration | `@kosan/express`, `@kosan/fastify`, `@kosan/koa` |
-| Observability | Pool stats, slow-query hooks, structured log context |
+| Observability | Connection cache stats, slow-query hooks, structured log context |
 
 ## Architecture
 

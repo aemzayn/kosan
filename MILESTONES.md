@@ -30,10 +30,48 @@
 
 ### D. Missing requirements (CLAUDE.md)
 - [x] `JwtResolver` (claim-based, user-supplied verifier — no hard JWT dependency)
-- [ ] Per-tenant pool stats in health payload (adapter-provided)
 - [x] CI matrix over Postgres + MySQL (service containers, integration tests; `pnpm test:integration`)
 - [ ] `examples/multi-region`
 - [x] KMS cipher example in docs (AWS + GCP already present; CLI usage added)
+
+## Future plans
+
+### Per-tenant connection pool stats
+
+**Status:** deferred. Not part of the stabilization milestone.
+
+**Goal:** report each tenant's pool usage (open, in use, idle and waiting
+connections) next to the existing cache stats in `registry.getStats()` and
+`getHealthPayload()`, so operators can see which tenant is exhausting its pool.
+
+**Why it was deferred:** none of the ORMs expose pool numbers through a stable
+public API.
+
+- **Sequelize v6:** the typed `ConnectionManager` has no `pool` property. The
+  numbers live on an undocumented internal object (`size`, `available`,
+  `using`, `waiting`), and reading it would need runtime checks and could break
+  on any minor release.
+- **Prisma:** pool data comes from `$metrics`, which is a preview feature and
+  is reported for the whole client, not per pool.
+- **Drizzle:** it depends on the driver underneath (`postgres`, `pg`,
+  `mysql2`), and each driver reports pool data differently.
+
+**Proposed design:**
+
+1. Add an optional `Adapter.poolStats?(conn): PoolStats | undefined` method,
+   where `PoolStats` is `{ size, inUse, idle, waiting }`. Every field is
+   optional, so an adapter reports only what it can measure reliably.
+2. `getStats()` adds `pool` to each cache entry when the adapter provides it.
+   Without it the output is unchanged, so this is backwards-compatible.
+3. Adapters read internals only behind runtime type checks and return
+   `undefined` when the shape doesn't match, so an ORM upgrade disables the
+   stats instead of crashing.
+4. A pinned-version integration test per adapter (Postgres and MySQL CI jobs)
+   catches the internals changing.
+
+**Open questions:** expose stats as a pull API only, or also emit events (pool
+exhausted, high wait count) for alerting? And should the sequelize adapter wait
+for Sequelize v7, which may expose the pool publicly?
 
 ## Milestone 1 — Working end-to-end demo
 
