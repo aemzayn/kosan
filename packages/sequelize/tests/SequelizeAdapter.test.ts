@@ -160,3 +160,32 @@ describe("SequelizeAdapter", () => {
     });
   });
 });
+
+describe("SequelizeAdapter.connectionKey", () => {
+  const adapter = new SequelizeAdapter();
+  const base: TenantConfig = {
+    id: "t1",
+    slug: "acme",
+    host: "db1",
+    port: 5432,
+    dbName: "acme",
+    user: "u",
+    password: "p",
+    status: "active",
+    meta: { dialect: "postgres", plan: "free" },
+  };
+  const key = (overrides: Partial<TenantConfig>) =>
+    adapter.connectionKey({ ...base, ...overrides });
+
+  it("changes when anything the connection uses changes", () => {
+    const original = key({});
+    expect(key({ host: "db2" })).not.toBe(original);
+    expect(key({ password: "rotated" })).not.toBe(original);
+    expect(key({ meta: { dialect: "mysql", plan: "free" } })).not.toBe(original);
+    expect(key({ slug: "acme-corp" })).not.toBe(original);
+  });
+
+  it("ignores meta fields Sequelize does not use", () => {
+    expect(key({ meta: { dialect: "postgres", plan: "pro" } })).toBe(key({}));
+  });
+});

@@ -15,7 +15,7 @@ export const tenants = pgTable('tenants', {
   dbName:    text('db_name').notNull(),
   user:      text('user').notNull(),
   password:  text('password').notNull(),
-  status:    text('status', { enum: ['active', 'suspended', 'deleted'] })
+  status:    text('status', { enum: ['active', 'suspended', 'deleted', 'provisioning'] })
                .notNull()
                .default('active'),
   meta:      jsonb('meta'),
@@ -38,7 +38,7 @@ export const tenants = sqliteTable('tenants', {
   dbName:    text('db_name').notNull(),
   user:      text('user').notNull(),
   password:  text('password').notNull(),
-  status:    text('status', { enum: ['active', 'suspended', 'deleted'] })
+  status:    text('status', { enum: ['active', 'suspended', 'deleted', 'provisioning'] })
                .notNull()
                .default('active'),
   meta:      text('meta', { mode: 'json' }),

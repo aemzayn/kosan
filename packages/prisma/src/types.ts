@@ -50,6 +50,7 @@ export type PrismaClientConstructor<TClient extends PrismaClientLike> = new (opt
  *   active
  *   suspended
  *   deleted
+ *   provisioning
  * }
  * ```
  */

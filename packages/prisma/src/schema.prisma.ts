@@ -8,6 +8,7 @@
  *   active
  *   suspended
  *   deleted
+ *   provisioning
  * }
  *
  * model Tenant {
@@ -34,6 +35,7 @@ enum TenantStatus {
   active
   suspended
   deleted
+  provisioning
 }
 
 model Tenant {

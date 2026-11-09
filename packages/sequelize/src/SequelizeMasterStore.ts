@@ -55,7 +55,7 @@ function defineTenantModel(sequelize: Sequelize): typeof TenantModel {
       user: { type: DataTypes.STRING(255), allowNull: false },
       password: { type: DataTypes.TEXT, allowNull: false },
       status: {
-        type: DataTypes.ENUM("active", "suspended", "deleted"),
+        type: DataTypes.ENUM("active", "suspended", "deleted", "provisioning"),
         allowNull: false,
         defaultValue: "active",
       },

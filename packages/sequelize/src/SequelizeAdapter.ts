@@ -47,6 +47,23 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
     return sequelize;
   }
 
+  /**
+   * The tenant fields a Sequelize connection depends on. Other `meta` keys
+   * (plan, feature flags, …) can change without reopening the pool. The slug
+   * is included because slow-query reports carry it.
+   */
+  connectionKey(tenant: TenantConfig): string {
+    return JSON.stringify([
+      tenant.host,
+      tenant.port,
+      tenant.dbName,
+      tenant.user,
+      tenant.password,
+      tenant.slug,
+      tenant.meta?.dialect ?? null,
+    ]);
+  }
+
   async disconnect(sequelize: Sequelize): Promise<void> {
     await sequelize.close();
   }
