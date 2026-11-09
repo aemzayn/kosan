@@ -9,7 +9,7 @@ import type {
 import type { TenantDelegate, TenantRow } from './types.js';
 
 function toConfig(row: TenantRow): TenantConfig {
-  return {
+  const config: TenantConfig = {
     id: row.id,
     slug: row.slug,
     host: row.host,
@@ -18,10 +18,11 @@ function toConfig(row: TenantRow): TenantConfig {
     user: row.user,
     password: row.password,
     status: row.status,
-    meta: row.meta ?? undefined,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
+  if (row.meta !== null) config.meta = row.meta;
+  return config;
 }
 
 /**

@@ -129,6 +129,7 @@ export interface PrismaAdapterOptions<TClient extends PrismaClientLike> {
 // ---------------------------------------------------------------------------
 
 /** The value stored in `models` by the Prisma adapter. */
-export interface PrismaModels<TClient extends PrismaClientLike> {
+// A type alias (not an interface) so it is assignable to Record<string, unknown>.
+export type PrismaModels<TClient extends PrismaClientLike> = {
   prisma: TClient;
-}
+};
