@@ -1,10 +1,6 @@
-import {
-  TenantNotActiveError,
-  TenantNotFoundError,
-  runWithTenant,
-} from '@kosan/core';
-import type { Resolver, TenantRegistry } from '@kosan/core';
-import type { Context, Next } from 'koa';
+import { TenantNotActiveError, TenantNotFoundError, runWithTenant } from "@kosan/core";
+import type { Resolver, TenantRegistry } from "@kosan/core";
+import type { Context, Next } from "koa";
 
 export interface TenantMiddlewareOptions {
   registry: TenantRegistry;
@@ -24,11 +20,11 @@ export interface TenantMiddlewareOptions {
 }
 
 function toResolver(
-  r: TenantMiddlewareOptions['resolver'],
+  r: TenantMiddlewareOptions["resolver"],
 ): (ctx: Context) => string | null | Promise<string | null> {
-  if (typeof r === 'function') return r;
+  if (typeof r === "function") return r;
   // Koa's ctx.request has headers, path, url — compatible with resolver shape.
-  return (ctx) => r.resolve(ctx.request as Parameters<Resolver['resolve']>[0]);
+  return (ctx) => r.resolve(ctx.request as Parameters<Resolver["resolve"]>[0]);
 }
 
 export function tenantMiddleware(options: TenantMiddlewareOptions) {
@@ -38,7 +34,7 @@ export function tenantMiddleware(options: TenantMiddlewareOptions) {
     options.onMissingTenant ??
     (async (ctx: Context) => {
       ctx.status = 400;
-      ctx.body = { error: 'Tenant identifier missing from request.' };
+      ctx.body = { error: "Tenant identifier missing from request." };
     });
 
   return async function tenantMiddlewareFn(ctx: Context, next: Next): Promise<void> {
@@ -51,12 +47,12 @@ export function tenantMiddleware(options: TenantMiddlewareOptions) {
       return;
     }
 
-    if (slug === null || slug === '') {
+    if (slug === null || slug === "") {
       await onMissing(ctx, next);
       return;
     }
 
-    let tenantCtx: Awaited<ReturnType<TenantRegistry['resolveBySlug']>>;
+    let tenantCtx: Awaited<ReturnType<TenantRegistry["resolveBySlug"]>>;
 
     try {
       tenantCtx = await options.registry.resolveBySlug(slug);

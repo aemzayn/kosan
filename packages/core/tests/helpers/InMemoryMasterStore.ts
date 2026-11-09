@@ -1,11 +1,11 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from "node:crypto";
 import type {
   CreateTenantInput,
   MasterStore,
   TenantConfig,
   TenantStatus,
   UpdateTenantInput,
-} from '../../src/types.js';
+} from "../../src/types.js";
 
 export class InMemoryMasterStore implements MasterStore {
   private rows = new Map<string, TenantConfig>();
@@ -33,7 +33,7 @@ export class InMemoryMasterStore implements MasterStore {
       dbName: data.dbName,
       user: data.user,
       password: data.password,
-      status: data.status ?? 'active',
+      status: data.status ?? "active",
       meta: data.meta,
       createdAt: new Date(),
       updatedAt: new Date(),

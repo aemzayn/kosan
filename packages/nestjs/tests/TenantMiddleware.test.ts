@@ -1,47 +1,49 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Request, Response, NextFunction } from 'express';
-import { HttpException } from '@nestjs/common';
 import {
-  TenantNotFoundError,
   TenantNotActiveError,
+  TenantNotFoundError,
   getCurrentTenant,
   runWithTenant,
-} from '@kosan/core';
-import type { TenantConfig, TenantContextValue, TenantRegistry, Resolver } from '@kosan/core';
-import { TenantMiddleware } from '../src/TenantMiddleware.js';
-import { KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER } from '../src/constants.js';
+} from "@kosan/core";
+import type { Resolver, TenantConfig, TenantContextValue, TenantRegistry } from "@kosan/core";
+import { HttpException } from "@nestjs/common";
+import type { NextFunction, Request, Response } from "express";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { TenantMiddleware } from "../src/TenantMiddleware.js";
+import { KOSAN_OPTIONS, KOSAN_REGISTRY, KOSAN_RESOLVER } from "../src/constants.js";
 
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
 
 const TENANT: TenantConfig = {
-  id: 't-1',
-  slug: 'acme',
-  host: 'localhost',
+  id: "t-1",
+  slug: "acme",
+  host: "localhost",
   port: 5432,
-  dbName: 'acme_db',
-  user: 'u',
-  password: 'p',
-  status: 'active',
+  dbName: "acme_db",
+  user: "u",
+  password: "p",
+  status: "active",
 };
 
 const CTX: TenantContextValue = { tenant: TENANT, connection: {}, models: {} };
 
 function makeRegistry(
-  behaviour: 'found' | 'not-found' | 'suspended' | 'error' = 'found',
+  behaviour: "found" | "not-found" | "suspended" | "error" = "found",
 ): TenantRegistry {
   return {
     resolveBySlug: vi.fn(async () => {
-      if (behaviour === 'not-found') throw new TenantNotFoundError('slug=acme');
-      if (behaviour === 'suspended') throw new TenantNotActiveError('acme', 'suspended');
-      if (behaviour === 'error') throw new Error('DB exploded');
+      if (behaviour === "not-found") throw new TenantNotFoundError("slug=acme");
+      if (behaviour === "suspended") throw new TenantNotActiveError("acme", "suspended");
+      if (behaviour === "error") throw new Error("DB exploded");
       return CTX;
     }),
   } as unknown as TenantRegistry;
 }
 
-function makeOptions(overrides: Partial<{ missingTenantStatus: number; onMissingTenant: (s: string) => void }> = {}) {
+function makeOptions(
+  overrides: Partial<{ missingTenantStatus: number; onMissingTenant: (s: string) => void }> = {},
+) {
   return {
     master: {} as never,
     adapter: {} as never,
@@ -66,7 +68,7 @@ function makeMiddleware(
 }
 
 function stubRequest(slug?: string): Request {
-  return { hostname: slug ? `${slug}.app.com` : 'app.com', headers: {} } as unknown as Request;
+  return { hostname: slug ? `${slug}.app.com` : "app.com", headers: {} } as unknown as Request;
 }
 
 function stubRes(): Response {
@@ -78,18 +80,14 @@ function stubRes(): Response {
 // ---------------------------------------------------------------------------
 
 function buildMiddleware(
-  registryBehaviour: 'found' | 'not-found' | 'suspended' | 'error' = 'found',
-  resolverResult: string | null = 'acme',
+  registryBehaviour: "found" | "not-found" | "suspended" | "error" = "found",
+  resolverResult: string | null = "acme",
   options: Partial<{ missingTenantStatus: number; onMissingTenant: (s: string) => void }> = {},
 ): TenantMiddleware {
   const registry = makeRegistry(registryBehaviour);
   const resolver: Resolver = { resolve: () => resolverResult };
   // Construct without NestJS by directly assigning private fields
-  const mw = new TenantMiddleware(
-    registry,
-    resolver,
-    makeOptions(options),
-  );
+  const mw = new TenantMiddleware(registry, resolver, makeOptions(options));
   return mw;
 }
 
@@ -97,22 +95,22 @@ function buildMiddleware(
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('TenantMiddleware', () => {
-  describe('happy path', () => {
-    it('calls next() with tenant context available', async () => {
-      const mw = buildMiddleware('found', 'acme');
+describe("TenantMiddleware", () => {
+  describe("happy path", () => {
+    it("calls next() with tenant context available", async () => {
+      const mw = buildMiddleware("found", "acme");
       let tenantInNext: TenantConfig | undefined;
 
       const next: NextFunction = () => {
         tenantInNext = getCurrentTenant();
       };
 
-      await mw.use(stubRequest('acme'), stubRes(), next);
-      expect(tenantInNext?.slug).toBe('acme');
+      await mw.use(stubRequest("acme"), stubRes(), next);
+      expect(tenantInNext?.slug).toBe("acme");
     });
 
-    it('makes useTenant() return the correct value inside async next()', async () => {
-      const mw = buildMiddleware('found', 'acme');
+    it("makes useTenant() return the correct value inside async next()", async () => {
+      const mw = buildMiddleware("found", "acme");
       let slugAfterAwait: string | undefined;
 
       const next: NextFunction = async () => {
@@ -120,59 +118,59 @@ describe('TenantMiddleware', () => {
         slugAfterAwait = getCurrentTenant()?.slug;
       };
 
-      await mw.use(stubRequest('acme'), stubRes(), next);
-      expect(slugAfterAwait).toBe('acme');
+      await mw.use(stubRequest("acme"), stubRes(), next);
+      expect(slugAfterAwait).toBe("acme");
     });
   });
 
-  describe('resolver returns null', () => {
-    it('throws HttpException 404 by default', async () => {
-      const mw = buildMiddleware('found', null);
+  describe("resolver returns null", () => {
+    it("throws HttpException 404 by default", async () => {
+      const mw = buildMiddleware("found", null);
       await expect(mw.use(stubRequest(), stubRes(), vi.fn())).rejects.toBeInstanceOf(HttpException);
     });
 
-    it('uses custom missingTenantStatus', async () => {
-      const mw = buildMiddleware('found', null, { missingTenantStatus: 400 });
+    it("uses custom missingTenantStatus", async () => {
+      const mw = buildMiddleware("found", null, { missingTenantStatus: 400 });
       await expect(mw.use(stubRequest(), stubRes(), vi.fn())).rejects.toMatchObject({
         status: 400,
       });
     });
   });
 
-  describe('tenant errors', () => {
-    it('throws HttpException 404 for TenantNotFoundError', async () => {
-      const mw = buildMiddleware('not-found', 'acme');
-      await expect(mw.use(stubRequest('acme'), stubRes(), vi.fn())).rejects.toMatchObject({
+  describe("tenant errors", () => {
+    it("throws HttpException 404 for TenantNotFoundError", async () => {
+      const mw = buildMiddleware("not-found", "acme");
+      await expect(mw.use(stubRequest("acme"), stubRes(), vi.fn())).rejects.toMatchObject({
         status: 404,
       });
     });
 
-    it('throws HttpException 404 for TenantNotActiveError', async () => {
-      const mw = buildMiddleware('suspended', 'acme');
-      await expect(mw.use(stubRequest('acme'), stubRes(), vi.fn())).rejects.toMatchObject({
+    it("throws HttpException 404 for TenantNotActiveError", async () => {
+      const mw = buildMiddleware("suspended", "acme");
+      await expect(mw.use(stubRequest("acme"), stubRes(), vi.fn())).rejects.toMatchObject({
         status: 404,
       });
     });
 
-    it('calls onMissingTenant when tenant is not found', async () => {
+    it("calls onMissingTenant when tenant is not found", async () => {
       const onMissingTenant = vi.fn();
-      const mw = buildMiddleware('not-found', 'acme', { onMissingTenant });
-      await expect(mw.use(stubRequest('acme'), stubRes(), vi.fn())).rejects.toBeInstanceOf(
+      const mw = buildMiddleware("not-found", "acme", { onMissingTenant });
+      await expect(mw.use(stubRequest("acme"), stubRes(), vi.fn())).rejects.toBeInstanceOf(
         HttpException,
       );
-      expect(onMissingTenant).toHaveBeenCalledWith('acme');
+      expect(onMissingTenant).toHaveBeenCalledWith("acme");
     });
 
-    it('rethrows unexpected errors', async () => {
-      const mw = buildMiddleware('error', 'acme');
-      await expect(mw.use(stubRequest('acme'), stubRes(), vi.fn())).rejects.toThrow('DB exploded');
+    it("rethrows unexpected errors", async () => {
+      const mw = buildMiddleware("error", "acme");
+      await expect(mw.use(stubRequest("acme"), stubRes(), vi.fn())).rejects.toThrow("DB exploded");
     });
   });
 
-  describe('context isolation', () => {
-    it('each request sees its own tenant', async () => {
-      const slugA = 'alpha';
-      const slugB = 'beta';
+  describe("context isolation", () => {
+    it("each request sees its own tenant", async () => {
+      const slugA = "alpha";
+      const slugB = "beta";
 
       const makeTenantCtx = (slug: string): TenantContextValue => ({
         tenant: { ...TENANT, slug },
@@ -194,10 +192,10 @@ describe('TenantMiddleware', () => {
 
       await Promise.all([
         mwA.use(stubRequest(slugA), stubRes(), () => {
-          results.push(getCurrentTenant()?.slug ?? 'none');
+          results.push(getCurrentTenant()?.slug ?? "none");
         }),
         mwB.use(stubRequest(slugB), stubRes(), () => {
-          results.push(getCurrentTenant()?.slug ?? 'none');
+          results.push(getCurrentTenant()?.slug ?? "none");
         }),
       ]);
 

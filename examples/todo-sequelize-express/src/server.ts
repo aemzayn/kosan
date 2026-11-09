@@ -1,9 +1,9 @@
-import express, { type Request, type Response } from 'express';
-import { HeaderResolver, useTenant, getTenantLogContext, getHealthPayload } from '@kosan/core';
-import { tenantMiddleware } from '@kosan/express';
-import { registry } from './registry.js';
-import usersRouter from './routes/users.js';
-import todosRouter from './routes/todos.js';
+import { HeaderResolver, getHealthPayload, getTenantLogContext, useTenant } from "@kosan/core";
+import { tenantMiddleware } from "@kosan/express";
+import express, { type Request, type Response } from "express";
+import { registry } from "./registry.js";
+import todosRouter from "./routes/todos.js";
+import usersRouter from "./routes/users.js";
 
 const app = express();
 app.use(express.json());
@@ -16,10 +16,10 @@ app.use(express.json());
 app.use(
   tenantMiddleware({
     registry,
-    resolver: new HeaderResolver('X-Tenant'),
+    resolver: new HeaderResolver("X-Tenant"),
     onMissingTenant: (_req, res) => {
       res.status(400).json({
-        error: 'Missing X-Tenant header. Send the tenant slug with every request.',
+        error: "Missing X-Tenant header. Send the tenant slug with every request.",
       });
     },
   }),
@@ -29,28 +29,28 @@ app.use(
 // Routes — every handler below can call useTenant() to get the tenant's DB
 // ---------------------------------------------------------------------------
 
-app.get('/', (_req: Request, res: Response) => {
+app.get("/", (_req: Request, res: Response) => {
   const { tenant } = useTenant();
   res.json({
     tenant: tenant.slug,
-    plan: tenant.meta?.['plan'],
+    plan: tenant.meta?.plan,
     message: `Welcome to the ${tenant.slug} todo app!`,
   });
 });
 
 // Users CRUD
-app.use('/users', usersRouter);
+app.use("/users", usersRouter);
 
 // Todos CRUD — nested under users
-app.use('/users/:userId/todos', todosRouter);
+app.use("/users/:userId/todos", todosRouter);
 
 // ---------------------------------------------------------------------------
 // Health + observability
 // ---------------------------------------------------------------------------
 
-app.get('/health', (_req: Request, res: Response) => {
+app.get("/health", (_req: Request, res: Response) => {
   res.json({
-    status: 'ok',
+    status: "ok",
     ...getHealthPayload(registry),
     logContext: getTenantLogContext(),
   });
@@ -65,11 +65,11 @@ app.use((err: unknown, _req: Request, res: Response, _next: express.NextFunction
   res.status(500).json({ error: String(err) });
 });
 
-const PORT = process.env['PORT'] ?? 3000;
+const PORT = process.env.PORT ?? 3000;
 app.listen(PORT, () => {
   console.log(`\nTodo API running on http://localhost:${PORT}`);
-  console.log('Send X-Tenant: alpha or X-Tenant: beta with every request.\n');
-  console.log('Examples:');
+  console.log("Send X-Tenant: alpha or X-Tenant: beta with every request.\n");
+  console.log("Examples:");
   console.log(`  curl -H "X-Tenant: alpha" http://localhost:${PORT}/`);
   console.log(`  curl -H "X-Tenant: alpha" http://localhost:${PORT}/users`);
 });

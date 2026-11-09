@@ -3,26 +3,26 @@
  *
  *   pnpm provision
  */
-import { registry } from './registry.js';
+import { registry } from "./registry.js";
 
 const tenants = [
   {
-    slug: 'alpha',
-    host: 'localhost',
+    slug: "alpha",
+    host: "localhost",
     port: 5433,
-    dbName: 'alpha_db',
-    user: 'alpha_user',
-    password: 'alpha_pass',
-    meta: { plan: 'pro', company: 'Alpha Corp' },
+    dbName: "alpha_db",
+    user: "alpha_user",
+    password: "alpha_pass",
+    meta: { plan: "pro", company: "Alpha Corp" },
   },
   {
-    slug: 'beta',
-    host: 'localhost',
+    slug: "beta",
+    host: "localhost",
     port: 5434,
-    dbName: 'beta_db',
-    user: 'beta_user',
-    password: 'beta_pass',
-    meta: { plan: 'starter', company: 'Beta Inc' },
+    dbName: "beta_db",
+    user: "beta_user",
+    password: "beta_pass",
+    meta: { plan: "starter", company: "Beta Inc" },
   },
 ];
 

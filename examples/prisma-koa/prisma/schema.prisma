@@ -1,0 +1,36 @@
+// Master database schema — run `pnpm db:generate` then `pnpm db:push` to apply.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Tenant registry — required by @kosan/prisma PrismaMasterStore
+// ---------------------------------------------------------------------------
+
+enum TenantStatus {
+  active
+  suspended
+  deleted
+}
+
+model Tenant {
+  id        String       @id @default(uuid())
+  slug      String       @unique
+  host      String
+  port      Int
+  dbName    String       @map("db_name")
+  user      String
+  password  String
+  status    TenantStatus @default(active)
+  meta      Json?
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  @@map("tenants")
+}

@@ -1,15 +1,15 @@
-import { Injectable, Inject, HttpException } from '@nestjs/common';
-import type { NestMiddleware } from '@nestjs/common';
-import type { Request, Response, NextFunction } from 'express';
 import {
-  TenantRegistry,
-  TenantNotFoundError,
   TenantNotActiveError,
-  wrapWithTenantContext,
-} from '@kosan/core';
-import type { Resolver } from '@kosan/core';
-import { KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER } from './constants.js';
-import type { KosanOptions } from './types.js';
+  TenantNotFoundError,
+  type TenantRegistry,
+  runWithTenant,
+} from "@kosan/core";
+import type { Resolver } from "@kosan/core";
+import { HttpException, Inject, Injectable } from "@nestjs/common";
+import type { NestMiddleware } from "@nestjs/common";
+import type { NextFunction, Request, Response } from "express";
+import { KOSAN_OPTIONS, KOSAN_REGISTRY, KOSAN_RESOLVER } from "./constants.js";
+import type { KosanOptions } from "./types.js";
 
 /**
  * NestJS middleware that resolves the current tenant and wraps the rest of
@@ -36,21 +36,21 @@ export class TenantMiddleware implements NestMiddleware {
 
     if (slug === null) {
       const status = this.options.missingTenantStatus ?? 404;
-      throw new HttpException('Tenant not found', status);
+      throw new HttpException("Tenant not found", status);
     }
 
     try {
       const ctx = await this.registry.resolveBySlug(slug);
-      // Run next() inside AsyncLocalStorage.run() so the entire downstream
-      // Express/NestJS chain inherits the tenant context.
-      wrapWithTenantContext(ctx, () => next());
+      // runWithTenant wraps next() inside AsyncLocalStorage.run() so the entire
+      // downstream Express/NestJS chain inherits the tenant context.
+      await runWithTenant(ctx, () => Promise.resolve(next()));
     } catch (err) {
       if (err instanceof TenantNotFoundError || err instanceof TenantNotActiveError) {
         const status = this.options.missingTenantStatus ?? 404;
         if (this.options.onMissingTenant) {
           await this.options.onMissingTenant(slug);
         }
-        throw new HttpException(err.message, status);
+        throw new HttpException((err as Error).message, status);
       }
       throw err;
     }

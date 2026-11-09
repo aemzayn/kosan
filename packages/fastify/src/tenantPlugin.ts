@@ -1,15 +1,14 @@
-import {
-  TenantNotActiveError,
-  TenantNotFoundError,
-  wrapWithTenantContext,
-} from '@kosan/core';
-import type { Resolver, TenantRegistry } from '@kosan/core';
+import { TenantNotActiveError, TenantNotFoundError, wrapWithTenantContext } from "@kosan/core";
+import type { Resolver, TenantRegistry } from "@kosan/core";
 import type {
+  FastifyBaseLogger,
   FastifyPluginCallback,
   FastifyReply,
   FastifyRequest,
-} from 'fastify';
-import fp from 'fastify-plugin';
+  FastifyTypeProviderDefault,
+  RawServerDefault,
+} from "fastify";
+import fp from "fastify-plugin";
 
 export interface TenantPluginOptions {
   registry: TenantRegistry;
@@ -26,40 +25,41 @@ export interface TenantPluginOptions {
 }
 
 function toResolver(
-  r: TenantPluginOptions['resolver'],
+  r: TenantPluginOptions["resolver"],
 ): (req: FastifyRequest) => string | null | Promise<string | null> {
-  if (typeof r === 'function') return r;
+  if (typeof r === "function") return r;
   return (req) => r.resolve(req);
 }
 
-const tenantPluginImpl: FastifyPluginCallback<TenantPluginOptions> = (
-  fastify,
-  options,
-  pluginDone,
-) => {
+const tenantPluginImpl: FastifyPluginCallback<
+  TenantPluginOptions,
+  RawServerDefault,
+  FastifyTypeProviderDefault,
+  FastifyBaseLogger
+> = (fastify, options, pluginDone) => {
   const resolve = toResolver(options.resolver);
 
   const onMissing =
     options.onMissingTenant ??
     ((_req: FastifyRequest, reply: FastifyReply) => {
-      void reply.status(400).send({ error: 'Tenant identifier missing from request.' });
+      void reply.status(400).send({ error: "Tenant identifier missing from request." });
     });
 
   // Use the callback-based hook (not async) so we can call done() inside
   // wrapWithTenantContext. Fastify schedules its next lifecycle step from
   // within done(), which means it inherits the tenant async context created
   // by storage.run() — making useTenant() available in route handlers.
-  fastify.addHook('onRequest', (request, reply, done) => {
+  fastify.addHook("onRequest", (request, reply, done) => {
     Promise.resolve()
       .then(() => resolve(request))
       .then(async (slug) => {
-        if (slug === null || slug === '') {
+        if (slug === null || slug === "") {
           await onMissing(request, reply);
           done();
           return;
         }
 
-        let ctx: Awaited<ReturnType<TenantRegistry['resolveBySlug']>>;
+        let ctx: Awaited<ReturnType<TenantRegistry["resolveBySlug"]>>;
         try {
           ctx = await options.registry.resolveBySlug(slug);
         } catch (err) {
@@ -102,6 +102,6 @@ const tenantPluginImpl: FastifyPluginCallback<TenantPluginOptions> = (
  * ```
  */
 export default fp(tenantPluginImpl, {
-  fastify: '4.x || 5.x',
-  name: '@kosan/fastify',
+  fastify: "4.x || 5.x",
+  name: "@kosan/fastify",
 });

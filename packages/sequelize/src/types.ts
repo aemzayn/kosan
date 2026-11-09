@@ -1,12 +1,7 @@
-import type { Sequelize } from 'sequelize';
+import type { Sequelize } from "sequelize";
 
-/** Passed to every model factory so it can call `sequelize.define(...)`. */
-export interface AdapterContext {
-  sequelize: Sequelize;
-}
-
-/** A model factory receives the adapter context and returns a Sequelize model. */
-export type SequelizeModelFactory = (ctx: AdapterContext) => unknown;
+/** A model factory receives a Sequelize instance and returns a model. */
+export type SequelizeModelFactory = (sequelize: Sequelize) => unknown;
 
 export interface SlowQueryInfo {
   sql: string;
@@ -21,7 +16,7 @@ export interface SequelizeAdapterOptions {
    * The tenant's actual dialect is derived from its `host` / `dbName` config;
    * this is the fallback.
    */
-  defaultDialect?: 'postgres' | 'mysql' | 'mariadb' | 'sqlite' | 'mssql';
+  defaultDialect?: "postgres" | "mysql" | "mariadb" | "sqlite" | "mssql";
 
   /** Sequelize pool options applied to every tenant connection. */
   pool?: {

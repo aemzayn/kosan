@@ -1,13 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
-import { InjectRegistry } from '@kosan/nestjs';
-import { TenantRegistry, getHealthPayload } from '@kosan/core';
+import { type TenantRegistry, getHealthPayload } from "@kosan/core";
+import { InjectRegistry } from "@kosan/nestjs";
+import { Controller, Get } from "@nestjs/common";
 
-@Controller('health')
+@Controller("health")
 export class HealthController {
   constructor(@InjectRegistry() private readonly registry: TenantRegistry) {}
 
   @Get()
   check() {
-    return { status: 'ok', ...getHealthPayload(this.registry) };
+    return { status: "ok", ...getHealthPayload(this.registry) };
   }
 }

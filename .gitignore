@@ -5,9 +5,19 @@ dist/
 .env.*
 !.env.example
 
-# Docusaurus
-.docusaurus/
-docs/build/
+# Compiled TypeScript accidentally emitted inside src/ directories
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.d.ts.map
+examples/*/src/**/*.js
+examples/*/src/**/*.js.map
+examples/*/src/**/*.d.ts
+examples/*/src/**/*.d.ts.map
+
+# Docs
+docs/.vitepress/cache/
+docs/.vitepress/dist/
 
 # OS
 .DS_Store

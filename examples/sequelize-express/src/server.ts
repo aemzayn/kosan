@@ -1,8 +1,8 @@
-import express, { type Request, type Response } from 'express';
-import { SubdomainResolver, useTenant } from '@kosan/core';
-import { tenantMiddleware } from '@kosan/express';
-import { registry } from './registry.js';
-import type { ModelStatic, Model } from 'sequelize';
+import { SubdomainResolver, useTenant } from "@kosan/core";
+import { tenantMiddleware } from "@kosan/express";
+import express, { type Request, type Response } from "express";
+import type { Model, ModelStatic } from "sequelize";
+import { registry } from "./registry.js";
 
 const app = express();
 app.use(express.json());
@@ -17,7 +17,7 @@ app.use(
     resolver: new SubdomainResolver(),
     onMissingTenant: (_req, res) => {
       res.status(400).json({
-        error: 'No tenant subdomain found. Use <slug>.localhost:3000.',
+        error: "No tenant subdomain found. Use <slug>.localhost:3000.",
       });
     },
   }),
@@ -27,33 +27,33 @@ app.use(
 // Routes — everything below has access to useTenant()
 // ---------------------------------------------------------------------------
 
-app.get('/', (_req: Request, res: Response) => {
+app.get("/", (_req: Request, res: Response) => {
   const { tenant } = useTenant();
   res.json({
     message: `Hello from tenant "${tenant.slug}"!`,
-    plan: tenant.meta?.['plan'],
+    plan: tenant.meta?.plan,
     dbName: tenant.dbName,
   });
 });
 
-app.get('/orders', async (_req: Request, res: Response) => {
+app.get("/orders", async (_req: Request, res: Response) => {
   const { models } = useTenant();
-  const Order = models['Order'] as ModelStatic<Model>;
+  const Order = models.Order as ModelStatic<Model>;
   const orders = await Order.findAll();
   res.json(orders);
 });
 
-app.post('/orders', async (req: Request, res: Response) => {
+app.post("/orders", async (req: Request, res: Response) => {
   const { models } = useTenant();
-  const Order = models['Order'] as ModelStatic<Model>;
+  const Order = models.Order as ModelStatic<Model>;
   const order = await Order.create(req.body as Record<string, unknown>);
   res.status(201).json(order);
 });
 
-app.delete('/orders/:id', async (req: Request, res: Response) => {
+app.delete("/orders/:id", async (req: Request, res: Response) => {
   const { models } = useTenant();
-  const Order = models['Order'] as ModelStatic<Model>;
-  const deleted = await Order.destroy({ where: { id: req.params['id'] } });
+  const Order = models.Order as ModelStatic<Model>;
+  const deleted = await Order.destroy({ where: { id: req.params.id } });
   res.json({ deleted });
 });
 
@@ -61,9 +61,9 @@ app.delete('/orders/:id', async (req: Request, res: Response) => {
 // Health
 // ---------------------------------------------------------------------------
 
-app.get('/health', (_req: Request, res: Response) => {
+app.get("/health", (_req: Request, res: Response) => {
   res.json({
-    status: 'ok',
+    status: "ok",
     cacheSize: registry.cache.size,
     cacheStats: registry.cache.stats(),
   });
@@ -78,7 +78,7 @@ app.use((err: unknown, _req: Request, res: Response, _next: express.NextFunction
   res.status(500).json({ error: String(err) });
 });
 
-const PORT = process.env['PORT'] ?? 3000;
+const PORT = process.env.PORT ?? 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log('Try: curl -H "Host: acme.localhost" http://localhost:3000/');

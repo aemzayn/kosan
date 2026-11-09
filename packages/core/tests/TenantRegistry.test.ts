@@ -1,19 +1,23 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { TenantNotActiveError, TenantNotFoundError, TenantRegistry } from '../src/TenantRegistry.js';
-import { FakeAdapter } from './helpers/FakeAdapter.js';
-import { InMemoryMasterStore } from './helpers/InMemoryMasterStore.js';
-import type { CreateTenantInput } from '../src/types.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  TenantNotActiveError,
+  TenantNotFoundError,
+  TenantRegistry,
+} from "../src/TenantRegistry.js";
+import type { CreateTenantInput } from "../src/types.js";
+import { FakeAdapter } from "./helpers/FakeAdapter.js";
+import { InMemoryMasterStore } from "./helpers/InMemoryMasterStore.js";
 
 const BASE_INPUT: CreateTenantInput = {
-  slug: 'acme',
-  host: 'localhost',
+  slug: "acme",
+  host: "localhost",
   port: 5432,
-  dbName: 'acme_db',
-  user: 'acme_user',
-  password: 'secret',
+  dbName: "acme_db",
+  user: "acme_user",
+  password: "secret",
 };
 
-describe('TenantRegistry', () => {
+describe("TenantRegistry", () => {
   let master: InMemoryMasterStore;
   let adapter: FakeAdapter;
   let registry: TenantRegistry;
@@ -32,16 +36,19 @@ describe('TenantRegistry', () => {
   // createTenant
   // -------------------------------------------------------------------------
 
-  describe('createTenant', () => {
-    it('persists the tenant and returns it', async () => {
+  describe("createTenant", () => {
+    it("persists the tenant and returns it", async () => {
       const tenant = await registry.createTenant(BASE_INPUT);
-      expect(tenant.slug).toBe('acme');
-      expect(tenant.status).toBe('active');
+      expect(tenant.slug).toBe("acme");
+      expect(tenant.status).toBe("active");
       expect(tenant.id).toBeTruthy();
     });
 
-    it('calls onCreate hook with a throw-away connection', async () => {
-      const onCreateMock = vi.fn<Parameters<NonNullable<(typeof registry)['hooks']>['onCreate'] & {}>, Promise<void>>();
+    it("calls onCreate hook with a throw-away connection", async () => {
+      const onCreateMock = vi.fn<
+        Parameters<NonNullable<(typeof registry)["hooks"]>["onCreate"] & {}>,
+        Promise<void>
+      >();
       const r = await TenantRegistry.create({
         master,
         adapter,
@@ -57,7 +64,7 @@ describe('TenantRegistry', () => {
       await r.shutdown();
     });
 
-    it('encrypts the password when a cipher is provided', async () => {
+    it("encrypts the password when a cipher is provided", async () => {
       const cipher = {
         encrypt: vi.fn(async (p: string) => `enc:${p}`),
         decrypt: vi.fn(async (p: string) => p.slice(4)),
@@ -65,12 +72,12 @@ describe('TenantRegistry', () => {
       const r = await TenantRegistry.create({ master, adapter, cipher });
       await r.createTenant(BASE_INPUT);
 
-      const stored = await master.findBySlug('acme');
-      expect(stored?.password).toBe('enc:secret');
+      const stored = await master.findBySlug("acme");
+      expect(stored?.password).toBe("enc:secret");
       await r.shutdown();
     });
 
-    it('does not call onCreate when no hook is registered', async () => {
+    it("does not call onCreate when no hook is registered", async () => {
       await registry.createTenant(BASE_INPUT);
       // No throw-away connection was created.
       expect(adapter.connectCallCount).toBe(0);
@@ -81,57 +88,57 @@ describe('TenantRegistry', () => {
   // resolveBySlug / resolveById
   // -------------------------------------------------------------------------
 
-  describe('resolveBySlug', () => {
-    it('returns context value for an active tenant', async () => {
+  describe("resolveBySlug", () => {
+    it("returns context value for an active tenant", async () => {
       const created = await registry.createTenant(BASE_INPUT);
-      const ctx = await registry.resolveBySlug('acme');
+      const ctx = await registry.resolveBySlug("acme");
 
       expect(ctx.tenant.id).toBe(created.id);
       expect(ctx.connection).toBeDefined();
       expect(ctx.models).toBeDefined();
     });
 
-    it('caches the connection across calls', async () => {
+    it("caches the connection across calls", async () => {
       await registry.createTenant(BASE_INPUT);
-      const first = await registry.resolveBySlug('acme');
-      const second = await registry.resolveBySlug('acme');
+      const first = await registry.resolveBySlug("acme");
+      const second = await registry.resolveBySlug("acme");
       expect(first.connection).toBe(second.connection);
       expect(adapter.connectCallCount).toBe(1);
     });
 
-    it('throws TenantNotFoundError for unknown slug', async () => {
-      await expect(registry.resolveBySlug('unknown')).rejects.toThrow(TenantNotFoundError);
+    it("throws TenantNotFoundError for unknown slug", async () => {
+      await expect(registry.resolveBySlug("unknown")).rejects.toThrow(TenantNotFoundError);
     });
 
-    it('throws TenantNotActiveError for suspended tenant', async () => {
+    it("throws TenantNotActiveError for suspended tenant", async () => {
       const { id } = await registry.createTenant(BASE_INPUT);
-      await master.update(id, { status: 'suspended' });
-      await expect(registry.resolveBySlug('acme')).rejects.toThrow(TenantNotActiveError);
+      await master.update(id, { status: "suspended" });
+      await expect(registry.resolveBySlug("acme")).rejects.toThrow(TenantNotActiveError);
     });
 
-    it('decrypts credentials before connecting', async () => {
+    it("decrypts credentials before connecting", async () => {
       const cipher = {
         encrypt: async (p: string) => `enc:${p}`,
         decrypt: vi.fn(async (p: string) => p.slice(4)),
       };
       const r = await TenantRegistry.create({ master, adapter, cipher });
       await r.createTenant(BASE_INPUT);
-      const ctx = await r.resolveBySlug('acme');
-      expect(ctx.tenant.password).toBe('secret');
+      const ctx = await r.resolveBySlug("acme");
+      expect(ctx.tenant.password).toBe("secret");
       expect(cipher.decrypt).toHaveBeenCalledOnce();
       await r.shutdown();
     });
   });
 
-  describe('resolveById', () => {
-    it('resolves by id', async () => {
+  describe("resolveById", () => {
+    it("resolves by id", async () => {
       const created = await registry.createTenant(BASE_INPUT);
       const ctx = await registry.resolveById(created.id);
-      expect(ctx.tenant.slug).toBe('acme');
+      expect(ctx.tenant.slug).toBe("acme");
     });
 
-    it('throws TenantNotFoundError for unknown id', async () => {
-      await expect(registry.resolveById('no-such-id')).rejects.toThrow(TenantNotFoundError);
+    it("throws TenantNotFoundError for unknown id", async () => {
+      await expect(registry.resolveById("no-such-id")).rejects.toThrow(TenantNotFoundError);
     });
   });
 
@@ -139,21 +146,24 @@ describe('TenantRegistry', () => {
   // suspendTenant
   // -------------------------------------------------------------------------
 
-  describe('suspendTenant', () => {
-    it('sets status to suspended and evicts the cache', async () => {
+  describe("suspendTenant", () => {
+    it("sets status to suspended and evicts the cache", async () => {
       const { id } = await registry.createTenant(BASE_INPUT);
-      await registry.resolveBySlug('acme'); // warm the cache
+      await registry.resolveBySlug("acme"); // warm the cache
       expect(registry.cache.size).toBe(1);
 
       await registry.suspendTenant(id);
 
       expect(registry.cache.size).toBe(0);
       const stored = await master.findById(id);
-      expect(stored?.status).toBe('suspended');
+      expect(stored?.status).toBe("suspended");
     });
 
-    it('calls onSuspend hook', async () => {
-      const onSuspend = vi.fn<[Parameters<NonNullable<LifecycleHooks['onSuspend']>>[0]], Promise<void>>();
+    it("calls onSuspend hook", async () => {
+      const onSuspend = vi.fn<
+        [Parameters<NonNullable<LifecycleHooks["onSuspend"]>>[0]],
+        Promise<void>
+      >();
       const r = await TenantRegistry.create({
         master,
         adapter,
@@ -170,17 +180,17 @@ describe('TenantRegistry', () => {
   // deleteTenant
   // -------------------------------------------------------------------------
 
-  describe('deleteTenant', () => {
-    it('removes tenant from master and evicts cache', async () => {
+  describe("deleteTenant", () => {
+    it("removes tenant from master and evicts cache", async () => {
       const { id } = await registry.createTenant(BASE_INPUT);
-      await registry.resolveBySlug('acme');
+      await registry.resolveBySlug("acme");
       await registry.deleteTenant(id);
 
       expect(await master.findById(id)).toBeNull();
       expect(registry.cache.size).toBe(0);
     });
 
-    it('calls onDelete hook', async () => {
+    it("calls onDelete hook", async () => {
       const onDelete = vi.fn();
       const r = await TenantRegistry.create({ master, adapter, hooks: { onDelete } });
       const { id } = await r.createTenant(BASE_INPUT);
@@ -194,30 +204,30 @@ describe('TenantRegistry', () => {
   // updateTenant
   // -------------------------------------------------------------------------
 
-  describe('updateTenant', () => {
-    it('updates the record and evicts cache so next resolve uses new config', async () => {
+  describe("updateTenant", () => {
+    it("updates the record and evicts cache so next resolve uses new config", async () => {
       const { id } = await registry.createTenant(BASE_INPUT);
-      await registry.resolveBySlug('acme');
+      await registry.resolveBySlug("acme");
       expect(registry.cache.size).toBe(1);
 
-      await registry.updateTenant(id, { host: 'db2.example.com' });
+      await registry.updateTenant(id, { host: "db2.example.com" });
       expect(registry.cache.size).toBe(0);
 
       const stored = await master.findById(id);
-      expect(stored?.host).toBe('db2.example.com');
+      expect(stored?.host).toBe("db2.example.com");
     });
 
-    it('re-encrypts password on update when cipher is present', async () => {
+    it("re-encrypts password on update when cipher is present", async () => {
       const cipher = {
         encrypt: vi.fn(async (p: string) => `enc:${p}`),
         decrypt: async (p: string) => p.slice(4),
       };
       const r = await TenantRegistry.create({ master, adapter, cipher });
       const { id } = await r.createTenant(BASE_INPUT);
-      await r.updateTenant(id, { password: 'newpass' });
+      await r.updateTenant(id, { password: "newpass" });
 
       const stored = await master.findById(id);
-      expect(stored?.password).toBe('enc:newpass');
+      expect(stored?.password).toBe("enc:newpass");
       await r.shutdown();
     });
   });
@@ -226,28 +236,28 @@ describe('TenantRegistry', () => {
   // listTenants / getTenant
   // -------------------------------------------------------------------------
 
-  describe('listTenants', () => {
-    it('returns all tenants without a filter', async () => {
+  describe("listTenants", () => {
+    it("returns all tenants without a filter", async () => {
       await registry.createTenant(BASE_INPUT);
-      await registry.createTenant({ ...BASE_INPUT, slug: 'globex' });
+      await registry.createTenant({ ...BASE_INPUT, slug: "globex" });
       const all = await registry.listTenants();
       expect(all).toHaveLength(2);
     });
 
-    it('filters by status', async () => {
+    it("filters by status", async () => {
       const { id } = await registry.createTenant(BASE_INPUT);
-      await registry.createTenant({ ...BASE_INPUT, slug: 'globex' });
+      await registry.createTenant({ ...BASE_INPUT, slug: "globex" });
       await registry.suspendTenant(id);
 
-      const active = await registry.listTenants({ status: 'active' });
+      const active = await registry.listTenants({ status: "active" });
       expect(active).toHaveLength(1);
-      expect(active[0]?.slug).toBe('globex');
+      expect(active[0]?.slug).toBe("globex");
     });
   });
 
-  describe('getTenant', () => {
-    it('returns null for missing id', async () => {
-      expect(await registry.getTenant('nope')).toBeNull();
+  describe("getTenant", () => {
+    it("returns null for missing id", async () => {
+      expect(await registry.getTenant("nope")).toBeNull();
     });
   });
 
@@ -255,13 +265,13 @@ describe('TenantRegistry', () => {
   // registerModels
   // -------------------------------------------------------------------------
 
-  describe('registerModels', () => {
-    it('registers model factories on the adapter', () => {
-      const factory = () => ({ name: 'Order' });
+  describe("registerModels", () => {
+    it("registers model factories on the adapter", () => {
+      const factory = () => ({ name: "Order" });
       expect(() => registry.registerModels([factory])).not.toThrow();
     });
 
-    it('throws when adapter does not support model factories', async () => {
+    it("throws when adapter does not support model factories", async () => {
       const minimalAdapter = {
         connect: adapter.connect.bind(adapter),
         disconnect: adapter.disconnect.bind(adapter),
@@ -278,4 +288,4 @@ describe('TenantRegistry', () => {
 // ---------------------------------------------------------------------------
 // Bring in LifecycleHooks for the hook tests (used in type position above).
 // ---------------------------------------------------------------------------
-import type { LifecycleHooks } from '../src/types.js';
+import type { LifecycleHooks } from "../src/types.js";

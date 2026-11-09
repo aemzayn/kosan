@@ -1,7 +1,4 @@
-import type { Adapter, CacheOptions, TenantConfig } from './types.js';
-
-/** The subset of an adapter the cache needs: opening and closing connections. */
-export type ConnectionLifecycle<TConn> = Pick<Adapter<TConn>, 'connect' | 'disconnect'>;
+import type { Adapter, CacheOptions, TenantConfig } from "./types.js";
 
 interface CacheEntry<TConn> {
   conn: TConn;
@@ -24,9 +21,9 @@ export class ConnectionCache<TConn> {
   private readonly lruOrder: string[] = [];
   readonly maxSize: number;
   private readonly idleTimeoutMs: number;
-  private readonly adapter: ConnectionLifecycle<TConn>;
+  private readonly adapter: Adapter<TConn>;
 
-  constructor(adapter: ConnectionLifecycle<TConn>, options: CacheOptions = {}) {
+  constructor(adapter: Adapter<TConn>, options: CacheOptions = {}) {
     this.adapter = adapter;
     this.maxSize = options.maxSize ?? 100;
     this.idleTimeoutMs = options.idleTimeoutMs ?? 30 * 60 * 1000;
@@ -110,7 +107,7 @@ export class ConnectionCache<TConn> {
       void this.evict(entry.tenantId);
     }, this.idleTimeoutMs);
     // Don't keep the Node process alive just for cache cleanup.
-    if (typeof timer === 'object' && 'unref' in timer) timer.unref();
+    if (typeof timer === "object" && "unref" in timer) timer.unref();
     entry.timer = timer;
   }
 }

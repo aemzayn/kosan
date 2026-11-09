@@ -1,4 +1,4 @@
-export type TenantStatus = 'active' | 'suspended' | 'deleted';
+export type TenantStatus = "active" | "suspended" | "deleted";
 
 export interface TenantConfig {
   id: string;
@@ -59,17 +59,11 @@ export interface MasterStore {
  *  connection object to produce a model class / query builder. */
 export type ModelFactory<TConn = unknown> = (conn: TConn) => unknown;
 
-/**
- * @typeParam TConn - the ORM connection type the adapter produces.
- * @typeParam TFactory - the model-factory signature the adapter accepts in
- *   `registerModelFactories`. Adapters may pass something richer than the raw
- *   connection (e.g. `{ sequelize }`), so this is adapter-defined.
- */
-export interface Adapter<TConn = unknown, TFactory = ModelFactory<TConn>> {
+export interface Adapter<TConn = unknown> {
   connect(tenant: TenantConfig): Promise<TConn>;
   disconnect(conn: TConn): Promise<void>;
   getModels(conn: TConn): Record<string, unknown>;
-  registerModelFactories?(factories: TFactory[]): void;
+  registerModelFactories?(factories: ModelFactory<TConn>[]): void;
 }
 
 // ---------------------------------------------------------------------------
@@ -109,9 +103,9 @@ export interface CacheOptions {
 // TenantRegistry options
 // ---------------------------------------------------------------------------
 
-export interface TenantRegistryOptions<TConn = unknown, TFactory = ModelFactory<TConn>> {
+export interface TenantRegistryOptions<TConn = unknown> {
   master: MasterStore;
-  adapter: Adapter<TConn, TFactory>;
+  adapter: Adapter<TConn>;
   cache?: CacheOptions;
   cipher?: Cipher;
   hooks?: LifecycleHooks<TConn>;

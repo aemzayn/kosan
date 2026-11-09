@@ -1,15 +1,15 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { InjectRegistry } from '@kosan/nestjs';
-import { TenantRegistry } from '@kosan/core';
-import type { CreateTenantInput } from '@kosan/core';
+import type { TenantRegistry } from "@kosan/core";
+import type { CreateTenantInput } from "@kosan/core";
+import { InjectRegistry } from "@kosan/nestjs";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 
-@Controller('tenants')
+@Controller("tenants")
 export class TenantsController {
   constructor(@InjectRegistry() private readonly registry: TenantRegistry) {}
 
   @Get()
   list() {
-    return this.registry.listTenants({ status: 'active' });
+    return this.registry.listTenants({ status: "active" });
   }
 
   @Post()

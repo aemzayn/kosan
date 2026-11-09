@@ -4,14 +4,7 @@
   "description": "CLI for Kosan — run database migrations across all active tenants in parallel",
   "author": "Kosan Contributors",
   "license": "MIT",
-  "keywords": [
-    "multi-tenancy",
-    "cli",
-    "migrations",
-    "saas",
-    "typescript",
-    "sequelize"
-  ],
+  "keywords": ["multi-tenancy", "cli", "migrations", "saas", "typescript"],
   "repository": {
     "type": "git",
     "url": "https://github.com/kosan-dev/kosan.git",
@@ -20,7 +13,7 @@
   "homepage": "https://kosan.dev/packages/cli",
   "bugs": "https://github.com/kosan-dev/kosan/issues",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "type": "module",
   "bin": {
@@ -36,10 +29,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "LICENSE"
-  ],
+  "files": ["dist", "LICENSE", "README.md"],
   "publishConfig": {
     "access": "public"
   },
@@ -60,7 +50,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "sqlite3": "^5.1.7",
+    "sqlite3": "^6.0.1",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
     "vitest": "^1.6.0"

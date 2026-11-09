@@ -1,5 +1,5 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
-import type { TenantConfig, TenantContextValue } from './types.js';
+import { AsyncLocalStorage } from "node:async_hooks";
+import type { TenantConfig, TenantContextValue } from "./types.js";
 
 const storage = new AsyncLocalStorage<TenantContextValue>();
 
@@ -22,8 +22,8 @@ export function useTenant<TConn = unknown>(): TenantContextValue<TConn> {
   const ctx = storage.getStore() as TenantContextValue<TConn> | undefined;
   if (ctx === undefined) {
     throw new Error(
-      'useTenant() was called outside of a tenant context. ' +
-        'Ensure your request passes through tenantMiddleware (or equivalent) before calling useTenant().',
+      "useTenant() was called outside of a tenant context. " +
+        "Ensure your request passes through tenantMiddleware (or equivalent) before calling useTenant().",
     );
   }
   return ctx;

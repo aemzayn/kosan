@@ -3,39 +3,39 @@
  *
  *   pnpm --filter sequelize-nestjs-example provision
  */
-import 'reflect-metadata';
-import { createRegistry } from './registry';
+import "reflect-metadata";
+import { createRegistry } from "./registry";
 
 async function main() {
   const registry = await createRegistry();
 
   const tenants = [
     {
-      slug: 'acme',
-      host: 'localhost',
+      slug: "acme",
+      host: "localhost",
       port: 5433,
-      dbName: 'acme_db',
-      user: 'acme_user',
-      password: 'acme_pass',
-      meta: { plan: 'pro' },
+      dbName: "acme_db",
+      user: "acme_user",
+      password: "acme_pass",
+      meta: { plan: "pro" },
     },
     {
-      slug: 'globex',
-      host: 'localhost',
+      slug: "globex",
+      host: "localhost",
       port: 5434,
-      dbName: 'globex_db',
-      user: 'globex_user',
-      password: 'globex_pass',
-      meta: { plan: 'starter' },
+      dbName: "globex_db",
+      user: "globex_user",
+      password: "globex_pass",
+      meta: { plan: "starter" },
     },
     {
-      slug: 'initech',
-      host: 'localhost',
+      slug: "initech",
+      host: "localhost",
       port: 5435,
-      dbName: 'initech_db',
-      user: 'initech_user',
-      password: 'initech_pass',
-      meta: { plan: 'starter' },
+      dbName: "initech_db",
+      user: "initech_user",
+      password: "initech_pass",
+      meta: { plan: "starter" },
     },
   ];
 

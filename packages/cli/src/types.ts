@@ -1,4 +1,4 @@
-import type { Options as SequelizeOptions } from 'sequelize';
+import type { Options as SequelizeOptions } from "sequelize";
 
 /**
  * Shape of `kosan.config.ts` (or `.js` / `.mjs`).
@@ -34,7 +34,7 @@ export interface KosanConfig {
 // Per-tenant migration result
 // ---------------------------------------------------------------------------
 
-export type MigrationOutcome = 'migrated' | 'up-to-date' | 'failed' | 'skipped';
+export type MigrationOutcome = "migrated" | "up-to-date" | "failed" | "skipped";
 
 export interface TenantMigrationResult {
   tenantId: string;

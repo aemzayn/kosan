@@ -1,8 +1,8 @@
-import type { Adapter, TenantConfig } from '@kosan/core';
-import { type Dialect, type Options, Sequelize } from 'sequelize';
-import type { AdapterContext, SequelizeAdapterOptions, SequelizeModelFactory, SlowQueryInfo } from './types.js';
+import type { Adapter, ModelFactory, TenantConfig } from "@kosan/core";
+import { Sequelize } from "sequelize";
+import type { SequelizeAdapterOptions, SequelizeModelFactory, SlowQueryInfo } from "./types.js";
 
-export class SequelizeAdapter implements Adapter<Sequelize, SequelizeModelFactory> {
+export class SequelizeAdapter implements Adapter<Sequelize> {
   private readonly options: SequelizeAdapterOptions;
   private factories: SequelizeModelFactory[] = [];
 
@@ -13,8 +13,11 @@ export class SequelizeAdapter implements Adapter<Sequelize, SequelizeModelFactor
   async connect(tenant: TenantConfig): Promise<Sequelize> {
     const logging = this.buildLogging(tenant);
 
-    const options: Options = {
-      dialect: resolveDialect(tenant.meta?.['dialect']) ?? this.options.defaultDialect ?? 'postgres',
+    const sequelize = new Sequelize({
+      dialect:
+        (tenant.meta?.dialect as SequelizeAdapterOptions["defaultDialect"]) ??
+        this.options.defaultDialect ??
+        "postgres",
       host: tenant.host,
       port: tenant.port,
       database: tenant.dbName,
@@ -26,21 +29,19 @@ export class SequelizeAdapter implements Adapter<Sequelize, SequelizeModelFactor
         acquire: this.options.pool?.acquire ?? 30_000,
         idle: this.options.pool?.idle ?? 10_000,
       },
+      ...(this.options.dialectOptions !== undefined
+        ? { dialectOptions: this.options.dialectOptions }
+        : {}),
       logging,
       benchmark: this.options.onSlowQuery !== undefined,
-    };
-    if (this.options.dialectOptions !== undefined) {
-      options.dialectOptions = this.options.dialectOptions;
-    }
-    const sequelize = new Sequelize(options);
+    });
 
     await sequelize.authenticate();
 
     // Apply all registered model factories. Each factory calls sequelize.define()
     // which registers the model on this Sequelize instance automatically.
-    const ctx: AdapterContext = { sequelize };
     for (const factory of this.factories) {
-      factory(ctx);
+      factory(sequelize);
     }
 
     return sequelize;
@@ -55,13 +56,11 @@ export class SequelizeAdapter implements Adapter<Sequelize, SequelizeModelFactor
     return sequelize.models as Record<string, unknown>;
   }
 
-  registerModelFactories(factories: SequelizeModelFactory[]): void {
+  registerModelFactories(factories: ModelFactory<Sequelize>[]): void {
     this.factories = factories;
   }
 
-  private buildLogging(
-    tenant: TenantConfig,
-  ): boolean | ((sql: string, timing?: number) => void) {
+  private buildLogging(tenant: TenantConfig): boolean | ((sql: string, timing?: number) => void) {
     const { onSlowQuery, slowQueryThresholdMs = 1000, logging } = this.options;
 
     if (onSlowQuery === undefined) {
@@ -71,7 +70,7 @@ export class SequelizeAdapter implements Adapter<Sequelize, SequelizeModelFactor
     // benchmark: true makes Sequelize pass timing (ms) as the second argument.
     return (sql: string, timing?: number) => {
       if (logging !== false && logging !== undefined) {
-        if (typeof logging === 'function') {
+        if (typeof logging === "function") {
           logging(sql, timing);
         } else if (logging === true) {
           console.log(sql);
@@ -88,11 +87,4 @@ export class SequelizeAdapter implements Adapter<Sequelize, SequelizeModelFactor
       }
     };
   }
-}
-
-const DIALECTS: readonly Dialect[] = ['postgres', 'mysql', 'mariadb', 'sqlite', 'mssql', 'db2', 'snowflake', 'oracle'];
-
-/** Reads an optional per-tenant dialect override from `tenant.meta.dialect`. */
-function resolveDialect(value: unknown): Dialect | undefined {
-  return DIALECTS.find((d) => d === value);
 }

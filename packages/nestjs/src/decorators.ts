@@ -1,7 +1,7 @@
-import { Inject, createParamDecorator } from '@nestjs/common';
-import type { ExecutionContext } from '@nestjs/common';
-import { useTenant } from '@kosan/core';
-import { KOSAN_REGISTRY } from './constants.js';
+import { useTenant } from "@kosan/core";
+import { Inject, createParamDecorator } from "@nestjs/common";
+import type { ExecutionContext } from "@nestjs/common";
+import { KOSAN_REGISTRY } from "./constants.js";
 
 /** Inject the TenantRegistry instance. */
 export const InjectRegistry = (): ReturnType<typeof Inject> => Inject(KOSAN_REGISTRY);
@@ -14,8 +14,6 @@ export const InjectRegistry = (): ReturnType<typeof Inject> => Inject(KOSAN_REGI
  *
  * Requires TenantGuard to be active (globally or on the controller/method).
  */
-export const CurrentTenant = createParamDecorator(
-  (_data: unknown, _ctx: ExecutionContext) => {
-    return useTenant();
-  },
-);
+export const CurrentTenant = createParamDecorator((_data: unknown, _ctx: ExecutionContext) => {
+  return useTenant();
+});

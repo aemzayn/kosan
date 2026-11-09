@@ -1,5 +1,5 @@
-import { useTenant } from '@kosan/core';
-import type { DrizzleClientLike, DrizzleModels } from './types.js';
+import { useTenant } from "@kosan/core";
+import type { DrizzleClientLike, DrizzleModels } from "./types.js";
 
 /**
  * Typed shortcut for accessing the current tenant's Drizzle client.

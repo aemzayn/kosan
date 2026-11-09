@@ -1,34 +1,36 @@
+import { randomUUID } from "node:crypto";
 import type {
   CreateTenantInput,
   MasterStore,
   TenantConfig,
   TenantStatus,
   UpdateTenantInput,
-} from '@kosan/core';
+} from "@kosan/core";
 import {
   type CreationOptional,
   DataTypes,
-  type FindOptions,
   type InferAttributes,
   type InferCreationAttributes,
   Model,
   type Sequelize,
-} from 'sequelize';
-import { randomUUID } from 'node:crypto';
+} from "sequelize";
 
 // ---------------------------------------------------------------------------
 // Internal Sequelize model — not exported; users interact via MasterStore API
 // ---------------------------------------------------------------------------
 
-class TenantModel extends Model<InferAttributes<TenantModel>, InferCreationAttributes<TenantModel>> {
-  declare id: CreationOptional<string>;
+class TenantModel extends Model<
+  InferAttributes<TenantModel>,
+  InferCreationAttributes<TenantModel>
+> {
+  declare id: string;
   declare slug: string;
   declare host: string;
   declare port: number;
   declare dbName: string;
   declare user: string;
   declare password: string;
-  declare status: CreationOptional<TenantStatus>;
+  declare status: TenantStatus;
   declare meta: Record<string, unknown> | null;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -53,9 +55,9 @@ function defineTenantModel(sequelize: Sequelize): typeof TenantModel {
       user: { type: DataTypes.STRING(255), allowNull: false },
       password: { type: DataTypes.TEXT, allowNull: false },
       status: {
-        type: DataTypes.ENUM('active', 'suspended', 'deleted'),
+        type: DataTypes.ENUM("active", "suspended", "deleted"),
         allowNull: false,
-        defaultValue: 'active',
+        defaultValue: "active",
       },
       meta: { type: DataTypes.JSON, allowNull: true },
       createdAt: { type: DataTypes.DATE, allowNull: false },
@@ -63,8 +65,8 @@ function defineTenantModel(sequelize: Sequelize): typeof TenantModel {
     },
     {
       sequelize,
-      tableName: 'tenants',
-      modelName: 'Tenant',
+      tableName: "tenants",
+      modelName: "Tenant",
       underscored: true,
     },
   );
@@ -72,7 +74,7 @@ function defineTenantModel(sequelize: Sequelize): typeof TenantModel {
 }
 
 function toConfig(row: TenantModel): TenantConfig {
-  const config: TenantConfig = {
+  return {
     id: row.id,
     slug: row.slug,
     host: row.host,
@@ -81,11 +83,10 @@ function toConfig(row: TenantModel): TenantConfig {
     user: row.user,
     password: row.password,
     status: row.status,
+    ...(row.meta !== null ? { meta: row.meta } : {}),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
-  if (row.meta !== null) config.meta = row.meta;
-  return config;
 }
 
 // ---------------------------------------------------------------------------
@@ -115,9 +116,9 @@ export class SequelizeMasterStore implements MasterStore {
   }
 
   async findAll(filter?: { status?: TenantStatus }): Promise<TenantConfig[]> {
-    const options: FindOptions<InferAttributes<TenantModel>> = {};
-    if (filter?.status !== undefined) options.where = { status: filter.status };
-    const rows = await this.model.findAll(options);
+    const rows = await this.model.findAll(
+      filter?.status !== undefined ? { where: { status: filter.status } } : {},
+    );
     return rows.map(toConfig);
   }
 
@@ -140,7 +141,7 @@ export class SequelizeMasterStore implements MasterStore {
       dbName: data.dbName,
       user: data.user,
       password: data.password,
-      status: data.status ?? 'active',
+      status: data.status ?? "active",
       meta: data.meta ?? null,
     });
     return toConfig(row);

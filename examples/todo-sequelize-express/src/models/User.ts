@@ -1,9 +1,9 @@
-import { DataTypes } from 'sequelize';
-import type { AdapterContext } from '@kosan/sequelize';
+import type { AdapterContext } from "@kosan/sequelize";
+import { DataTypes } from "sequelize";
 
 export function UserModel({ sequelize }: AdapterContext) {
   return sequelize.define(
-    'User',
+    "User",
     {
       id: {
         type: DataTypes.UUID,
@@ -21,6 +21,6 @@ export function UserModel({ sequelize }: AdapterContext) {
         validate: { isEmail: true },
       },
     },
-    { tableName: 'users', underscored: true },
+    { tableName: "users", underscored: true },
   );
 }

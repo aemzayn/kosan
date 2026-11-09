@@ -1,5 +1,5 @@
-import type { ModuleMetadata, Type } from '@nestjs/common';
-import type { TenantRegistryOptions, Resolver } from '@kosan/core';
+import type { Resolver, TenantRegistryOptions } from "@kosan/core";
+import type { ModuleMetadata, Type } from "@nestjs/common";
 
 export interface KosanOptions<TConn = unknown> extends TenantRegistryOptions<TConn> {
   /** Resolver used by TenantGuard to identify the current tenant. */
@@ -17,8 +17,7 @@ export interface KosanOptions<TConn = unknown> extends TenantRegistryOptions<TCo
   onMissingTenant?: (slug: string) => void | Promise<void>;
 }
 
-export interface KosanAsyncOptions<TConn = unknown>
-  extends Pick<ModuleMetadata, 'imports'> {
+export interface KosanAsyncOptions<TConn = unknown> extends Pick<ModuleMetadata, "imports"> {
   useFactory: (...args: unknown[]) => KosanOptions<TConn> | Promise<KosanOptions<TConn>>;
   inject?: (string | symbol | Type<unknown>)[];
 }

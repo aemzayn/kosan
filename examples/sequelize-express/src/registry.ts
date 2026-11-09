@@ -1,22 +1,22 @@
-import { TenantRegistry } from '@kosan/core';
-import { SequelizeAdapter, SequelizeMasterStore } from '@kosan/sequelize';
-import { Sequelize } from 'sequelize';
-import { OrderModel } from './models/order.js';
+import { TenantRegistry } from "@kosan/core";
+import { SequelizeAdapter, SequelizeMasterStore } from "@kosan/sequelize";
+import { Sequelize } from "sequelize";
+import { OrderModel } from "./models/order.js";
 
 const master = new Sequelize({
-  dialect: 'postgres',
-  host: 'localhost',
+  dialect: "postgres",
+  host: "localhost",
   port: 5432,
-  database: 'master',
-  username: 'admin',
-  password: 'admin',
+  database: "master",
+  username: "admin",
+  password: "admin",
   logging: false,
 });
 
 const masterStore = await SequelizeMasterStore.create(master);
 
 const adapter = new SequelizeAdapter({
-  defaultDialect: 'postgres',
+  defaultDialect: "postgres",
   pool: { max: 5, idle: 30_000 },
   logging: false,
 });

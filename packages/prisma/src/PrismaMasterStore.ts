@@ -1,15 +1,15 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from "node:crypto";
 import type {
   CreateTenantInput,
   MasterStore,
   TenantConfig,
   TenantStatus,
   UpdateTenantInput,
-} from '@kosan/core';
-import type { TenantDelegate, TenantRow } from './types.js';
+} from "@kosan/core";
+import type { TenantDelegate, TenantRow } from "./types.js";
 
 function toConfig(row: TenantRow): TenantConfig {
-  const config: TenantConfig = {
+  return {
     id: row.id,
     slug: row.slug,
     host: row.host,
@@ -18,11 +18,10 @@ function toConfig(row: TenantRow): TenantConfig {
     user: row.user,
     password: row.password,
     status: row.status,
+    ...(row.meta !== null && row.meta !== undefined ? { meta: row.meta } : {}),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
-  if (row.meta !== null) config.meta = row.meta;
-  return config;
 }
 
 /**
@@ -73,7 +72,7 @@ export class PrismaMasterStore implements MasterStore {
         dbName: data.dbName,
         user: data.user,
         password: data.password,
-        status: data.status ?? 'active',
+        status: data.status ?? "active",
         meta: data.meta ?? null,
       },
     });

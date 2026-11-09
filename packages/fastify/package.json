@@ -4,13 +4,7 @@
   "description": "Fastify plugin for Kosan — resolves tenant on every request and scopes the connection via AsyncLocalStorage",
   "author": "Kosan Contributors",
   "license": "MIT",
-  "keywords": [
-    "multi-tenancy",
-    "fastify",
-    "plugin",
-    "saas",
-    "typescript"
-  ],
+  "keywords": ["multi-tenancy", "fastify", "plugin", "saas", "typescript"],
   "repository": {
     "type": "git",
     "url": "https://github.com/kosan-dev/kosan.git",
@@ -19,7 +13,7 @@
   "homepage": "https://kosan.dev/packages/fastify",
   "bugs": "https://github.com/kosan-dev/kosan/issues",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "type": "module",
   "exports": {
@@ -32,10 +26,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "LICENSE"
-  ],
+  "files": ["dist", "LICENSE", "README.md"],
   "publishConfig": {
     "access": "public"
   },
@@ -55,7 +46,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "fastify": "^4.28.0",
+    "fastify": "^5.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
     "vitest": "^1.6.0"

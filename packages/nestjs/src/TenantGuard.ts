@@ -1,6 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import type { CanActivate, ExecutionContext } from '@nestjs/common';
-import { getCurrentTenant } from '@kosan/core';
+import { getCurrentTenant } from "@kosan/core";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import type { CanActivate, ExecutionContext } from "@nestjs/common";
 
 /**
  * Guard that enforces a tenant is present in the current request context.
@@ -19,7 +19,7 @@ import { getCurrentTenant } from '@kosan/core';
 export class TenantGuard implements CanActivate {
   canActivate(_executionContext: ExecutionContext): boolean {
     if (getCurrentTenant() === undefined) {
-      throw new UnauthorizedException('No tenant context — ensure TenantMiddleware is applied');
+      throw new UnauthorizedException("No tenant context — ensure TenantMiddleware is applied");
     }
     return true;
   }

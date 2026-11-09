@@ -1,5 +1,5 @@
-import { useTenant } from '@kosan/core';
-import type { PrismaClientLike } from './types.js';
+import { useTenant } from "@kosan/core";
+import type { PrismaClientLike } from "./types.js";
 
 /**
  * Returns the current tenant's `PrismaClient` instance.
@@ -20,11 +20,11 @@ import type { PrismaClientLike } from './types.js';
  */
 export function usePrisma<TClient extends PrismaClientLike = PrismaClientLike>(): TClient {
   const { models } = useTenant<TClient>();
-  if (!('prisma' in models)) {
+  if (!("prisma" in models)) {
     throw new Error(
-      'usePrisma() requires the PrismaAdapter. ' +
-        'Make sure your TenantRegistry is configured with a PrismaAdapter.',
+      "usePrisma() requires the PrismaAdapter. " +
+        "Make sure your TenantRegistry is configured with a PrismaAdapter.",
     );
   }
-  return models['prisma'] as TClient;
+  return models.prisma as TClient;
 }

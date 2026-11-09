@@ -1,5 +1,5 @@
-import { ConnectionCache } from './ConnectionCache.js';
-import type { CacheStats } from './ConnectionCache.js';
+import { ConnectionCache } from "./ConnectionCache.js";
+import type { CacheStats } from "./ConnectionCache.js";
 import type {
   Adapter,
   Cipher,
@@ -12,16 +12,16 @@ import type {
   TenantRegistryOptions,
   TenantStatus,
   UpdateTenantInput,
-} from './types.js';
+} from "./types.js";
 
-export class TenantRegistry<TConn = unknown, TFactory = ModelFactory<TConn>> {
+export class TenantRegistry<TConn = unknown> {
   private readonly master: MasterStore;
-  private readonly adapter: Adapter<TConn, TFactory>;
+  private readonly adapter: Adapter<TConn>;
   readonly cache: ConnectionCache<TConn>;
   private readonly cipher: Cipher | undefined;
   private readonly hooks: LifecycleHooks<TConn> | undefined;
 
-  private constructor(options: TenantRegistryOptions<TConn, TFactory>) {
+  private constructor(options: TenantRegistryOptions<TConn>) {
     this.master = options.master;
     this.adapter = options.adapter;
     this.cipher = options.cipher;
@@ -29,9 +29,9 @@ export class TenantRegistry<TConn = unknown, TFactory = ModelFactory<TConn>> {
     this.cache = new ConnectionCache(this.adapter, options.cache);
   }
 
-  static async create<TConn, TFactory = ModelFactory<TConn>>(
-    options: TenantRegistryOptions<TConn, TFactory>,
-  ): Promise<TenantRegistry<TConn, TFactory>> {
+  static async create<TConn>(
+    options: TenantRegistryOptions<TConn>,
+  ): Promise<TenantRegistry<TConn>> {
     return new TenantRegistry(options);
   }
 
@@ -54,7 +54,7 @@ export class TenantRegistry<TConn = unknown, TFactory = ModelFactory<TConn>> {
   }
 
   private async buildContext(tenant: TenantConfig): Promise<TenantContextValue<TConn>> {
-    if (tenant.status !== 'active') {
+    if (tenant.status !== "active") {
       throw new TenantNotActiveError(tenant.slug, tenant.status);
     }
     const decrypted = await this.decryptCredentials(tenant);
@@ -86,17 +86,18 @@ export class TenantRegistry<TConn = unknown, TFactory = ModelFactory<TConn>> {
   }
 
   async updateTenant(id: string, data: UpdateTenantInput): Promise<TenantConfig> {
-    if (data.password !== undefined && this.cipher !== undefined) {
-      data = { ...data, password: await this.cipher.encrypt(data.password) };
-    }
-    const updated = await this.master.update(id, data);
+    const payload =
+      data.password !== undefined && this.cipher !== undefined
+        ? { ...data, password: await this.cipher.encrypt(data.password) }
+        : data;
+    const updated = await this.master.update(id, payload);
     // Evict so the next request picks up the new credentials.
     await this.cache.evict(id);
     return updated;
   }
 
   async suspendTenant(id: string): Promise<TenantConfig> {
-    const updated = await this.master.update(id, { status: 'suspended' });
+    const updated = await this.master.update(id, { status: "suspended" });
     await this.cache.evict(id);
     await this.hooks?.onSuspend?.(updated);
     return updated;
@@ -121,11 +122,11 @@ export class TenantRegistry<TConn = unknown, TFactory = ModelFactory<TConn>> {
   // Model registration — delegates to the adapter
   // ---------------------------------------------------------------------------
 
-  registerModels(factories: TFactory[]): void {
+  registerModels(factories: ModelFactory<TConn>[]): void {
     if (this.adapter.registerModelFactories === undefined) {
       throw new Error(
-        'The current adapter does not support registerModelFactories. ' +
-          'Consult the adapter documentation for how to register models.',
+        "The current adapter does not support registerModelFactories. " +
+          "Consult the adapter documentation for how to register models.",
       );
     }
     this.adapter.registerModelFactories(factories);
@@ -173,7 +174,7 @@ export class TenantRegistry<TConn = unknown, TFactory = ModelFactory<TConn>> {
 export class TenantNotFoundError extends Error {
   constructor(identifier: string) {
     super(`Tenant not found: ${identifier}`);
-    this.name = 'TenantNotFoundError';
+    this.name = "TenantNotFoundError";
   }
 }
 
@@ -181,7 +182,7 @@ export class TenantNotActiveError extends Error {
   readonly status: TenantStatus;
   constructor(slug: string, status: TenantStatus) {
     super(`Tenant "${slug}" is not active (status: ${status})`);
-    this.name = 'TenantNotActiveError';
+    this.name = "TenantNotActiveError";
     this.status = status;
   }
 }

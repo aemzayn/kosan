@@ -1,4 +1,4 @@
-import type { TenantConfig, TenantStatus } from '@kosan/core';
+import type { TenantConfig, TenantStatus } from "@kosan/core";
 
 // ---------------------------------------------------------------------------
 // Minimal structural interfaces — avoids a hard dependency on @prisma/client.
@@ -67,12 +67,12 @@ export interface TenantDelegate {
   }): Promise<TenantRow | null>;
 
   create(args: {
-    data: Omit<TenantRow, 'createdAt' | 'updatedAt'>;
+    data: Omit<TenantRow, "createdAt" | "updatedAt">;
   }): Promise<TenantRow>;
 
   update(args: {
     where: { id: string };
-    data: Partial<Omit<TenantRow, 'id' | 'createdAt' | 'updatedAt'>>;
+    data: Partial<Omit<TenantRow, "id" | "createdAt" | "updatedAt">>;
   }): Promise<TenantRow>;
 
   delete(args: {
@@ -129,7 +129,6 @@ export interface PrismaAdapterOptions<TClient extends PrismaClientLike> {
 // ---------------------------------------------------------------------------
 
 /** The value stored in `models` by the Prisma adapter. */
-// A type alias (not an interface) so it is assignable to Record<string, unknown>.
-export type PrismaModels<TClient extends PrismaClientLike> = {
+export interface PrismaModels<TClient extends PrismaClientLike> {
   prisma: TClient;
-};
+}

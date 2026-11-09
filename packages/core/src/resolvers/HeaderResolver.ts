@@ -1,4 +1,4 @@
-import type { Resolver } from '../types.js';
+import type { Resolver } from "../types.js";
 
 interface RequestLike {
   headers?: Record<string, string | string[] | undefined>;
