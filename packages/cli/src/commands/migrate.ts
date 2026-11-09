@@ -63,13 +63,26 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
     // ---------------------------------------------------------------------------
 
     const results = await withConcurrency(targets, concurrency, async (tenant) => {
-      const sequelize = new Sequelize(await tenantConnectionOptions(tenant, config.cipher));
-
+      const start = Date.now();
+      let sequelize: Sequelize | undefined;
       try {
+        sequelize = new Sequelize(await tenantConnectionOptions(tenant, config.cipher));
         await sequelize.authenticate();
         return await runMigrationsForTenant({ tenant, sequelize, config, migrations });
+      } catch (err) {
+        // Decrypt / connect / auth failures belong to this tenant only;
+        // siblings keep migrating.
+        const failed: TenantMigrationResult = {
+          tenantId: tenant.id,
+          slug: tenant.slug,
+          outcome: "failed",
+          applied: [],
+          error: err instanceof Error ? err : new Error(String(err)),
+          durationMs: Date.now() - start,
+        };
+        return failed;
       } finally {
-        await sequelize.close();
+        await sequelize?.close();
       }
     });
 

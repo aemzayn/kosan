@@ -88,7 +88,11 @@ describe("runMigrate (end to end, SQLite)", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
-  async function seedMaster(masterPath: string, slugs: string[]): Promise<void> {
+  async function seedMaster(
+    masterPath: string,
+    slugs: string[],
+    dbPath: (slug: string) => string = (slug) => path.join(dir, `${slug}.sqlite`),
+  ): Promise<void> {
     const master = new Sequelize({ dialect: "sqlite", storage: masterPath, logging: false });
     const store = await SequelizeMasterStore.create(master);
     for (const slug of slugs) {
@@ -96,7 +100,7 @@ describe("runMigrate (end to end, SQLite)", () => {
         slug,
         host: "",
         port: 0,
-        dbName: path.join(dir, `${slug}.sqlite`),
+        dbName: dbPath(slug),
         user: "",
         password: await cipher.encrypt("pw"),
         meta: { dialect: "sqlite" },
@@ -134,5 +138,35 @@ describe("runMigrate (end to end, SQLite)", () => {
       ["acme", "migrated"],
       ["globex", "migrated"],
     ]);
+  });
+
+  it("isolates a tenant whose database cannot be opened instead of aborting the run", async () => {
+    const masterPath = path.join(dir, "master.sqlite");
+    // A regular file where a directory should be: the DB can never be opened.
+    const blocker = path.join(dir, "not-a-directory");
+    writeFileSync(blocker, "");
+    await seedMaster(masterPath, ["acme", "broken"], (slug) =>
+      slug === "broken" ? path.join(blocker, "broken.sqlite") : path.join(dir, `${slug}.sqlite`),
+    );
+    const migrationsDir = path.join(dir, "migrations");
+    const { mkdirSync } = await import("node:fs");
+    mkdirSync(migrationsDir);
+    writeFileSync(
+      path.join(migrationsDir, "001-orders.mjs"),
+      "export async function up(qi) { await qi.sequelize.query('CREATE TABLE orders (id INTEGER)'); }\n" +
+        "export async function down() {}\n",
+    );
+
+    const results = await runMigrate({
+      config: { master: { dialect: "sqlite", storage: masterPath }, migrationsPath: "m", cipher },
+      migrationsDir,
+      concurrency: 2,
+      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+    });
+
+    const bySlug = Object.fromEntries(results.map((r) => [r.slug, r]));
+    expect(bySlug.acme?.outcome).toBe("migrated");
+    expect(bySlug.broken?.outcome).toBe("failed");
+    expect(bySlug.broken?.error).toBeInstanceOf(Error);
   });
 });
