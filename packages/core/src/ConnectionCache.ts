@@ -8,6 +8,21 @@ interface CacheEntry<TConn> {
   timer: ReturnType<typeof setTimeout> | undefined;
 }
 
+/** A connect() that has started but not finished, shared by concurrent callers. */
+interface PendingConnect<TConn> {
+  promise: Promise<TConn>;
+  /** Set by evict()/disconnectAll(): the result must be closed, not cached. */
+  state: { cancelled: boolean };
+}
+
+/** Thrown to callers waiting on a connect whose tenant was evicted meanwhile. */
+export class TenantEvictedError extends Error {
+  constructor(slug: string) {
+    super(`Tenant "${slug}" was evicted while its connection was being opened`);
+    this.name = "TenantEvictedError";
+  }
+}
+
 export interface CacheStats {
   tenantId: string;
   tenantSlug: string;
@@ -17,6 +32,7 @@ export interface CacheStats {
 
 export class ConnectionCache<TConn> {
   private readonly entries = new Map<string, CacheEntry<TConn>>();
+  private readonly pending = new Map<string, PendingConnect<TConn>>();
   /** Ordered least-recently-used → most-recently-used */
   private readonly lruOrder: string[] = [];
   readonly maxSize: number;
@@ -38,11 +54,40 @@ export class ConnectionCache<TConn> {
       return existing.conn;
     }
 
-    if (this.entries.size >= this.maxSize) {
+    // Concurrent first requests for the same tenant share one connect().
+    const inflight = this.pending.get(tenant.id);
+    if (inflight) return inflight.promise;
+
+    const state = { cancelled: false };
+    const promise = this.connectAndStore(tenant, state);
+    this.pending.set(tenant.id, { promise, state });
+    return promise;
+  }
+
+  private async connectAndStore(
+    tenant: TenantConfig,
+    state: { cancelled: boolean },
+  ): Promise<TConn> {
+    let conn: TConn;
+    try {
+      conn = await this.adapter.connect(tenant);
+    } finally {
+      // Failed connects are not cached, so the next request retries.
+      if (this.pending.get(tenant.id)?.state === state) this.pending.delete(tenant.id);
+    }
+
+    if (state.cancelled) {
+      // Evicted mid-connect (credentials changed, suspended, shutdown):
+      // this connection was opened from stale config, so close it.
+      await this.adapter.disconnect(conn);
+      throw new TenantEvictedError(tenant.slug);
+    }
+
+    // Enforce capacity at insert time so parallel connects cannot overshoot.
+    while (this.entries.size >= this.maxSize && this.lruOrder.length > 0) {
       await this.evictLRU();
     }
 
-    const conn = await this.adapter.connect(tenant);
     const entry: CacheEntry<TConn> = {
       conn,
       tenantId: tenant.id,
@@ -57,6 +102,12 @@ export class ConnectionCache<TConn> {
   }
 
   async evict(tenantId: string): Promise<void> {
+    const inflight = this.pending.get(tenantId);
+    if (inflight) {
+      inflight.state.cancelled = true;
+      this.pending.delete(tenantId);
+    }
+
     const entry = this.entries.get(tenantId);
     if (!entry) return;
     clearTimeout(entry.timer);
@@ -68,7 +119,7 @@ export class ConnectionCache<TConn> {
   }
 
   async disconnectAll(): Promise<void> {
-    const ids = [...this.entries.keys()];
+    const ids = [...new Set([...this.entries.keys(), ...this.pending.keys()])];
     await Promise.all(ids.map((id) => this.evict(id)));
   }
 

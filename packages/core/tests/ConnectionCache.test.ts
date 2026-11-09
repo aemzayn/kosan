@@ -129,4 +129,89 @@ describe("ConnectionCache", () => {
     expect(stats[0]?.tenantId).toBe("tenant-1");
     expect(typeof stats[0]?.lastUsed).toBe("number");
   });
+
+  describe("concurrent connects", () => {
+    /** Adapter whose connect() stays pending until the test releases it. */
+    function gatedAdapter() {
+      const gate = new FakeAdapter();
+      const releases: Array<() => void> = [];
+      const failures: Array<(err: Error) => void> = [];
+      const realConnect = gate.connect.bind(gate);
+      gate.connect = (tenant: TenantConfig) =>
+        new Promise((resolve, reject) => {
+          releases.push(() => resolve(realConnect(tenant)));
+          failures.push(reject);
+        });
+      return {
+        adapter: gate,
+        release: (i = 0) => releases[i]?.(),
+        fail: (err: Error, i = 0) => failures[i]?.(err),
+        pendingCount: () => releases.length,
+      };
+    }
+
+    it("shares one in-flight connect between simultaneous requests", async () => {
+      const gated = gatedAdapter();
+      const c = new ConnectionCache(gated.adapter);
+      const tenant = makeTenant();
+
+      const results = Promise.all([
+        c.getOrConnect(tenant),
+        c.getOrConnect(tenant),
+        c.getOrConnect(tenant),
+      ]);
+      expect(gated.pendingCount()).toBe(1);
+
+      gated.release();
+      const [a, b, d] = await results;
+      expect(a).toBe(b);
+      expect(b).toBe(d);
+      expect(c.size).toBe(1);
+      await c.disconnectAll();
+    });
+
+    it("does not cache a failed connect, so the next request retries", async () => {
+      const gated = gatedAdapter();
+      const c = new ConnectionCache(gated.adapter);
+      const tenant = makeTenant();
+
+      const first = c.getOrConnect(tenant);
+      gated.fail(new Error("db down"));
+      await expect(first).rejects.toThrow("db down");
+      expect(c.size).toBe(0);
+
+      const second = c.getOrConnect(tenant);
+      expect(gated.pendingCount()).toBe(2);
+      gated.release(1);
+      await expect(second).resolves.toMatchObject({ tenantId: tenant.id });
+      await c.disconnectAll();
+    });
+
+    it("never exceeds maxSize when different tenants connect at once", async () => {
+      const gated = gatedAdapter();
+      const c = new ConnectionCache(gated.adapter, { maxSize: 2 });
+
+      const pending = ["t1", "t2", "t3"].map((id) => c.getOrConnect(makeTenant({ id, slug: id })));
+      for (let i = 0; i < 3; i++) gated.release(i);
+      await Promise.all(pending);
+
+      expect(c.size).toBe(2);
+      expect(gated.adapter.disconnectCallCount).toBe(1);
+      await c.disconnectAll();
+    });
+
+    it("discards a connection whose tenant was evicted mid-connect", async () => {
+      const gated = gatedAdapter();
+      const c = new ConnectionCache(gated.adapter);
+      const tenant = makeTenant();
+
+      const inflight = c.getOrConnect(tenant);
+      await c.evict(tenant.id); // e.g. credentials updated or tenant suspended
+      gated.release();
+
+      await expect(inflight).rejects.toThrow(/evicted/);
+      expect(c.size).toBe(0);
+      expect(gated.adapter.connections[0]?.disconnected).toBe(true);
+    });
+  });
 });

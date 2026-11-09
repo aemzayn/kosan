@@ -1,5 +1,5 @@
 export { TenantRegistry, TenantNotFoundError, TenantNotActiveError } from "./TenantRegistry.js";
-export { ConnectionCache } from "./ConnectionCache.js";
+export { ConnectionCache, TenantEvictedError } from "./ConnectionCache.js";
 export {
   runWithTenant,
   useTenant,
