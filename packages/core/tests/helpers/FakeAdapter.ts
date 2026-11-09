@@ -13,11 +13,14 @@ export class FakeAdapter implements Adapter<FakeConnection> {
   readonly connections: FakeConnection[] = [];
   private factories: ModelFactory<FakeConnection>[] = [];
 
+  /** Tenant configs passed to connect(), in call order. */
+  readonly connectedWith: TenantConfig[] = [];
   connectCallCount = 0;
   disconnectCallCount = 0;
 
   async connect(tenant: TenantConfig): Promise<FakeConnection> {
     this.connectCallCount++;
+    this.connectedWith.push(tenant);
     const conn: FakeConnection = { tenantId: tenant.id, disconnected: false };
     this.connections.push(conn);
     return conn;

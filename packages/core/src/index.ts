@@ -27,4 +27,5 @@ export type {
   TenantRegistryOptions,
   Resolver,
   TenantContextValue,
+  TenantInfo,
 } from "./types.js";

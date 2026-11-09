@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import type { TenantConfig, TenantContextValue } from "./types.js";
+import type { TenantContextValue, TenantInfo } from "./types.js";
 
 const storage = new AsyncLocalStorage<TenantContextValue>();
 
@@ -29,8 +29,8 @@ export function useTenant<TConn = unknown>(): TenantContextValue<TConn> {
   return ctx;
 }
 
-/** Returns the current tenant config, or `undefined` if there is no active context. */
-export function getCurrentTenant(): TenantConfig | undefined {
+/** Returns the current tenant (without credentials), or `undefined` outside a tenant context. */
+export function getCurrentTenant(): TenantInfo | undefined {
   return storage.getStore()?.tenant;
 }
 

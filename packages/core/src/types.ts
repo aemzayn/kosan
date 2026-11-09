@@ -125,8 +125,14 @@ export interface Resolver {
 // Context value stored in AsyncLocalStorage
 // ---------------------------------------------------------------------------
 
+/**
+ * Tenant metadata safe to hand to application code: everything except the
+ * database password. The password only ever reaches `Adapter.connect()`.
+ */
+export type TenantInfo = Omit<TenantConfig, "password">;
+
 export interface TenantContextValue<TConn = unknown> {
-  tenant: TenantConfig;
+  tenant: TenantInfo;
   connection: TConn;
   models: Record<string, unknown>;
 }

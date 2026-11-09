@@ -98,6 +98,13 @@ describe("TenantRegistry", () => {
       expect(ctx.models).toBeDefined();
     });
 
+    it("does not expose the database password in the request context", async () => {
+      await registry.createTenant(BASE_INPUT);
+      const ctx = await registry.resolveBySlug("acme");
+      expect(ctx.tenant).not.toHaveProperty("password");
+      expect(ctx.tenant.slug).toBe("acme");
+    });
+
     it("caches the connection across calls", async () => {
       await registry.createTenant(BASE_INPUT);
       const first = await registry.resolveBySlug("acme");
@@ -123,8 +130,8 @@ describe("TenantRegistry", () => {
       };
       const r = await TenantRegistry.create({ master, adapter, cipher });
       await r.createTenant(BASE_INPUT);
-      const ctx = await r.resolveBySlug("acme");
-      expect(ctx.tenant.password).toBe("secret");
+      await r.resolveBySlug("acme");
+      expect(adapter.connectedWith.at(-1)?.password).toBe("secret");
       expect(cipher.decrypt).toHaveBeenCalledOnce();
       await r.shutdown();
     });

@@ -9,6 +9,7 @@ import type {
   ModelFactory,
   TenantConfig,
   TenantContextValue,
+  TenantInfo,
   TenantRegistryOptions,
   TenantStatus,
   UpdateTenantInput,
@@ -60,7 +61,7 @@ export class TenantRegistry<TConn = unknown> {
     const decrypted = await this.decryptCredentials(tenant);
     const connection = await this.cache.getOrConnect(decrypted);
     const models = this.adapter.getModels(connection);
-    return { tenant: decrypted, connection, models };
+    return { tenant: withoutPassword(tenant), connection, models };
   }
 
   // ---------------------------------------------------------------------------
@@ -165,6 +166,12 @@ export class TenantRegistry<TConn = unknown> {
     if (this.cipher === undefined) return tenant;
     return { ...tenant, password: await this.cipher.decrypt(tenant.password) };
   }
+}
+
+/** Strips credentials before the tenant is exposed to application code. */
+function withoutPassword(tenant: TenantConfig): TenantInfo {
+  const { password: _password, ...info } = tenant;
+  return info;
 }
 
 // ---------------------------------------------------------------------------

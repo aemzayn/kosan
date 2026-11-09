@@ -153,7 +153,7 @@ import { useTenant } from '@kosan/core';
 
 function processOrder() {
   const { tenant, connection, models } = useTenant();
-  // tenant   — TenantConfig (id, slug, host, …)
+  // tenant   — TenantInfo (id, slug, host, … — no password)
   // connection — raw ORM connection (Sequelize instance, PrismaClient, …)
   // models   — record of registered models
 }
@@ -166,7 +166,7 @@ Throws `Error` if called outside a tenant context.
 ```ts
 import { getCurrentTenant } from '@kosan/core';
 
-// Returns TenantConfig | undefined — safe to call anywhere, won't throw.
+// Returns TenantInfo | undefined — safe to call anywhere, won't throw.
 const tenant = getCurrentTenant();
 ```
 
@@ -326,8 +326,11 @@ interface Resolver {
   resolve(req: unknown): string | null | Promise<string | null>;
 }
 
+/** TenantConfig without the password; credentials only reach Adapter.connect(). */
+type TenantInfo = Omit<TenantConfig, 'password'>;
+
 interface TenantContextValue<TConn = unknown> {
-  tenant: TenantConfig;
+  tenant: TenantInfo;
   connection: TConn;
   models: Record<string, unknown>;
 }
