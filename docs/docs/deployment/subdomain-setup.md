@@ -170,3 +170,5 @@ europeancorp.myapp.com → eu-west server  (tenant DB: eu-west-1)
 ```
 
 The `host` field in the tenant record points to the correct regional database, regardless of which server is resolving the request.
+
+See the [multi-region example](../examples/multi-region) for a runnable setup, including moving a tenant between regions without a restart.

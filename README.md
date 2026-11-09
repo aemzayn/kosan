@@ -206,6 +206,7 @@ npx kosan migrate --config kosan.config.ts --concurrency 4
 | [`sequelize-nestjs`](./examples/sequelize-nestjs) | Sequelize + NestJS |
 | [`drizzle-fastify`](./examples/drizzle-fastify) | Drizzle + Fastify |
 | [`prisma-koa`](./examples/prisma-koa) | Prisma + Koa |
+| [`multi-region`](./examples/multi-region) | Tenants on different DB hosts + live region move |
 
 ---
 

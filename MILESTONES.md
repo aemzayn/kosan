@@ -31,7 +31,7 @@
 ### D. Missing requirements (CLAUDE.md)
 - [x] `JwtResolver` (claim-based, user-supplied verifier — no hard JWT dependency)
 - [x] CI matrix over Postgres + MySQL (service containers, integration tests; `pnpm test:integration`)
-- [ ] `examples/multi-region`
+- [x] `examples/multi-region` (provisioning per region, encrypted creds, live region move)
 - [x] KMS cipher example in docs (AWS + GCP already present; CLI usage added)
 
 ## Future plans

@@ -45,6 +45,7 @@ export default defineConfig({
           { text: "Sequelize + NestJS", link: "/examples/sequelize-nestjs" },
           { text: "Drizzle + Fastify", link: "/examples/drizzle-fastify" },
           { text: "Prisma + Koa", link: "/examples/prisma-koa" },
+          { text: "Multi-region", link: "/examples/multi-region" },
           { text: "Todo App", link: "/examples/todo-app" },
         ],
       },
