@@ -59,6 +59,16 @@ describe("loadConfig", () => {
     await expect(loadConfig(file)).rejects.toThrow(/"migrationsPath"/);
   });
 
+  it("rejects a concurrency that is not a positive integer", async () => {
+    for (const bad of ["0", "-2", "1.5", "'four'", "NaN"]) {
+      const file = write(
+        "kosan.config.mjs",
+        `export default { master: 'sqlite::memory:', migrationsPath: 'm', concurrency: ${bad} };`,
+      );
+      await expect(loadConfig(file), `concurrency: ${bad}`).rejects.toThrow(/"concurrency"/);
+    }
+  });
+
   it("passes a cipher through to the config", async () => {
     const file = write(
       "kosan.config.mjs",

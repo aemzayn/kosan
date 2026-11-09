@@ -37,8 +37,14 @@ export async function loadConfig(configPath: string): Promise<KosanConfig> {
   if ("migrationsTableName" in mod && typeof mod.migrationsTableName === "string") {
     config.migrationsTableName = mod.migrationsTableName;
   }
-  if ("concurrency" in mod && typeof mod.concurrency === "number") {
-    config.concurrency = mod.concurrency;
+  if ("concurrency" in mod && mod.concurrency !== undefined) {
+    const value = mod.concurrency;
+    if (typeof value !== "number" || !Number.isInteger(value) || value < 1) {
+      throw new Error(
+        `Config field "concurrency" must be a positive integer, got ${String(value)}`,
+      );
+    }
+    config.concurrency = value;
   }
   if ("cipher" in mod && mod.cipher !== undefined) {
     if (!isCipher(mod.cipher)) {

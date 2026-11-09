@@ -123,7 +123,9 @@ export function resolveConcurrency(
   configValue: number | undefined,
 ): number {
   const fromFlag = flag === undefined ? Number.NaN : Number.parseInt(flag, 10);
-  const value = Number.isNaN(fromFlag) ? (configValue ?? 4) : fromFlag;
+  const fromConfig =
+    configValue !== undefined && Number.isFinite(configValue) ? Math.floor(configValue) : 4;
+  const value = Number.isNaN(fromFlag) ? fromConfig : fromFlag;
   return Math.max(1, value);
 }
 

@@ -70,6 +70,12 @@ describe("resolveConcurrency", () => {
     expect(resolveConcurrency(undefined, undefined)).toBe(4);
   });
 
+  it("ignores a non-numeric or non-finite config value", () => {
+    expect(resolveConcurrency(undefined, Number.NaN)).toBe(4);
+    expect(resolveConcurrency(undefined, Number.POSITIVE_INFINITY)).toBe(4);
+    expect(resolveConcurrency(undefined, 2.7)).toBe(2);
+  });
+
   it("ignores invalid values and never goes below 1", () => {
     expect(resolveConcurrency("abc", 3)).toBe(3);
     expect(resolveConcurrency("0", undefined)).toBe(1);
