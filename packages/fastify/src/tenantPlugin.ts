@@ -1,4 +1,9 @@
-import { TenantNotActiveError, TenantNotFoundError, wrapWithTenantContext } from "@kosan/core";
+import {
+  TenantEvictedError,
+  TenantNotActiveError,
+  TenantNotFoundError,
+  wrapWithTenantContext,
+} from "@kosan/core";
 import type { Resolver, TenantRegistry } from "@kosan/core";
 import type {
   FastifyBaseLogger,
@@ -70,6 +75,11 @@ const tenantPluginImpl: FastifyPluginCallback<
           }
           if (err instanceof TenantNotActiveError) {
             void reply.status(403).send({ error: err.message });
+            done();
+            return;
+          }
+          if (err instanceof TenantEvictedError) {
+            void reply.status(503).header("Retry-After", "1").send({ error: err.message });
             done();
             return;
           }

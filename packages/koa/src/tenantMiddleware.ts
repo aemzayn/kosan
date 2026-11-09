@@ -1,4 +1,9 @@
-import { TenantNotActiveError, TenantNotFoundError, runWithTenant } from "@kosan/core";
+import {
+  TenantEvictedError,
+  TenantNotActiveError,
+  TenantNotFoundError,
+  runWithTenant,
+} from "@kosan/core";
 import type { Resolver, TenantRegistry } from "@kosan/core";
 import type { Context, Next } from "koa";
 
@@ -64,6 +69,12 @@ export function tenantMiddleware(options: TenantMiddlewareOptions) {
       }
       if (err instanceof TenantNotActiveError) {
         ctx.status = 403;
+        ctx.body = { error: err.message };
+        return;
+      }
+      if (err instanceof TenantEvictedError) {
+        ctx.status = 503;
+        ctx.set("Retry-After", "1");
         ctx.body = { error: err.message };
         return;
       }

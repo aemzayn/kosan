@@ -1,4 +1,5 @@
 import {
+  TenantEvictedError,
   TenantNotActiveError,
   TenantNotFoundError,
   getCurrentTenant,
@@ -25,12 +26,13 @@ const ACTIVE_TENANT: TenantConfig = {
 };
 
 function makeRegistry(
-  behaviour: "found" | "not-found" | "suspended" | "error" = "found",
+  behaviour: "found" | "not-found" | "suspended" | "evicted" | "error" = "found",
 ): TenantRegistry {
   return {
     resolveBySlug: vi.fn(async (slug: string) => {
       if (behaviour === "not-found") throw new TenantNotFoundError(slug);
       if (behaviour === "suspended") throw new TenantNotActiveError(slug, "suspended");
+      if (behaviour === "evicted") throw new TenantEvictedError(slug);
       if (behaviour === "error") throw new Error("registry exploded");
       return { tenant: ACTIVE_TENANT, connection: {}, models: { Order: {} } };
     }),
@@ -140,6 +142,14 @@ describe("tenantPlugin", () => {
       const res = await app.inject({ method: "GET", url: "/test" });
       expect(res.statusCode).toBe(403);
       expect(res.json().error).toMatch(/not active/);
+      await app.close();
+    });
+
+    it("returns 503 with Retry-After when the tenant was evicted mid-connect", async () => {
+      const app = await buildApp("evicted", "acme");
+      const res = await app.inject({ method: "GET", url: "/test" });
+      expect(res.statusCode).toBe(503);
+      expect(res.headers["retry-after"]).toBe("1");
       await app.close();
     });
 

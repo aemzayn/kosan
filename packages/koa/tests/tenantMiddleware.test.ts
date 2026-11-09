@@ -1,4 +1,5 @@
 import {
+  TenantEvictedError,
   TenantNotActiveError,
   TenantNotFoundError,
   getCurrentTenant,
@@ -26,12 +27,13 @@ const ACTIVE_TENANT: TenantConfig = {
 };
 
 function makeRegistry(
-  behaviour: "found" | "not-found" | "suspended" | "error" = "found",
+  behaviour: "found" | "not-found" | "suspended" | "evicted" | "error" = "found",
 ): TenantRegistry {
   return {
     resolveBySlug: vi.fn(async (slug: string) => {
       if (behaviour === "not-found") throw new TenantNotFoundError(slug);
       if (behaviour === "suspended") throw new TenantNotActiveError(slug, "suspended");
+      if (behaviour === "evicted") throw new TenantEvictedError(slug);
       if (behaviour === "error") throw new Error("registry exploded");
       return { tenant: ACTIVE_TENANT, connection: {}, models: { Order: {} } };
     }),
@@ -132,6 +134,12 @@ describe("tenantMiddleware (Koa)", () => {
       const res = await request(buildApp("suspended", "acme").callback()).get("/");
       expect(res.status).toBe(403);
       expect(res.body.error).toMatch(/not active/);
+    });
+
+    it("returns 503 with Retry-After when the tenant was evicted mid-connect", async () => {
+      const res = await request(buildApp("evicted", "acme").callback()).get("/");
+      expect(res.status).toBe(503);
+      expect(res.headers["retry-after"]).toBe("1");
     });
 
     it("propagates unexpected errors to Koa error handler", async () => {

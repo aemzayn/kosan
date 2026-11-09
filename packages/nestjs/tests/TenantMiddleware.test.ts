@@ -1,4 +1,5 @@
 import {
+  TenantEvictedError,
   TenantNotActiveError,
   TenantNotFoundError,
   getCurrentTenant,
@@ -29,12 +30,13 @@ const TENANT: TenantConfig = {
 const CTX: TenantContextValue = { tenant: TENANT, connection: {}, models: {} };
 
 function makeRegistry(
-  behaviour: "found" | "not-found" | "suspended" | "error" = "found",
+  behaviour: "found" | "not-found" | "suspended" | "evicted" | "error" = "found",
 ): TenantRegistry {
   return {
     resolveBySlug: vi.fn(async () => {
       if (behaviour === "not-found") throw new TenantNotFoundError("slug=acme");
       if (behaviour === "suspended") throw new TenantNotActiveError("acme", "suspended");
+      if (behaviour === "evicted") throw new TenantEvictedError("acme");
       if (behaviour === "error") throw new Error("DB exploded");
       return CTX;
     }),
@@ -159,6 +161,13 @@ describe("TenantMiddleware", () => {
         HttpException,
       );
       expect(onMissingTenant).toHaveBeenCalledWith("acme");
+    });
+
+    it("throws HttpException 503 when the tenant was evicted mid-connect", async () => {
+      const mw = buildMiddleware("evicted", "acme");
+      await expect(mw.use(stubRequest("acme"), stubRes(), vi.fn())).rejects.toMatchObject({
+        status: 503,
+      });
     });
 
     it("rethrows unexpected errors", async () => {

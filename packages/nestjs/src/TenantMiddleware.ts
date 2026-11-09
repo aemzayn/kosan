@@ -1,4 +1,5 @@
 import {
+  TenantEvictedError,
   TenantNotActiveError,
   TenantNotFoundError,
   type TenantRegistry,
@@ -50,7 +51,10 @@ export class TenantMiddleware implements NestMiddleware {
         if (this.options.onMissingTenant) {
           await this.options.onMissingTenant(slug);
         }
-        throw new HttpException((err as Error).message, status);
+        throw new HttpException(err.message, status);
+      }
+      if (err instanceof TenantEvictedError) {
+        throw new HttpException(err.message, 503);
       }
       throw err;
     }

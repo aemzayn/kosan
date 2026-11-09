@@ -1,4 +1,9 @@
-import { TenantNotActiveError, TenantNotFoundError, runWithTenant } from "@kosan/core";
+import {
+  TenantEvictedError,
+  TenantNotActiveError,
+  TenantNotFoundError,
+  runWithTenant,
+} from "@kosan/core";
 import type { Resolver, TenantRegistry } from "@kosan/core";
 import type { NextFunction, Request, Response } from "express";
 
@@ -62,6 +67,11 @@ export function tenantMiddleware(options: TenantMiddlewareOptions) {
       }
       if (err instanceof TenantNotActiveError) {
         res.status(403).json({ error: err.message });
+        return;
+      }
+      if (err instanceof TenantEvictedError) {
+        // The tenant changed twice while we were connecting; let the client retry.
+        res.status(503).set("Retry-After", "1").json({ error: err.message });
         return;
       }
       next(err);
