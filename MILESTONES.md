@@ -33,7 +33,7 @@
 - [ ] Per-tenant pool stats in health payload (adapter-provided)
 - [ ] CI matrix over Postgres + MySQL (service containers, integration tests)
 - [ ] `examples/multi-region`
-- [ ] KMS cipher example in docs
+- [x] KMS cipher example in docs (AWS + GCP already present; CLI usage added)
 
 ## Milestone 1 — Working end-to-end demo
 

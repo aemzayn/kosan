@@ -145,6 +145,19 @@ const registry = await TenantRegistry.create({
 });
 ```
 
+Give the **same cipher** to the migration CLI, or `kosan migrate` will connect with the encrypted string:
+
+```ts [kosan.config.ts]
+import type { KosanConfig } from '@kosan/cli';
+import { cipher } from './src/cipher.js';
+
+export default {
+  master: process.env.MASTER_DATABASE_URL!,
+  migrationsPath: './migrations',
+  cipher,
+} satisfies KosanConfig;
+```
+
 ---
 
 ## Key rotation
