@@ -41,6 +41,23 @@ describe("SubdomainResolver", () => {
     expect(r.resolve({ hostname: "api.myapp.com" })).toBeNull();
     expect(r.resolve({ hostname: "acme.myapp.com" })).toBe("acme");
   });
+
+  it("treats localhost as a top-level domain for local development", () => {
+    expect(resolver.resolve({ hostname: "acme.localhost" })).toBe("acme");
+    expect(resolver.resolve({ headers: { host: "acme.localhost:3000" } })).toBe("acme");
+    expect(resolver.resolve({ hostname: "www.localhost" })).toBeNull();
+  });
+
+  it("never treats an IP address as a subdomain", () => {
+    expect(resolver.resolve({ hostname: "127.0.0.1" })).toBeNull();
+    expect(resolver.resolve({ headers: { host: "10.0.0.5:8080" } })).toBeNull();
+    expect(resolver.resolve({ headers: { host: "[::1]:3000" } })).toBeNull();
+  });
+
+  it("is case-insensitive", () => {
+    expect(resolver.resolve({ hostname: "ACME.MyApp.com" })).toBe("acme");
+    expect(resolver.resolve({ hostname: "WWW.myapp.com" })).toBeNull();
+  });
 });
 
 // ---------------------------------------------------------------------------

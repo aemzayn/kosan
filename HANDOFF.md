@@ -454,8 +454,8 @@ pnpm changeset init
 
 ## Known caveats and non-obvious decisions
 
-### SubdomainResolver requires 3-part hostnames
-`acme.myapp.com` resolves, `acme.localhost` does **not** (only 2 parts). In local dev, use `acme.myapp.localhost` or pass requests through a reverse proxy that adds a fake TLD.
+### SubdomainResolver hostname rules
+Real domains need three labels (`acme.myapp.com` → `acme`; `myapp.com` → no tenant). `localhost` is treated as a TLD, so `acme.localhost` resolves to `acme` for local development. IP literals (`127.0.0.1`, `[::1]`) never resolve to a tenant. Matching is case-insensitive.
 
 ### Fastify context propagation uses callbacks, not async
 Fastify's lifecycle hook model means `storage.run()` must be called synchronously with `done` as the callback — this is why `wrapWithTenantContext(ctx, done)` exists. Using `async onRequest` with `enterWith` causes context leaks and doesn't propagate to route handlers. This is tested and working correctly.
