@@ -1,5 +1,6 @@
 import { ConnectionCache } from "./ConnectionCache.js";
 import type { CacheStats } from "./ConnectionCache.js";
+import { TenantLookupCache } from "./TenantLookupCache.js";
 import type {
   Adapter,
   Cipher,
@@ -19,6 +20,7 @@ export class TenantRegistry<TConn = unknown> {
   private readonly master: MasterStore;
   private readonly adapter: Adapter<TConn>;
   readonly cache: ConnectionCache<TConn>;
+  private readonly lookups: TenantLookupCache;
   private readonly cipher: Cipher | undefined;
   private readonly hooks: LifecycleHooks<TConn> | undefined;
 
@@ -28,6 +30,7 @@ export class TenantRegistry<TConn = unknown> {
     this.cipher = options.cipher;
     this.hooks = options.hooks;
     this.cache = new ConnectionCache(this.adapter, options.cache);
+    this.lookups = new TenantLookupCache(options.cache?.tenantTtlMs ?? 30_000);
   }
 
   static async create<TConn>(
@@ -43,14 +46,16 @@ export class TenantRegistry<TConn = unknown> {
   /** Resolves a tenant by slug, opens (or returns cached) connection, and
    *  returns a fully-populated context value ready for `runWithTenant`. */
   async resolveBySlug(slug: string): Promise<TenantContextValue<TConn>> {
-    const tenant = await this.master.findBySlug(slug);
+    const tenant = this.lookups.getBySlug(slug) ?? (await this.master.findBySlug(slug));
     if (tenant === null) throw new TenantNotFoundError(`slug=${slug}`);
+    this.lookups.set(tenant);
     return this.buildContext(tenant);
   }
 
   async resolveById(id: string): Promise<TenantContextValue<TConn>> {
-    const tenant = await this.master.findById(id);
+    const tenant = this.lookups.getById(id) ?? (await this.master.findById(id));
     if (tenant === null) throw new TenantNotFoundError(`id=${id}`);
+    this.lookups.set(tenant);
     return this.buildContext(tenant);
   }
 
@@ -92,13 +97,15 @@ export class TenantRegistry<TConn = unknown> {
         ? { ...data, password: await this.cipher.encrypt(data.password) }
         : data;
     const updated = await this.master.update(id, payload);
-    // Evict so the next request picks up the new credentials.
+    // Evict so the next request picks up the new config and credentials.
+    this.lookups.invalidate(id);
     await this.cache.evict(id);
     return updated;
   }
 
   async suspendTenant(id: string): Promise<TenantConfig> {
     const updated = await this.master.update(id, { status: "suspended" });
+    this.lookups.invalidate(id);
     await this.cache.evict(id);
     await this.hooks?.onSuspend?.(updated);
     return updated;
@@ -106,6 +113,7 @@ export class TenantRegistry<TConn = unknown> {
 
   async deleteTenant(id: string): Promise<void> {
     const tenant = await this.master.findById(id);
+    this.lookups.invalidate(id);
     await this.cache.evict(id);
     await this.master.delete(id);
     if (tenant !== null) await this.hooks?.onDelete?.(tenant);

@@ -296,3 +296,113 @@ describe("TenantRegistry", () => {
 // Bring in LifecycleHooks for the hook tests (used in type position above).
 // ---------------------------------------------------------------------------
 import type { LifecycleHooks } from "../src/types.js";
+
+// ---------------------------------------------------------------------------
+// Tenant lookup cache (avoids a master-DB query on every request)
+// ---------------------------------------------------------------------------
+
+describe("TenantRegistry tenant lookup cache", () => {
+  let master: InMemoryMasterStore;
+  let adapter: FakeAdapter;
+
+  beforeEach(() => {
+    master = new InMemoryMasterStore();
+    adapter = new FakeAdapter();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  async function makeRegistry(tenantTtlMs?: number) {
+    const cache = tenantTtlMs === undefined ? {} : { tenantTtlMs };
+    return TenantRegistry.create({ master, adapter, cache });
+  }
+
+  it("serves repeat lookups from cache within the TTL", async () => {
+    const r = await makeRegistry();
+    await r.createTenant(BASE_INPUT);
+    const findBySlug = vi.spyOn(master, "findBySlug");
+
+    await r.resolveBySlug("acme");
+    await r.resolveBySlug("acme");
+    expect(findBySlug).toHaveBeenCalledTimes(1);
+    await r.shutdown();
+  });
+
+  it("shares cached rows between slug and id lookups", async () => {
+    const r = await makeRegistry();
+    const { id } = await r.createTenant(BASE_INPUT);
+    const findById = vi.spyOn(master, "findById");
+
+    await r.resolveBySlug("acme");
+    await r.resolveById(id);
+    expect(findById).not.toHaveBeenCalled();
+    await r.shutdown();
+  });
+
+  it("re-reads the master DB once the TTL expires", async () => {
+    vi.useFakeTimers();
+    const r = await makeRegistry(1_000);
+    await r.createTenant(BASE_INPUT);
+    const findBySlug = vi.spyOn(master, "findBySlug");
+
+    await r.resolveBySlug("acme");
+    vi.advanceTimersByTime(1_001);
+    await r.resolveBySlug("acme");
+    expect(findBySlug).toHaveBeenCalledTimes(2);
+    await r.shutdown();
+  });
+
+  it("is disabled with tenantTtlMs: 0", async () => {
+    const r = await makeRegistry(0);
+    await r.createTenant(BASE_INPUT);
+    const findBySlug = vi.spyOn(master, "findBySlug");
+
+    await r.resolveBySlug("acme");
+    await r.resolveBySlug("acme");
+    expect(findBySlug).toHaveBeenCalledTimes(2);
+    await r.shutdown();
+  });
+
+  it("does not cache unknown slugs, so a newly created tenant resolves immediately", async () => {
+    const r = await makeRegistry();
+    await expect(r.resolveBySlug("acme")).rejects.toThrow(TenantNotFoundError);
+    await r.createTenant(BASE_INPUT);
+    await expect(r.resolveBySlug("acme")).resolves.toMatchObject({ tenant: { slug: "acme" } });
+    await r.shutdown();
+  });
+
+  it("suspendTenant takes effect immediately on this instance", async () => {
+    const r = await makeRegistry();
+    const { id } = await r.createTenant(BASE_INPUT);
+    await r.resolveBySlug("acme");
+
+    await r.suspendTenant(id);
+    await expect(r.resolveBySlug("acme")).rejects.toThrow(TenantNotActiveError);
+    await r.shutdown();
+  });
+
+  it("deleteTenant takes effect immediately on this instance", async () => {
+    const r = await makeRegistry();
+    const { id } = await r.createTenant(BASE_INPUT);
+    await r.resolveBySlug("acme");
+
+    await r.deleteTenant(id);
+    await expect(r.resolveBySlug("acme")).rejects.toThrow(TenantNotFoundError);
+    await r.shutdown();
+  });
+
+  it("updateTenant drops the old slug when a tenant is renamed", async () => {
+    const r = await makeRegistry();
+    const { id } = await r.createTenant(BASE_INPUT);
+    await r.resolveBySlug("acme");
+
+    await r.updateTenant(id, { slug: "acme-corp" });
+    await expect(r.resolveBySlug("acme")).rejects.toThrow(TenantNotFoundError);
+    await expect(r.resolveBySlug("acme-corp")).resolves.toMatchObject({
+      tenant: { slug: "acme-corp" },
+    });
+    await r.shutdown();
+  });
+});

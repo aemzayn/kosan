@@ -97,6 +97,13 @@ export interface CacheOptions {
   maxSize?: number;
   /** Milliseconds of inactivity before a connection is closed. Default: 30 min */
   idleTimeoutMs?: number;
+  /**
+   * How long resolved tenant rows are cached in-process, so requests skip the
+   * master-DB lookup. Writes through this registry invalidate immediately;
+   * changes made elsewhere (another instance, direct SQL) apply within this
+   * window — including suspensions. `0` disables the cache. Default: 30 s
+   */
+  tenantTtlMs?: number;
 }
 
 // ---------------------------------------------------------------------------

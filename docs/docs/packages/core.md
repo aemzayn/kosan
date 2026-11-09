@@ -26,6 +26,7 @@ const registry = await TenantRegistry.create({
   cache: {
     maxSize: 100,          // default: 100
     idleTimeoutMs: 1_800_000, // default: 30 min
+    tenantTtlMs: 30_000,   // default: 30 s — 0 disables the tenant-row cache
   },
   cipher,        // optional Cipher for credential encryption
   hooks: {
@@ -35,6 +36,13 @@ const registry = await TenantRegistry.create({
   },
 });
 ```
+
+`tenantTtlMs` caches master-table rows in-process so requests don't query the
+master DB every time. Changes made through this registry (`updateTenant`,
+`suspendTenant`, `deleteTenant`) apply immediately. Changes made elsewhere —
+another app instance, or SQL run directly against the master DB — apply within
+the TTL. Lower it (or set `0`) if suspensions must take effect instantly
+across a fleet.
 
 ### Tenant CRUD
 
