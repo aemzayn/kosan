@@ -1,7 +1,10 @@
+import { createHash } from "node:crypto";
 import type { Adapter, CacheOptions, TenantConfig } from "./types.js";
 
 interface CacheEntry<TConn> {
   conn: TConn;
+  /** Hash of the settings the connection was opened with (see `fingerprint`). */
+  fingerprint: string;
   tenantId: string;
   tenantSlug: string;
   lastUsed: number;
@@ -11,6 +14,7 @@ interface CacheEntry<TConn> {
 /** A connect() that has started but not finished, shared by concurrent callers. */
 interface PendingConnect<TConn> {
   promise: Promise<TConn>;
+  fingerprint: string;
   /** Set by evict()/disconnectAll(): the result must be closed, not cached. */
   state: { cancelled: boolean };
 }
@@ -46,8 +50,10 @@ export class ConnectionCache<TConn> {
   }
 
   async getOrConnect(tenant: TenantConfig): Promise<TConn> {
+    const fp = fingerprint(tenant);
+
     const existing = this.entries.get(tenant.id);
-    if (existing) {
+    if (existing?.fingerprint === fp) {
       existing.lastUsed = Date.now();
       this.bumpLRU(tenant.id);
       this.resetTimer(existing);
@@ -56,17 +62,22 @@ export class ConnectionCache<TConn> {
 
     // Concurrent first requests for the same tenant share one connect().
     const inflight = this.pending.get(tenant.id);
-    if (inflight) return inflight.promise;
+    if (inflight?.fingerprint === fp) return inflight.promise;
+
+    // Host, database or credentials changed since this connection was opened
+    // (e.g. the tenant was moved by another process): drop the stale one.
+    if (existing !== undefined || inflight !== undefined) await this.evict(tenant.id);
 
     const state = { cancelled: false };
-    const promise = this.connectAndStore(tenant, state);
-    this.pending.set(tenant.id, { promise, state });
+    const promise = this.connectAndStore(tenant, state, fp);
+    this.pending.set(tenant.id, { promise, state, fingerprint: fp });
     return promise;
   }
 
   private async connectAndStore(
     tenant: TenantConfig,
     state: { cancelled: boolean },
+    fp: string,
   ): Promise<TConn> {
     let conn: TConn;
     try {
@@ -90,6 +101,7 @@ export class ConnectionCache<TConn> {
 
     const entry: CacheEntry<TConn> = {
       conn,
+      fingerprint: fp,
       tenantId: tenant.id,
       tenantSlug: tenant.slug,
       lastUsed: Date.now(),
@@ -161,4 +173,20 @@ export class ConnectionCache<TConn> {
     if (typeof timer === "object" && "unref" in timer) timer.unref();
     entry.timer = timer;
   }
+}
+
+/**
+ * Identifies the settings a connection depends on. Hashed so the cache does
+ * not keep a second plaintext copy of the password.
+ */
+function fingerprint(tenant: TenantConfig): string {
+  const parts = [
+    tenant.host,
+    tenant.port,
+    tenant.dbName,
+    tenant.user,
+    tenant.password,
+    tenant.meta?.dialect,
+  ];
+  return createHash("sha256").update(JSON.stringify(parts)).digest("hex");
 }

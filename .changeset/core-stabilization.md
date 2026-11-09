@@ -10,3 +10,4 @@ Stabilization fixes and features:
 - Concurrent first requests for a tenant share one connection instead of leaking a pool per request; `maxSize` is enforced under concurrency.
 - New `JwtResolver` (bring your own `verify`).
 - `SubdomainResolver` resolves `<slug>.localhost`, ignores IP hosts, and is case-insensitive.
+- Cached connections are replaced when a tenant's host, port, database, user, password or dialect changes, including changes made by another process (picked up within `tenantTtlMs`).

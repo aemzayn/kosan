@@ -354,6 +354,23 @@ describe("TenantRegistry tenant lookup cache", () => {
     await r.shutdown();
   });
 
+  it("applies a host change made by another process once the TTL expires", async () => {
+    vi.useFakeTimers();
+    const r = await makeRegistry(1_000);
+    const { id } = await r.createTenant(BASE_INPUT);
+    const before = await r.resolveBySlug("acme");
+
+    await master.update(id, { host: "db.us.example.com" }); // not through this registry
+    expect((await r.resolveBySlug("acme")).connection).toBe(before.connection); // within TTL
+
+    vi.advanceTimersByTime(1_001);
+    const after = await r.resolveBySlug("acme");
+    expect(after.connection).not.toBe(before.connection);
+    expect(after.tenant.host).toBe("db.us.example.com");
+    expect(adapter.connectedWith.at(-1)?.host).toBe("db.us.example.com");
+    await r.shutdown();
+  });
+
   it("is disabled with tenantTtlMs: 0", async () => {
     const r = await makeRegistry(0);
     await r.createTenant(BASE_INPUT);

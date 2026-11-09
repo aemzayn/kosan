@@ -130,6 +130,37 @@ describe("ConnectionCache", () => {
     expect(typeof stats[0]?.lastUsed).toBe("number");
   });
 
+  describe("connection settings changed elsewhere", () => {
+    it("reconnects when the tenant's host changed (e.g. moved to another region)", async () => {
+      const original = makeTenant();
+      const first = await cache.getOrConnect(original);
+
+      const moved = makeTenant({ host: "db.us.example.com" });
+      const second = await cache.getOrConnect(moved);
+
+      expect(second).not.toBe(first);
+      expect(first.disconnected).toBe(true);
+      expect(adapter.connectedWith.at(-1)?.host).toBe("db.us.example.com");
+      expect(cache.size).toBe(1);
+    });
+
+    it("reconnects when credentials were rotated", async () => {
+      const first = await cache.getOrConnect(makeTenant());
+      const second = await cache.getOrConnect(makeTenant({ password: "rotated" }));
+      expect(second).not.toBe(first);
+      expect(adapter.connectCallCount).toBe(2);
+    });
+
+    it("keeps the connection when only non-connection fields change", async () => {
+      const first = await cache.getOrConnect(makeTenant());
+      const second = await cache.getOrConnect(
+        makeTenant({ slug: "acme-renamed", meta: { plan: "pro" } }),
+      );
+      expect(second).toBe(first);
+      expect(adapter.connectCallCount).toBe(1);
+    });
+  });
+
   describe("concurrent connects", () => {
     /** Adapter whose connect() stays pending until the test releases it. */
     function gatedAdapter() {
