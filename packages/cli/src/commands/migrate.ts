@@ -1,7 +1,7 @@
 import path from "node:path";
-import { TenantRegistry } from "@kosan/core";
+import { type Cipher, type TenantConfig, TenantRegistry } from "@kosan/core";
 import { SequelizeAdapter, SequelizeMasterStore } from "@kosan/sequelize";
-import { type Dialect, Sequelize } from "sequelize";
+import { type Dialect, type Options, Sequelize } from "sequelize";
 import { withConcurrency } from "../pool.js";
 import { loadMigrationsFromDir, runMigrationsForTenant } from "../runner.js";
 import type { KosanConfig, TenantMigrationResult } from "../types.js";
@@ -63,22 +63,7 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
     // ---------------------------------------------------------------------------
 
     const results = await withConcurrency(targets, concurrency, async (tenant) => {
-      const dialect = resolveDialect(tenant.meta?.dialect);
-      const isSqlite = dialect === "sqlite";
-
-      const sequelize = new Sequelize({
-        dialect,
-        ...(isSqlite
-          ? { storage: tenant.dbName }
-          : {
-              host: tenant.host,
-              port: tenant.port,
-              database: tenant.dbName,
-              username: tenant.user,
-              password: tenant.password,
-            }),
-        logging: false,
-      });
+      const sequelize = new Sequelize(await tenantConnectionOptions(tenant, config.cipher));
 
       try {
         await sequelize.authenticate();
@@ -93,6 +78,40 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
     await registry.shutdown();
     await masterSequelize.close();
   }
+}
+
+/**
+ * Sequelize options for connecting to a tenant database. Decrypts the stored
+ * password with `cipher` (the same one the app gives `TenantRegistry`).
+ */
+export async function tenantConnectionOptions(
+  tenant: TenantConfig,
+  cipher: Cipher | undefined,
+): Promise<Options> {
+  const dialect = resolveDialect(tenant.meta?.dialect);
+  if (dialect === "sqlite") {
+    return { dialect, storage: tenant.dbName, logging: false };
+  }
+  const password = cipher === undefined ? tenant.password : await cipher.decrypt(tenant.password);
+  return {
+    dialect,
+    host: tenant.host,
+    port: tenant.port,
+    database: tenant.dbName,
+    username: tenant.user,
+    password,
+    logging: false,
+  };
+}
+
+/** `--concurrency` flag, else `config.concurrency`, else 4; never below 1. */
+export function resolveConcurrency(
+  flag: string | undefined,
+  configValue: number | undefined,
+): number {
+  const fromFlag = flag === undefined ? Number.NaN : Number.parseInt(flag, 10);
+  const value = Number.isNaN(fromFlag) ? (configValue ?? 4) : fromFlag;
+  return Math.max(1, value);
 }
 
 const DIALECTS: readonly Dialect[] = [

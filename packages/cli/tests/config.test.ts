@@ -59,6 +59,27 @@ describe("loadConfig", () => {
     await expect(loadConfig(file)).rejects.toThrow(/"migrationsPath"/);
   });
 
+  it("passes a cipher through to the config", async () => {
+    const file = write(
+      "kosan.config.mjs",
+      `export default {
+        master: 'sqlite::memory:',
+        migrationsPath: 'm',
+        cipher: { encrypt: async (p) => p, decrypt: async (p) => p.toUpperCase() },
+      };`,
+    );
+    const config = await loadConfig(file);
+    await expect(config.cipher?.decrypt("pw")).resolves.toBe("PW");
+  });
+
+  it("rejects a cipher without encrypt/decrypt", async () => {
+    const file = write(
+      "kosan.config.mjs",
+      `export default { master: 'sqlite::memory:', migrationsPath: 'm', cipher: {} };`,
+    );
+    await expect(loadConfig(file)).rejects.toThrow(/"cipher"/);
+  });
+
   it("reports a missing file with its path", async () => {
     const missing = path.join(dir, "nope.config.ts");
     await expect(loadConfig(missing)).rejects.toThrow(/Failed to load config/);

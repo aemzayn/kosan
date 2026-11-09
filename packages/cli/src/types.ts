@@ -1,3 +1,4 @@
+import type { Cipher } from "@kosan/core";
 import type { Options as SequelizeOptions } from "sequelize";
 
 /**
@@ -28,6 +29,13 @@ export interface KosanConfig {
 
   /** Default concurrency for `kosan migrate`. Can be overridden with --concurrency. */
   concurrency?: number;
+
+  /**
+   * The same cipher your app passes to `TenantRegistry.create()`. Required
+   * when tenant passwords are stored encrypted; the CLI decrypts them before
+   * connecting.
+   */
+  cipher?: Cipher;
 }
 
 // ---------------------------------------------------------------------------

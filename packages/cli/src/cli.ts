@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import path from "node:path";
 import { Command } from "commander";
-import { printResults, runMigrate } from "./commands/migrate.js";
+import { printResults, resolveConcurrency, runMigrate } from "./commands/migrate.js";
 import { loadConfig } from "./config.js";
 
 const program = new Command();
@@ -12,9 +12,9 @@ program
   .command("migrate")
   .description("Run pending migrations across all active tenants (or a specific one)")
   .requiredOption("-c, --config <path>", "Path to kosan.config.ts / .js", "kosan.config.ts")
-  .option("-n, --concurrency <n>", "Max parallel tenant migrations", "4")
+  .option("-n, --concurrency <n>", "Max parallel tenant migrations (default: config, else 4)")
   .option("-t, --tenant <slug>", "Migrate only this tenant slug")
-  .action(async (opts: { config: string; concurrency: string; tenant?: string }) => {
+  .action(async (opts: { config: string; concurrency?: string; tenant?: string }) => {
     let config: Awaited<ReturnType<typeof loadConfig>>;
     try {
       config = await loadConfig(opts.config);
@@ -23,7 +23,7 @@ program
       process.exit(1);
     }
 
-    const concurrency = Math.max(1, Number.parseInt(opts.concurrency, 10) || 4);
+    const concurrency = resolveConcurrency(opts.concurrency, config.concurrency);
     const configDir = path.dirname(path.resolve(opts.config));
     const migrationsDir = path.resolve(configDir, config.migrationsPath);
 

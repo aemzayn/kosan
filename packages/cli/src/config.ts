@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { Cipher } from "@kosan/core";
 import { createJiti } from "jiti";
 import type { KosanConfig } from "./types.js";
 
@@ -39,9 +40,21 @@ export async function loadConfig(configPath: string): Promise<KosanConfig> {
   if ("concurrency" in mod && typeof mod.concurrency === "number") {
     config.concurrency = mod.concurrency;
   }
+  if ("cipher" in mod && mod.cipher !== undefined) {
+    if (!isCipher(mod.cipher)) {
+      throw new Error(`Config field "cipher" must have encrypt() and decrypt() functions`);
+    }
+    config.cipher = mod.cipher;
+  }
   return config;
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function isCipher(value: unknown): value is Cipher {
+  return (
+    isObject(value) && typeof value.encrypt === "function" && typeof value.decrypt === "function"
+  );
 }

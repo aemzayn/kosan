@@ -25,8 +25,8 @@
 - [x] `onCreate` failure handling — don't leave half-provisioned tenants; let hooks run before connecting (`beforeConnect`/provision step)
 - [x] Don't expose decrypted password via `useTenant().tenant`
 - [x] Tests for `updateTenant` eviction and cipher decrypt path (already covered)
-- [ ] `kosan migrate` bypasses the cipher — connects with the stored (encrypted) password; needs a `cipher` option in `KosanConfig`
-- [ ] `kosan migrate` ignores `config.concurrency` (CLI flag default `4` always wins)
+- [x] `kosan migrate` bypasses the cipher — connects with the stored (encrypted) password; needs a `cipher` option in `KosanConfig`
+- [x] `kosan migrate` ignores `config.concurrency` (CLI flag default `4` always wins)
 
 ### D. Missing requirements (CLAUDE.md)
 - [ ] `JwtResolver` (claim-based, user-supplied verifier — no hard JWT dependency)

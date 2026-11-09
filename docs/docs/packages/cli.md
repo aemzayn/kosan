@@ -22,13 +22,13 @@ npx kosan migrate [options]
 | Flag | Default | Description |
 |---|---|---|
 | `--config <path>` | `kosan.config.ts` | Path to config file |
-| `--concurrency <n>` | `5` | Max parallel tenant migrations |
+| `--concurrency <n>` | `concurrency` from config, else `4` | Max parallel tenant migrations |
 | `--tenant <slug>` | all active | Target a single tenant by slug |
 
 ### Examples
 
 ```bash
-# Migrate all active tenants (5 at a time)
+# Migrate all active tenants (4 at a time by default)
 npx kosan migrate --config kosan.config.ts
 
 # Migrate 10 tenants at a time
@@ -45,37 +45,31 @@ npx kosan migrate --tenant acme
 Create `kosan.config.ts` (or `.js` / `.mjs`) at the root of your project:
 
 ```ts [kosan.config.ts]
-import { Sequelize } from 'sequelize';
-import { SequelizeMasterStore } from '@kosan/sequelize';
-import { SequelizeAdapter } from '@kosan/sequelize';
-import { TenantRegistry } from '@kosan/core';
 import type { KosanConfig } from '@kosan/cli';
+import { cipher } from './src/cipher.js'; // same cipher your app gives TenantRegistry
 
-const master = new Sequelize(process.env.MASTER_DATABASE_URL!, { logging: false });
-const masterStore = await SequelizeMasterStore.create(master);
-const adapter = new SequelizeAdapter({ defaultDialect: 'postgres' });
-const registry = await TenantRegistry.create({ master: masterStore, adapter });
-
-const config: KosanConfig = {
-  registry,
-  migrationsPath: './migrations',          // directory containing migration files
-  migrationsTableName: 'sequelize_meta',   // default
-  concurrency: 5,                          // default — overridden by --concurrency flag
-};
-
-export default config;
+export default {
+  master: process.env.MASTER_DATABASE_URL!, // or Sequelize options for the master DB
+  migrationsPath: './migrations',           // relative to this file
+  migrationsTableName: 'sequelize_meta',    // default
+  concurrency: 4,                           // default; --concurrency overrides
+  cipher,                                   // only if tenant passwords are encrypted
+} satisfies KosanConfig;
 ```
 
 ### KosanConfig
 
 ```ts
 interface KosanConfig {
-  registry: TenantRegistry;
+  master: string | SequelizeOptions; // connection string or options for the master DB
   migrationsPath: string;
-  migrationsTableName?: string; // default: 'sequelize_meta'
-  concurrency?: number;         // default: 5
+  migrationsTableName?: string;      // default: 'sequelize_meta'
+  concurrency?: number;              // default: 4
+  cipher?: Cipher;                   // decrypts stored tenant passwords before connecting
 }
 ```
+
+If your app stores tenant passwords encrypted, you **must** pass the same `cipher`. Without it the CLI connects with the encrypted string and authentication fails.
 
 ---
 
@@ -142,16 +136,16 @@ Failed tenants do not stop other tenants from completing.
 You can run migrations from application code without the CLI:
 
 ```ts
-import { runMigrate, loadMigrationsFromDir, printResults } from '@kosan/cli';
-import { Sequelize } from 'sequelize';
+import path from 'node:path';
+import { loadConfig, printResults, runMigrate } from '@kosan/cli';
 
-const migrations = loadMigrationsFromDir('./migrations', Sequelize);
+const config = await loadConfig('./kosan.config.ts');
 
 const results = await runMigrate({
-  registry,
-  migrations,
+  config,
+  migrationsDir: path.resolve('./migrations'),
   concurrency: 3,
-  migrationsTableName: 'sequelize_meta',
+  tenant: 'acme', // optional: only this tenant
 });
 
 printResults(results);
@@ -171,9 +165,10 @@ interface Migration {
 
 ```ts
 interface TenantMigrationResult {
-  tenant: TenantConfig;
-  outcome: 'ok' | 'error';
-  applied: number;
+  tenantId: string;
+  slug: string;
+  outcome: 'migrated' | 'up-to-date' | 'failed' | 'skipped';
+  applied: string[]; // names of migrations run for this tenant
   durationMs: number;
   error?: Error;
 }
