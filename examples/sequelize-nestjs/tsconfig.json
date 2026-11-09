@@ -11,12 +11,7 @@
     "declaration": true,
     "sourceMap": true,
     "outDir": "dist",
-    "rootDir": "src",
-    "paths": {
-      "@kosan/core": ["../../packages/core/src/index.ts"],
-      "@kosan/nestjs": ["../../packages/nestjs/src/index.ts"],
-      "@kosan/sequelize": ["../../packages/sequelize/src/index.ts"]
-    }
+    "rootDir": "src"
   },
   "include": ["src"],
   "ts-node": {

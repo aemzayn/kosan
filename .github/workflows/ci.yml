@@ -30,6 +30,7 @@ jobs:
 
       - run: pnpm test
 
+      # typecheck builds packages first so workspace deps resolve to dist/*.d.ts
       - run: pnpm typecheck
 
   build:
