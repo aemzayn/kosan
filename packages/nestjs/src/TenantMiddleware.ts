@@ -5,7 +5,7 @@ import {
   TenantRegistry,
   TenantNotFoundError,
   TenantNotActiveError,
-  runWithTenant,
+  wrapWithTenantContext,
 } from '@kosan/core';
 import type { Resolver } from '@kosan/core';
 import { KOSAN_REGISTRY, KOSAN_OPTIONS, KOSAN_RESOLVER } from './constants.js';
@@ -41,16 +41,16 @@ export class TenantMiddleware implements NestMiddleware {
 
     try {
       const ctx = await this.registry.resolveBySlug(slug);
-      // runWithTenant wraps next() inside AsyncLocalStorage.run() so the entire
-      // downstream Express/NestJS chain inherits the tenant context.
-      runWithTenant(ctx, next as () => void);
+      // Run next() inside AsyncLocalStorage.run() so the entire downstream
+      // Express/NestJS chain inherits the tenant context.
+      wrapWithTenantContext(ctx, () => next());
     } catch (err) {
       if (err instanceof TenantNotFoundError || err instanceof TenantNotActiveError) {
         const status = this.options.missingTenantStatus ?? 404;
         if (this.options.onMissingTenant) {
           await this.options.onMissingTenant(slug);
         }
-        throw new HttpException((err as Error).message, status);
+        throw new HttpException(err.message, status);
       }
       throw err;
     }
