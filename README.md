@@ -83,8 +83,8 @@ app.use(tenantMiddleware({ registry, resolver: new SubdomainResolver() }));
 
 // 4 — Use models in route handlers — no prop-drilling
 app.get('/orders', async (_req, res) => {
-  const { models } = useTenant();
-  res.json(await (models.Order as any).findAll());
+  const { connection } = useTenant<Sequelize>();
+  res.json(await connection.model('Order').findAll());
 });
 
 app.listen(3000);
@@ -162,7 +162,7 @@ fastify.get('/orders', async () => {
 
 | Resolver | Extracts tenant from |
 |---|---|
-| `SubdomainResolver` | `acme.myapp.com` → `acme` |
+| `SubdomainResolver` | `acme.myapp.com` or `acme.localhost` → `acme` |
 | `HeaderResolver('X-Tenant-ID')` | `X-Tenant-ID: acme` header |
 | `PathResolver({ segment: 0 })` | `/acme/orders` → `acme` |
 | Custom function | `(req) => req.user?.tenantId` |
