@@ -59,11 +59,17 @@ export interface MasterStore {
  *  connection object to produce a model class / query builder. */
 export type ModelFactory<TConn = unknown> = (conn: TConn) => unknown;
 
-export interface Adapter<TConn = unknown> {
+/**
+ * @typeParam TConn - the ORM connection type the adapter produces.
+ * @typeParam TFactory - the model-factory signature the adapter accepts in
+ *   `registerModelFactories`. Adapters may pass something richer than the raw
+ *   connection (e.g. `{ sequelize }`), so this is adapter-defined.
+ */
+export interface Adapter<TConn = unknown, TFactory = ModelFactory<TConn>> {
   connect(tenant: TenantConfig): Promise<TConn>;
   disconnect(conn: TConn): Promise<void>;
   getModels(conn: TConn): Record<string, unknown>;
-  registerModelFactories?(factories: ModelFactory<TConn>[]): void;
+  registerModelFactories?(factories: TFactory[]): void;
 }
 
 // ---------------------------------------------------------------------------
@@ -103,9 +109,9 @@ export interface CacheOptions {
 // TenantRegistry options
 // ---------------------------------------------------------------------------
 
-export interface TenantRegistryOptions<TConn = unknown> {
+export interface TenantRegistryOptions<TConn = unknown, TFactory = ModelFactory<TConn>> {
   master: MasterStore;
-  adapter: Adapter<TConn>;
+  adapter: Adapter<TConn, TFactory>;
   cache?: CacheOptions;
   cipher?: Cipher;
   hooks?: LifecycleHooks<TConn>;

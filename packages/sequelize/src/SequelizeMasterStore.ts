@@ -5,7 +5,15 @@ import type {
   TenantStatus,
   UpdateTenantInput,
 } from '@kosan/core';
-import { DataTypes, Model, type Sequelize, type InferAttributes, type InferCreationAttributes } from 'sequelize';
+import {
+  type CreationOptional,
+  DataTypes,
+  type FindOptions,
+  type InferAttributes,
+  type InferCreationAttributes,
+  Model,
+  type Sequelize,
+} from 'sequelize';
 import { randomUUID } from 'node:crypto';
 
 // ---------------------------------------------------------------------------
@@ -13,17 +21,17 @@ import { randomUUID } from 'node:crypto';
 // ---------------------------------------------------------------------------
 
 class TenantModel extends Model<InferAttributes<TenantModel>, InferCreationAttributes<TenantModel>> {
-  declare id: string;
+  declare id: CreationOptional<string>;
   declare slug: string;
   declare host: string;
   declare port: number;
   declare dbName: string;
   declare user: string;
   declare password: string;
-  declare status: TenantStatus;
+  declare status: CreationOptional<TenantStatus>;
   declare meta: Record<string, unknown> | null;
-  declare createdAt: Date;
-  declare updatedAt: Date;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 function defineTenantModel(sequelize: Sequelize): typeof TenantModel {
@@ -64,7 +72,7 @@ function defineTenantModel(sequelize: Sequelize): typeof TenantModel {
 }
 
 function toConfig(row: TenantModel): TenantConfig {
-  return {
+  const config: TenantConfig = {
     id: row.id,
     slug: row.slug,
     host: row.host,
@@ -73,10 +81,11 @@ function toConfig(row: TenantModel): TenantConfig {
     user: row.user,
     password: row.password,
     status: row.status,
-    meta: row.meta ?? undefined,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
+  if (row.meta !== null) config.meta = row.meta;
+  return config;
 }
 
 // ---------------------------------------------------------------------------
@@ -106,9 +115,9 @@ export class SequelizeMasterStore implements MasterStore {
   }
 
   async findAll(filter?: { status?: TenantStatus }): Promise<TenantConfig[]> {
-    const rows = await this.model.findAll({
-      where: filter?.status !== undefined ? { status: filter.status } : undefined,
-    });
+    const options: FindOptions<InferAttributes<TenantModel>> = {};
+    if (filter?.status !== undefined) options.where = { status: filter.status };
+    const rows = await this.model.findAll(options);
     return rows.map(toConfig);
   }
 

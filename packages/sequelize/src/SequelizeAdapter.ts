@@ -1,8 +1,8 @@
-import type { Adapter, ModelFactory, TenantConfig } from '@kosan/core';
-import { Sequelize } from 'sequelize';
+import type { Adapter, TenantConfig } from '@kosan/core';
+import { type Dialect, type Options, Sequelize } from 'sequelize';
 import type { AdapterContext, SequelizeAdapterOptions, SequelizeModelFactory, SlowQueryInfo } from './types.js';
 
-export class SequelizeAdapter implements Adapter<Sequelize> {
+export class SequelizeAdapter implements Adapter<Sequelize, SequelizeModelFactory> {
   private readonly options: SequelizeAdapterOptions;
   private factories: SequelizeModelFactory[] = [];
 
@@ -13,10 +13,8 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
   async connect(tenant: TenantConfig): Promise<Sequelize> {
     const logging = this.buildLogging(tenant);
 
-    const sequelize = new Sequelize({
-      dialect: (tenant.meta?.['dialect'] as SequelizeAdapterOptions['defaultDialect']) ??
-        this.options.defaultDialect ??
-        'postgres',
+    const options: Options = {
+      dialect: resolveDialect(tenant.meta?.['dialect']) ?? this.options.defaultDialect ?? 'postgres',
       host: tenant.host,
       port: tenant.port,
       database: tenant.dbName,
@@ -28,10 +26,13 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
         acquire: this.options.pool?.acquire ?? 30_000,
         idle: this.options.pool?.idle ?? 10_000,
       },
-      dialectOptions: this.options.dialectOptions,
       logging,
       benchmark: this.options.onSlowQuery !== undefined,
-    });
+    };
+    if (this.options.dialectOptions !== undefined) {
+      options.dialectOptions = this.options.dialectOptions;
+    }
+    const sequelize = new Sequelize(options);
 
     await sequelize.authenticate();
 
@@ -54,8 +55,8 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
     return sequelize.models as Record<string, unknown>;
   }
 
-  registerModelFactories(factories: ModelFactory<Sequelize>[]): void {
-    this.factories = factories as SequelizeModelFactory[];
+  registerModelFactories(factories: SequelizeModelFactory[]): void {
+    this.factories = factories;
   }
 
   private buildLogging(
@@ -87,4 +88,11 @@ export class SequelizeAdapter implements Adapter<Sequelize> {
       }
     };
   }
+}
+
+const DIALECTS: readonly Dialect[] = ['postgres', 'mysql', 'mariadb', 'sqlite', 'mssql', 'db2', 'snowflake', 'oracle'];
+
+/** Reads an optional per-tenant dialect override from `tenant.meta.dialect`. */
+function resolveDialect(value: unknown): Dialect | undefined {
+  return DIALECTS.find((d) => d === value);
 }

@@ -1,5 +1,8 @@
 import type { Adapter, CacheOptions, TenantConfig } from './types.js';
 
+/** The subset of an adapter the cache needs: opening and closing connections. */
+export type ConnectionLifecycle<TConn> = Pick<Adapter<TConn>, 'connect' | 'disconnect'>;
+
 interface CacheEntry<TConn> {
   conn: TConn;
   tenantId: string;
@@ -21,9 +24,9 @@ export class ConnectionCache<TConn> {
   private readonly lruOrder: string[] = [];
   readonly maxSize: number;
   private readonly idleTimeoutMs: number;
-  private readonly adapter: Adapter<TConn>;
+  private readonly adapter: ConnectionLifecycle<TConn>;
 
-  constructor(adapter: Adapter<TConn>, options: CacheOptions = {}) {
+  constructor(adapter: ConnectionLifecycle<TConn>, options: CacheOptions = {}) {
     this.adapter = adapter;
     this.maxSize = options.maxSize ?? 100;
     this.idleTimeoutMs = options.idleTimeoutMs ?? 30 * 60 * 1000;

@@ -14,14 +14,14 @@ import type {
   UpdateTenantInput,
 } from './types.js';
 
-export class TenantRegistry<TConn = unknown> {
+export class TenantRegistry<TConn = unknown, TFactory = ModelFactory<TConn>> {
   private readonly master: MasterStore;
-  private readonly adapter: Adapter<TConn>;
+  private readonly adapter: Adapter<TConn, TFactory>;
   readonly cache: ConnectionCache<TConn>;
   private readonly cipher: Cipher | undefined;
   private readonly hooks: LifecycleHooks<TConn> | undefined;
 
-  private constructor(options: TenantRegistryOptions<TConn>) {
+  private constructor(options: TenantRegistryOptions<TConn, TFactory>) {
     this.master = options.master;
     this.adapter = options.adapter;
     this.cipher = options.cipher;
@@ -29,9 +29,9 @@ export class TenantRegistry<TConn = unknown> {
     this.cache = new ConnectionCache(this.adapter, options.cache);
   }
 
-  static async create<TConn>(
-    options: TenantRegistryOptions<TConn>,
-  ): Promise<TenantRegistry<TConn>> {
+  static async create<TConn, TFactory = ModelFactory<TConn>>(
+    options: TenantRegistryOptions<TConn, TFactory>,
+  ): Promise<TenantRegistry<TConn, TFactory>> {
     return new TenantRegistry(options);
   }
 
@@ -121,7 +121,7 @@ export class TenantRegistry<TConn = unknown> {
   // Model registration — delegates to the adapter
   // ---------------------------------------------------------------------------
 
-  registerModels(factories: ModelFactory<TConn>[]): void {
+  registerModels(factories: TFactory[]): void {
     if (this.adapter.registerModelFactories === undefined) {
       throw new Error(
         'The current adapter does not support registerModelFactories. ' +
