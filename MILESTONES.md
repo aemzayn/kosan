@@ -20,11 +20,11 @@
 - [x] Refresh `HANDOFF.md` (VitePress, test counts, drizzle status) and `.gitignore`
 
 ### C. Core correctness
-- [ ] Share in-flight `connect()` per tenant (no duplicate/leaked pools on concurrent first requests)
+- [x] Share in-flight `connect()` per tenant (no duplicate/leaked pools on concurrent first requests)
 - [ ] Avoid master-DB round trip on every request (short-TTL tenant lookup cache)
 - [ ] `onCreate` failure handling — don't leave half-provisioned tenants; let hooks run before connecting (`beforeConnect`/provision step)
 - [ ] Don't expose decrypted password via `useTenant().tenant`
-- [ ] Tests for `updateTenant` eviction and cipher decrypt path
+- [x] Tests for `updateTenant` eviction and cipher decrypt path (already covered)
 - [ ] `kosan migrate` bypasses the cipher — connects with the stored (encrypted) password; needs a `cipher` option in `KosanConfig`
 - [ ] `kosan migrate` ignores `config.concurrency` (CLI flag default `4` always wins)
 
