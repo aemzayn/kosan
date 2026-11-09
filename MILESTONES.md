@@ -1,5 +1,38 @@
 # Milestones
 
+## Stabilization (in progress) — get main green before new features
+
+### A. Build & CI blockers
+- [ ] Fix `exactOptionalPropertyTypes` errors in `@kosan/core` (unblocks `pnpm build`)
+- [ ] Make `tsc --noEmit` resolve sibling workspace packages without a prior build
+- [ ] Fix `@kosan/cli` type errors (`unknown` tenant, implicit `any`, bad cast, jiti import)
+- [ ] Remove `any` leakage in `SequelizeMasterStore` / `SequelizeAdapter`
+- [ ] Narrow `unknown` errors in express / fastify / koa middleware
+- [ ] Fix remaining typecheck errors in drizzle / prisma / nestjs
+- [ ] Biome: zero lint/format errors
+- [ ] Replace `allowBuilds` placeholders in `pnpm-workspace.yaml`
+- [ ] `pnpm build && pnpm typecheck && pnpm test && pnpm lint` all green
+
+### B. Broken user-facing docs/examples
+- [ ] README Quick Start uses real API (`await SequelizeMasterStore.create(...)`)
+- [ ] `SubdomainResolver` supports `*.localhost` so the example demo resolves tenants
+- [ ] README package table lists all packages
+- [ ] Refresh `HANDOFF.md` (VitePress, test counts, drizzle status) and `.gitignore`
+
+### C. Core correctness
+- [ ] Share in-flight `connect()` per tenant (no duplicate/leaked pools on concurrent first requests)
+- [ ] Avoid master-DB round trip on every request (short-TTL tenant lookup cache)
+- [ ] `onCreate` failure handling — don't leave half-provisioned tenants; let hooks run before connecting (`beforeConnect`/provision step)
+- [ ] Don't expose decrypted password via `useTenant().tenant`
+- [ ] Tests for `updateTenant` eviction and cipher decrypt path
+
+### D. Missing requirements (CLAUDE.md)
+- [ ] `JwtResolver` (claim-based, user-supplied verifier — no hard JWT dependency)
+- [ ] Per-tenant pool stats in health payload (adapter-provided)
+- [ ] CI matrix over Postgres + MySQL (service containers, integration tests)
+- [ ] `examples/multi-region`
+- [ ] KMS cipher example in docs
+
 ## Milestone 1 — Working end-to-end demo
 
 Build the library from core outward, ending in a runnable demo against real Postgres.
