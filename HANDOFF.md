@@ -27,9 +27,13 @@ kosan/
 │   ├── nestjs/       @kosan/nestjs     — NestJS module + middleware + decorators
 │   └── cli/          @kosan/cli        — Migration orchestrator CLI
 ├── examples/
-│   └── sequelize-express/             — Docker Compose demo
-├── docs/                              — Docusaurus site
-├── .github/workflows/ci.yml           — CI (test × Node 18/20/22, build, lint)
+│   ├── sequelize-express/             — Sequelize + Express (Docker Compose)
+│   ├── todo-sequelize-express/        — Todo app, Sequelize + Express
+│   ├── sequelize-nestjs/              — Sequelize + NestJS
+│   ├── drizzle-fastify/               — Drizzle + Fastify
+│   └── prisma-koa/                    — Prisma + Koa
+├── docs/                              — VitePress site
+├── .github/workflows/ci.yml           — CI (test × Node 20/22, build, lint)
 ├── biome.json                         — Lint + format (no ESLint, no Prettier)
 ├── tsconfig.base.json                 — Shared TypeScript config
 ├── pnpm-workspace.yaml
@@ -44,7 +48,7 @@ kosan/
 |---|---|
 | Package manager | pnpm 9 (workspaces) |
 | Language | TypeScript 5, strict mode |
-| Target | Node ≥ 18 (uses `AsyncLocalStorage`) |
+| Target | Node ≥ 20 (uses `AsyncLocalStorage`) |
 | Module format | ESM primary, CJS interop via tsup |
 | Build | tsup (produces `dist/index.js`, `dist/index.cjs`, `dist/index.d.ts`) |
 | Tests | Vitest |
@@ -168,11 +172,11 @@ const adapter = new SequelizeAdapter({
 });
 
 // Model factories
-type SequelizeModelFactory = ({ sequelize }: AdapterContext) => unknown;
+type SequelizeModelFactory = (sequelize: Sequelize) => unknown;
 registry.registerModels([OrderModel, UserModel]);
 
 // Types exported
-SequelizeAdapterOptions, AdapterContext, SequelizeModelFactory, SlowQueryInfo
+SequelizeAdapterOptions, SequelizeModelFactory, SlowQueryInfo
 ```
 
 ### @kosan/prisma
@@ -332,7 +336,7 @@ pnpm format
 pnpm typecheck
 
 # Docs dev server
-cd docs && pnpm start
+cd docs && pnpm dev
 ```
 
 ### Adding a new package
@@ -383,7 +387,7 @@ The `package.json` `exports` field routes consumers to the correct format automa
 - **SQLite in-memory**: Sequelize and CLI tests use `dialect: 'sqlite', storage: ':memory:'` — no Postgres required for tests
 - **Isolated fakes**: `InMemoryMasterStore` and `FakeAdapter` in `packages/core/tests/helpers/` are used by all packages that need a registry
 
-Test counts: 168 across 14 test files across 7 packages.
+Test counts: 200 across 22 test files across 9 packages.
 
 ---
 
@@ -441,14 +445,14 @@ pnpm changeset init
 | `"files": ["dist", "LICENSE"]` in all packages | ✅ |
 | `"publishConfig": { "access": "public" }` | ✅ |
 | `"license": "MIT"` + `LICENSE` file at root | ✅ |
-| `"engines": { "node": ">=18" }` | ✅ |
+| `"engines": { "node": ">=20" }` | ✅ |
 | `"exports"` field with ESM + CJS + types | ✅ |
 | `"prepublishOnly": "pnpm build"` | ✅ |
 | `description`, `keywords`, `author`, `repository`, `bugs`, `homepage` | ✅ |
 | `tsup.config.ts` in every package | ✅ |
 | Peer dependencies declared on framework packages | ✅ |
 | CLI `bin` field pointing to `dist/cli.js` | ✅ |
-| GitHub Actions CI (test × Node 18/20/22, build, lint) | ✅ |
+| GitHub Actions CI (test × Node 20/22, build, lint) | ✅ |
 
 ---
 
@@ -507,5 +511,4 @@ Content lives in `docs/docs/`. Add a new guide by creating a `.md` file and addi
 | 6 — Docs | ✅ | VitePress site with 17 pages across all packages and guides |
 | 7 — NestJS | ✅ | `@kosan/nestjs` (module, guard, decorators) + `examples/sequelize-nestjs` demo |
 
-**Planned (not started):**
-- `@kosan/drizzle` — Drizzle ORM adapter
+See the **Stabilization** checklist in `MILESTONES.md` for open work.
