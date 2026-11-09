@@ -2,9 +2,12 @@ packages:
   - 'packages/*'
   - 'examples/*'
   - 'docs'
+# Dependencies whose install scripts may run. Native SQLite drivers are needed
+# by the sequelize/cli/drizzle test suites; biome and esbuild fetch binaries.
+# @nestjs/core's script only prints a funding message.
 allowBuilds:
-  '@biomejs/biome': set this to true or false
-  '@nestjs/core': set this to true or false
-  better-sqlite3: set this to true or false
-  esbuild: set this to true or false
-  sqlite3: set this to true or false
+  '@biomejs/biome': true
+  '@nestjs/core': false
+  better-sqlite3: true
+  esbuild: true
+  sqlite3: true
