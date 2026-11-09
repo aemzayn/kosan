@@ -29,7 +29,7 @@
 - [x] `kosan migrate` ignores `config.concurrency` (CLI flag default `4` always wins)
 
 ### D. Missing requirements (CLAUDE.md)
-- [ ] `JwtResolver` (claim-based, user-supplied verifier — no hard JWT dependency)
+- [x] `JwtResolver` (claim-based, user-supplied verifier — no hard JWT dependency)
 - [ ] Per-tenant pool stats in health payload (adapter-provided)
 - [ ] CI matrix over Postgres + MySQL (service containers, integration tests)
 - [ ] `examples/multi-region`

@@ -165,6 +165,7 @@ fastify.get('/orders', async () => {
 | `SubdomainResolver` | `acme.myapp.com` or `acme.localhost` → `acme` |
 | `HeaderResolver('X-Tenant-ID')` | `X-Tenant-ID: acme` header |
 | `PathResolver({ segment: 0 })` | `/acme/orders` → `acme` |
+| `JwtResolver({ verify, claim: 'tenant' })` | `tenant` claim of a verified bearer token |
 | Custom function | `(req) => req.user?.tenantId` |
 
 ---

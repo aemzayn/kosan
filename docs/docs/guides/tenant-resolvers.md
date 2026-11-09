@@ -70,6 +70,42 @@ const resolver = new PathResolver({ segment: 0 });
 
 ---
 
+## JwtResolver
+
+Reads the tenant from a claim in a **verified** JWT. Kosan doesn't bundle a JWT library: you pass a `verify` function wrapping the one you already use. It must throw for invalid or expired tokens.
+
+```ts
+import { JwtResolver } from '@kosan/core';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
+
+const jwks = createRemoteJWKSet(new URL('https://auth.example.com/.well-known/jwks.json'));
+
+const resolver = new JwtResolver({
+  verify: async (token) => (await jwtVerify(token, jwks)).payload,
+  claim: 'tenant', // Authorization: Bearer <jwt> with { "tenant": "acme" } → "acme"
+});
+```
+
+Options:
+
+| Option | Default | Description |
+|---|---|---|
+| `verify(token)` | required | Returns the verified payload; throws for a bad token |
+| `claim` | required | Claim name, or `(payload) => value` for nested claims |
+| `header` | `authorization` | `authorization` is read as `Bearer <token>`; any other header as the raw token |
+
+The resolver returns `null` (no tenant) when the token is missing, fails verification, or lacks a non-empty string claim. An unverified token can never select a tenant.
+
+```ts
+// Nested claim: { "org": { "slug": "acme" } }
+new JwtResolver({
+  verify,
+  claim: (payload) => (payload.org as { slug?: string } | undefined)?.slug,
+});
+```
+
+---
+
 ## Custom resolvers
 
 Pass any async function anywhere a resolver is accepted:
@@ -77,13 +113,7 @@ Pass any async function anywhere a resolver is accepted:
 ```ts
 app.use(tenantMiddleware({
   registry,
-  resolver: async (req) => {
-    // Example: extract slug from a JWT Bearer token
-    const auth = req.headers.authorization;
-    if (!auth?.startsWith('Bearer ')) return null;
-    const { tenantSlug } = await verifyJwt(auth.slice(7));
-    return tenantSlug ?? null;
-  },
+  resolver: async (req) => req.session?.tenantSlug ?? null,
 }));
 ```
 
@@ -91,20 +121,10 @@ Or implement the `Resolver` interface for reusability:
 
 ```ts
 import type { Resolver } from '@kosan/core';
-import type { IncomingMessage } from 'http';
 
-export class JwtResolver implements Resolver {
-  constructor(private readonly secret: string) {}
-
-  async resolve(req: IncomingMessage): Promise<string | null> {
-    const auth = (req as Record<string, unknown>).headers?.['authorization'];
-    if (typeof auth !== 'string' || !auth.startsWith('Bearer ')) return null;
-    try {
-      const payload = await verifyJwt(auth.slice(7), this.secret);
-      return payload.tenantSlug ?? null;
-    } catch {
-      return null;
-    }
+export class SessionResolver implements Resolver {
+  resolve(req: { session?: { tenantSlug?: string } }): string | null {
+    return req.session?.tenantSlug ?? null;
   }
 }
 ```
@@ -118,7 +138,7 @@ export class JwtResolver implements Resolver {
 | SaaS app, each tenant has a subdomain | `SubdomainResolver` |
 | Internal API, client sends a tenant header | `HeaderResolver` |
 | Shared domain, tenant in URL (`/tenant/…`) | `PathResolver` |
-| Authentication via JWT | Custom async function |
+| Authentication via JWT | `JwtResolver` |
 | Session-based tenancy | Custom async function reading `req.session` |
 | Multi-region with tenant in host | `SubdomainResolver` + custom fallback |
 

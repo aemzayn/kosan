@@ -13,6 +13,8 @@ export { SubdomainResolver } from "./resolvers/SubdomainResolver.js";
 export type { SubdomainResolverOptions } from "./resolvers/SubdomainResolver.js";
 export { HeaderResolver } from "./resolvers/HeaderResolver.js";
 export { PathResolver } from "./resolvers/PathResolver.js";
+export { JwtResolver } from "./resolvers/JwtResolver.js";
+export type { JwtResolverOptions } from "./resolvers/JwtResolver.js";
 export type {
   TenantConfig,
   TenantStatus,
