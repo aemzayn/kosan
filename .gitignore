@@ -18,6 +18,9 @@ examples/*/src/**/*.d.ts.map
 # Docs
 docs/.vitepress/cache/
 docs/.vitepress/dist/
+# Leftovers from the old Docusaurus site
+docs/build/
+docs/.docusaurus/
 
 # OS
 .DS_Store

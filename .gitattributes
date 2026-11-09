@@ -1,0 +1,4 @@
+# Normalise line endings: the repo and the Biome formatter both use LF.
+* text=auto eol=lf
+*.png binary
+*.svg text eol=lf
