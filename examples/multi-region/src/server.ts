@@ -2,6 +2,7 @@ import { SubdomainResolver, getHealthPayload, useTenant } from "@kosan/core";
 import { tenantMiddleware } from "@kosan/express";
 import express, { type NextFunction, type Request, type Response } from "express";
 import type { Sequelize } from "sequelize";
+import { asyncRoute } from "./asyncRoute.js";
 import { REGIONS, isRegion } from "./config.js";
 import { registry } from "./registry.js";
 
@@ -45,23 +46,29 @@ app.get("/", (_req: Request, res: Response) => {
   });
 });
 
-app.get("/orders", async (_req: Request, res: Response) => {
-  const { connection } = useTenant<Sequelize>();
-  res.json(await connection.model("Order").findAll({ order: [["product", "ASC"]] }));
-});
+app.get(
+  "/orders",
+  asyncRoute(async (_req: Request, res: Response) => {
+    const { connection } = useTenant<Sequelize>();
+    res.json(await connection.model("Order").findAll({ order: [["product", "ASC"]] }));
+  }),
+);
 
-app.post("/orders", async (req: Request, res: Response) => {
-  const { connection } = useTenant<Sequelize>();
-  const body: unknown = req.body;
-  if (typeof body !== "object" || body === null || !("product" in body) || !("total" in body)) {
-    res.status(400).json({ error: 'Expected JSON { "product": string, "total": number }' });
-    return;
-  }
-  const order = await connection
-    .model("Order")
-    .create({ product: body.product, total: body.total });
-  res.status(201).json(order);
-});
+app.post(
+  "/orders",
+  asyncRoute(async (req: Request, res: Response) => {
+    const { connection } = useTenant<Sequelize>();
+    const body: unknown = req.body;
+    if (typeof body !== "object" || body === null || !("product" in body) || !("total" in body)) {
+      res.status(400).json({ error: 'Expected JSON { "product": string, "total": number }' });
+      return;
+    }
+    const order = await connection
+      .model("Order")
+      .create({ product: body.product, total: body.total });
+    res.status(201).json(order);
+  }),
+);
 
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);

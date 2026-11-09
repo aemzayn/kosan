@@ -97,13 +97,13 @@ interface SequelizeAdapterOptions {
 
 ## Model factories
 
-Model factories are functions that receive an `AdapterContext` and register models on the Sequelize instance. They run once per new tenant connection.
+Model factories are functions that receive the tenant's `Sequelize` instance and register models on it. They run once per new tenant connection.
 
 ```ts
 import { DataTypes } from 'sequelize';
-import type { AdapterContext } from '@kosan/sequelize';
+import type { Sequelize } from 'sequelize';
 
-export function OrderModel({ sequelize }: AdapterContext) {
+export function OrderModel(sequelize: Sequelize) {
   return sequelize.define('Order', {
     id:          { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     description: { type: DataTypes.STRING(500), allowNull: false },
@@ -117,7 +117,7 @@ export function OrderModel({ sequelize }: AdapterContext) {
   });
 }
 
-export function UserModel({ sequelize }: AdapterContext) {
+export function UserModel(sequelize: Sequelize) {
   return sequelize.define('User', {
     id:    { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     email: { type: DataTypes.STRING, unique: true, allowNull: false },

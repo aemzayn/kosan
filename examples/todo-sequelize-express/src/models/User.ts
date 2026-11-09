@@ -1,7 +1,7 @@
-import type { AdapterContext } from "@kosan/sequelize";
+import type { Sequelize } from "sequelize";
 import { DataTypes } from "sequelize";
 
-export function UserModel({ sequelize }: AdapterContext) {
+export function UserModel(sequelize: Sequelize) {
   return sequelize.define(
     "User",
     {

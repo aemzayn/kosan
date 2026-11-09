@@ -2,6 +2,7 @@ import { SubdomainResolver, useTenant } from "@kosan/core";
 import { tenantMiddleware } from "@kosan/express";
 import express, { type Request, type Response } from "express";
 import type { Model, ModelStatic } from "sequelize";
+import { asyncRoute } from "./asyncRoute.js";
 import { registry } from "./registry.js";
 
 const app = express();
@@ -36,26 +37,35 @@ app.get("/", (_req: Request, res: Response) => {
   });
 });
 
-app.get("/orders", async (_req: Request, res: Response) => {
-  const { models } = useTenant();
-  const Order = models.Order as ModelStatic<Model>;
-  const orders = await Order.findAll();
-  res.json(orders);
-});
+app.get(
+  "/orders",
+  asyncRoute(async (_req: Request, res: Response) => {
+    const { models } = useTenant();
+    const Order = models.Order as ModelStatic<Model>;
+    const orders = await Order.findAll();
+    res.json(orders);
+  }),
+);
 
-app.post("/orders", async (req: Request, res: Response) => {
-  const { models } = useTenant();
-  const Order = models.Order as ModelStatic<Model>;
-  const order = await Order.create(req.body as Record<string, unknown>);
-  res.status(201).json(order);
-});
+app.post(
+  "/orders",
+  asyncRoute(async (req: Request, res: Response) => {
+    const { models } = useTenant();
+    const Order = models.Order as ModelStatic<Model>;
+    const order = await Order.create(req.body as Record<string, unknown>);
+    res.status(201).json(order);
+  }),
+);
 
-app.delete("/orders/:id", async (req: Request, res: Response) => {
-  const { models } = useTenant();
-  const Order = models.Order as ModelStatic<Model>;
-  const deleted = await Order.destroy({ where: { id: req.params.id } });
-  res.json({ deleted });
-});
+app.delete(
+  "/orders/:id",
+  asyncRoute(async (req: Request, res: Response) => {
+    const { models } = useTenant();
+    const Order = models.Order as ModelStatic<Model>;
+    const deleted = await Order.destroy({ where: { id: req.params.id } });
+    res.json({ deleted });
+  }),
+);
 
 // ---------------------------------------------------------------------------
 // Health

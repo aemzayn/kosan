@@ -64,9 +64,9 @@ Model factories are registered once on the registry and called per-connection:
 
 ```ts [src/models/order.ts]
 import { DataTypes } from 'sequelize';
-import type { AdapterContext } from '@kosan/sequelize';
+import type { Sequelize } from 'sequelize';
 
-export function OrderModel({ sequelize }: AdapterContext) {
+export function OrderModel(sequelize: Sequelize) {
   return sequelize.define('Order', {
     id:          { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     description: { type: DataTypes.STRING, allowNull: false },

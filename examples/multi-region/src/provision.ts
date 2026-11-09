@@ -1,6 +1,7 @@
 /**
  * Creates three tenants spread over two regions and seeds an order in each.
- * Safe to re-run: existing tenants are skipped.
+ * Safe to re-run: existing tenants are skipped, and leftovers of a crashed
+ * run (rows still in status `provisioning`) are cleaned up and recreated.
  *
  *   pnpm provision
  */
@@ -16,10 +17,15 @@ const TENANTS: Array<{ slug: string; region: RegionName; product: string }> = [
 ];
 
 try {
-  const existing = new Set((await registry.listTenants()).map((t) => t.slug));
+  const existing = new Map((await registry.listTenants()).map((t) => [t.slug, t]));
 
   for (const { slug, region, product } of TENANTS) {
-    if (existing.has(slug)) {
+    const found = existing.get(slug);
+    if (found?.status === "provisioning") {
+      // A previous run died mid-provisioning: drop its half-created DB and retry.
+      console.log(`~ ${slug}: cleaning up an unfinished provisioning attempt`);
+      await registry.deleteTenant(found.id);
+    } else if (found !== undefined) {
       console.log(`- ${slug}: already exists, skipping`);
       continue;
     }

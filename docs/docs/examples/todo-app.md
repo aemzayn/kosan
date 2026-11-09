@@ -163,7 +163,7 @@ No request object is passed to `useTenant()`. The tenant context travels through
 
 ```ts
 // src/models/User.ts
-export function UserModel({ sequelize }: AdapterContext) {
+export function UserModel(sequelize: Sequelize) {
   return sequelize.define('User', {
     id:    { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
     name:  { type: DataTypes.STRING(100), allowNull: false },
@@ -176,7 +176,7 @@ export function UserModel({ sequelize }: AdapterContext) {
 
 ```ts
 // src/models/Todo.ts
-export function TodoModel({ sequelize }: AdapterContext) {
+export function TodoModel(sequelize: Sequelize) {
   return sequelize.define('Todo', {
     id:        { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
     userId:    { type: DataTypes.UUID, allowNull: false, field: 'user_id',
