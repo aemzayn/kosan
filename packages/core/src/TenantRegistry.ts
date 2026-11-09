@@ -46,14 +46,22 @@ export class TenantRegistry<TConn = unknown> {
   /** Resolves a tenant by slug, opens (or returns cached) connection, and
    *  returns a fully-populated context value ready for `runWithTenant`. */
   async resolveBySlug(slug: string): Promise<TenantContextValue<TConn>> {
-    const tenant = this.lookups.getBySlug(slug) ?? (await this.master.findBySlug(slug));
+    const cached = this.lookups.getBySlug(slug);
+    if (cached !== undefined) return this.buildContext(cached);
+
+    const tenant = await this.master.findBySlug(slug);
     if (tenant === null) throw new TenantNotFoundError(`slug=${slug}`);
+    // Only fresh reads are cached: re-setting on hits would extend the TTL
+    // forever under steady traffic and hide changes made by other processes.
     this.lookups.set(tenant);
     return this.buildContext(tenant);
   }
 
   async resolveById(id: string): Promise<TenantContextValue<TConn>> {
-    const tenant = this.lookups.getById(id) ?? (await this.master.findById(id));
+    const cached = this.lookups.getById(id);
+    if (cached !== undefined) return this.buildContext(cached);
+
+    const tenant = await this.master.findById(id);
     if (tenant === null) throw new TenantNotFoundError(`id=${id}`);
     this.lookups.set(tenant);
     return this.buildContext(tenant);

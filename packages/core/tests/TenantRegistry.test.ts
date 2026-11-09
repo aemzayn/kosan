@@ -371,6 +371,23 @@ describe("TenantRegistry tenant lookup cache", () => {
     await r.shutdown();
   });
 
+  it("expires on schedule even under continuous traffic", async () => {
+    vi.useFakeTimers();
+    const r = await makeRegistry(1_000);
+    await r.createTenant(BASE_INPUT);
+    const findBySlug = vi.spyOn(master, "findBySlug");
+
+    // A request every 300 ms must not keep extending the cached row's life.
+    for (let i = 0; i < 4; i++) {
+      await r.resolveBySlug("acme");
+      vi.advanceTimersByTime(300);
+    }
+    // t = 0 (miss), 300, 600, 900 (hits), 1200 (expired → miss)
+    await r.resolveBySlug("acme");
+    expect(findBySlug).toHaveBeenCalledTimes(2);
+    await r.shutdown();
+  });
+
   it("is disabled with tenantTtlMs: 0", async () => {
     const r = await makeRegistry(0);
     await r.createTenant(BASE_INPUT);
