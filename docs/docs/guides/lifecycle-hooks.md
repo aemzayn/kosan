@@ -30,12 +30,14 @@ const registry = await TenantRegistry.create({
 
 ## How `createTenant()` runs the hooks
 
-1. The master row is inserted with status `suspended`, so requests can't resolve the tenant while it is being set up.
+1. The master row is inserted with status `provisioning`, so requests can't resolve the tenant while it is being set up.
 2. `onProvision(tenant)` runs. **No connection is opened yet**, so this is where you create the physical database.
 3. A throw-away connection to the tenant database is opened and `onCreate(tenant, conn)` runs: schema, migrations, seed data.
 4. The status is set to what you asked for (default `active`) and the tenant becomes resolvable.
 
-If any step throws, including opening the connection, the master row is **deleted** and the error is rethrown from `createTenant()`. Hooks receive decrypted credentials.
+If any step throws, including opening the connection, the master row is **deleted** and the error is rethrown from `createTenant()`. If that delete also fails, or the process crashes mid-way, the row is left with status `provisioning`. Find leftovers with `registry.listTenants({ status: 'provisioning' })` and remove them with `deleteTenant()`.
+
+Every hook, including `onSuspend` and `onDelete`, receives decrypted credentials.
 
 Kosan never creates databases on its own. Provisioning only happens if you write an `onProvision` hook.
 

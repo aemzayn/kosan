@@ -309,7 +309,7 @@ interface TenantConfig {
   dbName: string;
   user: string;
   password: string;
-  status: 'active' | 'suspended' | 'deleted';
+  status: 'active' | 'suspended' | 'deleted' | 'provisioning';
   meta?: Record<string, unknown>;
   createdAt?: Date;
   updatedAt?: Date;
@@ -371,7 +371,7 @@ try {
     // slug or id was not found in the master store
   }
   if (err instanceof TenantNotActiveError) {
-    console.log(err.status); // 'suspended' | 'deleted'
+    console.log(err.status); // 'suspended' | 'deleted' | 'provisioning'
   }
 }
 ```

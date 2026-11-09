@@ -151,13 +151,39 @@ describe("ConnectionCache", () => {
       expect(adapter.connectCallCount).toBe(2);
     });
 
-    it("keeps the connection when only non-connection fields change", async () => {
+    it("by default also reconnects when meta changes (adapters may build URLs from it)", async () => {
+      const first = await cache.getOrConnect(makeTenant());
+      const second = await cache.getOrConnect(makeTenant({ meta: { ssl: true } }));
+      expect(second).not.toBe(first);
+    });
+
+    it("ignores status and timestamps", async () => {
       const first = await cache.getOrConnect(makeTenant());
       const second = await cache.getOrConnect(
+        makeTenant({ status: "suspended", updatedAt: new Date() }),
+      );
+      expect(second).toBe(first);
+    });
+
+    it("lets the adapter decide which fields matter via connectionKey()", async () => {
+      const keyed = new FakeAdapter();
+      Object.assign(keyed, { connectionKey: (t: TenantConfig) => `${t.host}/${t.dbName}` });
+      const c = new ConnectionCache(keyed);
+      const first = await c.getOrConnect(makeTenant());
+      const second = await c.getOrConnect(
         makeTenant({ slug: "acme-renamed", meta: { plan: "pro" } }),
       );
       expect(second).toBe(first);
-      expect(adapter.connectCallCount).toBe(1);
+      expect(keyed.connectCallCount).toBe(1);
+      await c.disconnectAll();
+    });
+
+    it("only prepares (decrypts) the tenant when it actually connects", async () => {
+      const prepare = vi.fn(async (t: TenantConfig) => ({ ...t, password: "decrypted" }));
+      await cache.getOrConnect(makeTenant(), prepare);
+      await cache.getOrConnect(makeTenant(), prepare);
+      expect(prepare).toHaveBeenCalledTimes(1);
+      expect(adapter.connectedWith.at(-1)?.password).toBe("decrypted");
     });
   });
 

@@ -1,4 +1,8 @@
-export type TenantStatus = "active" | "suspended" | "deleted";
+/**
+ * `provisioning` is set by `createTenant()` while lifecycle hooks run; a row
+ * left in that state means provisioning crashed and needs cleanup.
+ */
+export type TenantStatus = "active" | "suspended" | "deleted" | "provisioning";
 
 export interface TenantConfig {
   id: string;
@@ -64,6 +68,13 @@ export interface Adapter<TConn = unknown> {
   disconnect(conn: TConn): Promise<void>;
   getModels(conn: TConn): Record<string, unknown>;
   registerModelFactories?(factories: ModelFactory<TConn>[]): void;
+  /**
+   * Identifies the tenant settings this adapter's connections depend on. When
+   * it changes (e.g. another process moved the tenant to a new host), the
+   * cached connection is replaced. Default: every field of the stored row
+   * except `status`, `createdAt` and `updatedAt`.
+   */
+  connectionKey?(tenant: TenantConfig): string;
 }
 
 // ---------------------------------------------------------------------------
@@ -82,15 +93,16 @@ export interface Cipher {
 /**
  * Tenant lifecycle hooks. `createTenant()` runs them in this order:
  *
- *   1. master row inserted with status `suspended` (not resolvable yet)
+ *   1. master row inserted with status `provisioning` (not resolvable yet)
  *   2. `onProvision(tenant)` — no connection is opened; create the physical
  *      database / user here. Opt-in: Kosan never creates databases itself.
  *   3. a throw-away connection is opened and `onCreate(tenant, conn)` runs —
  *      e.g. initial migrations or seed data
  *   4. status set to the requested value (default `active`)
  *
- * If any step fails, the master row is deleted and the error rethrown.
- * Hooks receive decrypted credentials. Undoing side effects of a failed
+ * If any step fails, the master row is deleted and the error rethrown (if
+ * that delete also fails, the row stays `provisioning`). Every hook,
+ * including `onSuspend` and `onDelete`, receives decrypted credentials. Undoing side effects of a failed
  * `onProvision` (e.g. dropping a half-created database) is the hook's job.
  */
 export interface LifecycleHooks<TConn = unknown> {

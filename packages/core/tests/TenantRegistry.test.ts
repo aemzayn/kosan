@@ -578,3 +578,134 @@ describe("TenantRegistry provisioning", () => {
     await r.shutdown();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Review fixes: races between requests and writes, hooks, decryption
+// ---------------------------------------------------------------------------
+
+describe("TenantRegistry consistency under concurrent writes", () => {
+  let master: InMemoryMasterStore;
+  let adapter: FakeAdapter;
+  const plainCipher = {
+    encrypt: async (p: string) => `enc:${p}`,
+    decrypt: vi.fn(async (p: string) => p.slice(4)),
+  };
+
+  beforeEach(() => {
+    master = new InMemoryMasterStore();
+    adapter = new FakeAdapter();
+    plainCipher.decrypt.mockClear();
+  });
+
+  /** Makes the next findBySlug return the row as it was *before* `write` ran. */
+  function readThenWriteRace(write: () => Promise<unknown>) {
+    const realFind = master.findBySlug.bind(master);
+    vi.spyOn(master, "findBySlug").mockImplementationOnce(async (slug) => {
+      const before = await realFind(slug);
+      await write();
+      return before;
+    });
+  }
+
+  it("never caches a row read before a concurrent suspend", async () => {
+    const r = await TenantRegistry.create({ master, adapter });
+    const { id } = await r.createTenant(BASE_INPUT);
+
+    readThenWriteRace(() => r.suspendTenant(id));
+    await r.resolveBySlug("acme"); // in-flight request started before the suspend
+    await expect(r.resolveBySlug("acme")).rejects.toThrow(TenantNotActiveError);
+    await r.shutdown();
+  });
+
+  it("never caches a row read before a concurrent delete", async () => {
+    const r = await TenantRegistry.create({ master, adapter });
+    const { id } = await r.createTenant(BASE_INPUT);
+
+    readThenWriteRace(() => r.deleteTenant(id));
+    await r.resolveBySlug("acme").catch(() => {});
+    await expect(r.resolveBySlug("acme")).rejects.toThrow(TenantNotFoundError);
+    await r.shutdown();
+  });
+
+  it("retries instead of failing when its pending connect is cancelled by an update", async () => {
+    const releases: Array<() => void> = [];
+    const realConnect = adapter.connect.bind(adapter);
+    adapter.connect = (t) => new Promise((resolve) => releases.push(() => resolve(realConnect(t))));
+    const r = await TenantRegistry.create({ master, adapter });
+    const { id } = await r.createTenant(BASE_INPUT);
+
+    const request = r.resolveBySlug("acme");
+    await vi.waitFor(() => expect(releases).toHaveLength(1));
+    await r.updateTenant(id, { host: "db2.example.com" }); // cancels the pending connect
+    releases[0]?.();
+    await vi.waitFor(() => expect(releases).toHaveLength(2));
+    releases[1]?.();
+
+    const ctx = await request;
+    expect(ctx.tenant.host).toBe("db2.example.com");
+    await r.shutdown();
+  });
+
+  it("decrypts only when opening a connection, not on every request", async () => {
+    const r = await TenantRegistry.create({ master, adapter, cipher: plainCipher });
+    await r.createTenant(BASE_INPUT);
+    for (let i = 0; i < 3; i++) await r.resolveBySlug("acme");
+    expect(plainCipher.decrypt).toHaveBeenCalledTimes(1);
+    expect(adapter.connectedWith.at(-1)?.password).toBe("secret");
+    await r.shutdown();
+  });
+
+  it("gives onSuspend and onDelete decrypted credentials", async () => {
+    const seen: string[] = [];
+    const r = await TenantRegistry.create({
+      master,
+      adapter,
+      cipher: plainCipher,
+      hooks: {
+        onSuspend: async (t) => {
+          seen.push(`suspend:${t.password}`);
+        },
+        onDelete: async (t) => {
+          seen.push(`delete:${t.password}`);
+        },
+      },
+    });
+    const { id } = await r.createTenant(BASE_INPUT);
+    await r.suspendTenant(id);
+    await r.deleteTenant(id);
+    expect(seen).toEqual(["suspend:secret", "delete:secret"]);
+    await r.shutdown();
+  });
+
+  it("marks tenants being provisioned with a dedicated status", async () => {
+    let statusDuringHook: string | undefined;
+    const r = await TenantRegistry.create({
+      master,
+      adapter,
+      hooks: {
+        onProvision: async (t) => {
+          statusDuringHook = (await master.findById(t.id))?.status;
+        },
+      },
+    });
+    await r.createTenant(BASE_INPUT);
+    expect(statusDuringHook).toBe("provisioning");
+    await r.shutdown();
+  });
+
+  it("keeps the hook's error and leaves a 'provisioning' row if rollback fails", async () => {
+    vi.spyOn(master, "delete").mockRejectedValueOnce(new Error("master DB unreachable"));
+    const r = await TenantRegistry.create({
+      master,
+      adapter,
+      hooks: {
+        onProvision: async () => {
+          throw new Error("CREATE DATABASE failed");
+        },
+      },
+    });
+    await expect(r.createTenant(BASE_INPUT)).rejects.toThrow("CREATE DATABASE failed");
+    expect((await master.findBySlug("acme"))?.status).toBe("provisioning");
+    await r.shutdown();
+  });
+});

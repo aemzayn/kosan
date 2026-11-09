@@ -1,4 +1,4 @@
-import { ConnectionCache } from "./ConnectionCache.js";
+import { ConnectionCache, TenantEvictedError } from "./ConnectionCache.js";
 import type { CacheStats } from "./ConnectionCache.js";
 import { TenantLookupCache } from "./TenantLookupCache.js";
 import type {
@@ -46,33 +46,54 @@ export class TenantRegistry<TConn = unknown> {
   /** Resolves a tenant by slug, opens (or returns cached) connection, and
    *  returns a fully-populated context value ready for `runWithTenant`. */
   async resolveBySlug(slug: string): Promise<TenantContextValue<TConn>> {
-    const cached = this.lookups.getBySlug(slug);
-    if (cached !== undefined) return this.buildContext(cached);
+    return this.retryIfEvicted(async () => {
+      const cached = this.lookups.getBySlug(slug);
+      if (cached !== undefined) return this.buildContext(cached);
 
-    const tenant = await this.master.findBySlug(slug);
-    if (tenant === null) throw new TenantNotFoundError(`slug=${slug}`);
-    // Only fresh reads are cached: re-setting on hits would extend the TTL
-    // forever under steady traffic and hide changes made by other processes.
-    this.lookups.set(tenant);
-    return this.buildContext(tenant);
+      const version = this.lookups.version;
+      const tenant = await this.master.findBySlug(slug);
+      if (tenant === null) throw new TenantNotFoundError(`slug=${slug}`);
+      // Only fresh reads are cached: re-setting on hits would extend the TTL
+      // forever under steady traffic and hide changes made by other processes.
+      this.lookups.set(tenant, version);
+      return this.buildContext(tenant);
+    });
   }
 
   async resolveById(id: string): Promise<TenantContextValue<TConn>> {
-    const cached = this.lookups.getById(id);
-    if (cached !== undefined) return this.buildContext(cached);
+    return this.retryIfEvicted(async () => {
+      const cached = this.lookups.getById(id);
+      if (cached !== undefined) return this.buildContext(cached);
 
-    const tenant = await this.master.findById(id);
-    if (tenant === null) throw new TenantNotFoundError(`id=${id}`);
-    this.lookups.set(tenant);
-    return this.buildContext(tenant);
+      const version = this.lookups.version;
+      const tenant = await this.master.findById(id);
+      if (tenant === null) throw new TenantNotFoundError(`id=${id}`);
+      this.lookups.set(tenant, version);
+      return this.buildContext(tenant);
+    });
+  }
+
+  /**
+   * A connect can be cancelled while we wait on it, because the tenant was
+   * updated, suspended or deleted at that moment. Resolve once more so the
+   * caller sees the tenant's new state (403/404 or the new connection)
+   * instead of an internal error.
+   */
+  private async retryIfEvicted<T>(resolve: () => Promise<T>): Promise<T> {
+    try {
+      return await resolve();
+    } catch (err) {
+      if (!(err instanceof TenantEvictedError)) throw err;
+      return resolve();
+    }
   }
 
   private async buildContext(tenant: TenantConfig): Promise<TenantContextValue<TConn>> {
     if (tenant.status !== "active") {
       throw new TenantNotActiveError(tenant.slug, tenant.status);
     }
-    const decrypted = await this.decryptCredentials(tenant);
-    const connection = await this.cache.getOrConnect(decrypted);
+    // Decryption only runs when a new connection is opened, not on cache hits.
+    const connection = await this.cache.getOrConnect(tenant, (t) => this.decryptCredentials(t));
     const models = this.adapter.getModels(connection);
     return { tenant: withoutPassword(tenant), connection, models };
   }
@@ -90,8 +111,9 @@ export class TenantRegistry<TConn = unknown> {
       return this.master.create(encrypted);
     }
 
-    // Hidden from resolution until provisioning succeeds.
-    const tenant = await this.master.create({ ...encrypted, status: "suspended" });
+    // Hidden from resolution until provisioning succeeds. If the process dies
+    // mid-way, the row stays `provisioning`, distinguishable from a suspension.
+    const tenant = await this.master.create({ ...encrypted, status: "provisioning" });
     try {
       const decrypted = await this.decryptCredentials(tenant);
       if (onProvision !== undefined) await onProvision(decrypted);
@@ -105,13 +127,15 @@ export class TenantRegistry<TConn = unknown> {
         }
       }
     } catch (err) {
-      await this.master.delete(tenant.id);
+      // Roll back. If the rollback itself fails, the original error still wins
+      // and the row is left with status `provisioning` for cleanup.
+      await this.master.delete(tenant.id).catch(() => {});
       this.lookups.invalidate(tenant.id);
       throw err;
     }
 
     const ready = await this.master.update(tenant.id, { status: input.status ?? "active" });
-    // A lookup during provisioning may have cached the interim `suspended` row.
+    // A lookup during provisioning may have cached the interim `provisioning` row.
     this.lookups.invalidate(tenant.id);
     return ready;
   }
@@ -132,16 +156,22 @@ export class TenantRegistry<TConn = unknown> {
     const updated = await this.master.update(id, { status: "suspended" });
     this.lookups.invalidate(id);
     await this.cache.evict(id);
-    await this.hooks?.onSuspend?.(updated);
+    const onSuspend = this.hooks?.onSuspend;
+    if (onSuspend !== undefined) await onSuspend(await this.decryptCredentials(updated));
     return updated;
   }
 
   async deleteTenant(id: string): Promise<void> {
     const tenant = await this.master.findById(id);
+    // Delete the row first: anything resolving after this point gets a 404
+    // instead of re-caching and reconnecting to a tenant about to be dropped.
+    await this.master.delete(id);
     this.lookups.invalidate(id);
     await this.cache.evict(id);
-    await this.master.delete(id);
-    if (tenant !== null) await this.hooks?.onDelete?.(tenant);
+    const onDelete = this.hooks?.onDelete;
+    if (tenant !== null && onDelete !== undefined) {
+      await onDelete(await this.decryptCredentials(tenant));
+    }
   }
 
   async listTenants(filter?: { status?: TenantStatus }): Promise<TenantConfig[]> {

@@ -11,3 +11,7 @@ Stabilization fixes and features:
 - New `JwtResolver` (bring your own `verify`).
 - `SubdomainResolver` resolves `<slug>.localhost`, ignores IP hosts, and is case-insensitive.
 - Cached connections are replaced when a tenant's host, port, database, user, password or dialect changes, including changes made by another process (picked up within `tenantTtlMs`).
+- New tenant status `provisioning` while `createTenant()` runs its hooks (left behind only if provisioning crashes); `onSuspend` / `onDelete` now receive decrypted credentials.
+- New optional `Adapter.connectionKey(tenant)`; the default reconnect key is the whole row except status and timestamps.
+- Connection cache reworked so concurrent requests, evictions and settings changes can no longer leak pools or hang; `shutdown()` waits for connections still opening; credentials are decrypted only when a connection is opened.
+- Tenant-row cache no longer re-caches rows read before a concurrent update/suspend/delete; `deleteTenant()` removes the row before evicting.
