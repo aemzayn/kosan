@@ -43,6 +43,54 @@ jobs:
       # typecheck builds packages first so workspace deps resolve to dist/*.d.ts
       - run: pnpm typecheck
 
+  integration:
+    name: Integration (Node ${{ matrix.node }}, ${{ matrix.db }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['20', '22']
+        db: [postgres, mysql]
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: kosan
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: kosan
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd "mysqladmin ping -uroot -pkosan --silent"
+          --health-interval 5s --health-timeout 5s --health-retries 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Each job runs the suites against one database; the other URL is empty
+      # so those tests skip.
+      - run: pnpm test:integration
+        env:
+          KOSAN_TEST_POSTGRES_URL: ${{ matrix.db == 'postgres' && 'postgres://postgres:kosan@localhost:5432/postgres' || '' }}
+          KOSAN_TEST_MYSQL_URL: ${{ matrix.db == 'mysql' && 'mysql://root:kosan@localhost:3306/mysql' || '' }}
+
   build:
     name: Build
     runs-on: ubuntu-latest

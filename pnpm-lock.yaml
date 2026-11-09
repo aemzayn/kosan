@@ -37,7 +37,7 @@ importers:
         version: link:../../packages/fastify
       drizzle-orm:
         specifier: ^0.36.0
-        version: 0.36.4(@prisma/client@7.8.0(prisma@5.22.0)(typescript@5.9.3))(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@9.6.0)(pg@8.20.0)(postgres@3.4.9)(prisma@5.22.0)(react@18.3.1)(sqlite3@6.0.1)
+        version: 0.36.4(@prisma/client@7.8.0(typescript@5.9.3))(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@9.6.0)(mysql2@3.24.6(@types/node@20.19.41))(pg@8.20.0)(postgres@3.4.9)(react@18.3.1)(sqlite3@6.0.1)
       fastify:
         specifier: ^5.0.0
         version: 5.8.5
@@ -120,7 +120,7 @@ importers:
         version: 8.20.0
       sequelize:
         specifier: ^6.37.0
-        version: 6.37.8(pg@8.20.0)
+        version: 6.37.8(mysql2@3.24.6(@types/node@20.19.41))(pg@8.20.0)(sqlite3@6.0.1)
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
@@ -169,7 +169,7 @@ importers:
         version: 7.8.2
       sequelize:
         specifier: ^6.37.0
-        version: 6.37.8(pg@8.20.0)
+        version: 6.37.8(mysql2@3.24.6(@types/node@20.19.41))(pg@8.20.0)(sqlite3@6.0.1)
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
@@ -212,7 +212,7 @@ importers:
         version: 8.20.0
       sequelize:
         specifier: ^6.37.0
-        version: 6.37.8(pg@8.20.0)
+        version: 6.37.8(mysql2@3.24.6(@types/node@20.19.41))(pg@8.20.0)(sqlite3@6.0.1)
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
@@ -246,7 +246,7 @@ importers:
         version: 2.7.0
       sequelize:
         specifier: ^6.37.0
-        version: 6.37.8(sqlite3@6.0.1)
+        version: 6.37.8(mysql2@3.24.6(@types/node@20.19.41))(pg@8.20.0)(sqlite3@6.0.1)
       umzug:
         specifier: ^3.8.0
         version: 3.8.3(@types/node@20.19.41)
@@ -254,6 +254,12 @@ importers:
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.41
+      mysql2:
+        specifier: ^3.11.0
+        version: 3.24.6(@types/node@20.19.41)
+      pg:
+        specifier: ^8.13.0
+        version: 8.20.0
       sqlite3:
         specifier: ^6.0.1
         version: 6.0.1
@@ -299,7 +305,7 @@ importers:
         version: 9.6.0
       drizzle-orm:
         specifier: ^0.41.0
-        version: 0.41.0(@prisma/client@7.8.0(prisma@5.22.0)(typescript@5.6.3))(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@9.6.0)(pg@8.20.0)(postgres@3.4.9)(prisma@5.22.0)(sqlite3@6.0.1)
+        version: 0.41.0(@prisma/client@7.8.0(typescript@5.6.3))(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@9.6.0)(mysql2@3.24.6(@types/node@20.19.41))(pg@8.20.0)(postgres@3.4.9)(sqlite3@6.0.1)
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(jiti@2.7.0)(postcss@8.5.14)(tsx@4.21.0)(typescript@5.6.3)
@@ -468,9 +474,15 @@ importers:
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.41
+      mysql2:
+        specifier: ^3.11.0
+        version: 3.24.6(@types/node@20.19.41)
+      pg:
+        specifier: ^8.13.0
+        version: 8.20.0
       sequelize:
         specifier: ^6.37.0
-        version: 6.37.8(sqlite3@6.0.1)
+        version: 6.37.8(mysql2@3.24.6(@types/node@20.19.41))(pg@8.20.0)(sqlite3@6.0.1)
       sqlite3:
         specifier: ^6.0.1
         version: 6.0.1
@@ -1728,6 +1740,10 @@ packages:
   avvio@9.2.0:
     resolution: {integrity: sha512-2t/sy01ArdHHE0vRH5Hsay+RtCZt3dLPji7W7/MMOCEgze5b7SNDC4j5H6FnVgPkI1MTNFGzHdHrVXDDl7QSSQ==}
 
+  aws-ssl-profiles@1.1.2:
+    resolution: {integrity: sha512-NZKeq9AfyQvEeNlN0zSYAaWrmBffJh3IELMZfRpJVWgrpEbtEpnjvzqBPf+mxoI287JohRDoa+/nsfqqiZmF6g==}
+    engines: {node: '>= 6.0.0'}
+
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
@@ -2436,6 +2452,9 @@ packages:
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
 
+  generate-function@2.3.1:
+    resolution: {integrity: sha512-eeB5GfMNeevm/GRYq20ShmsaGcmI81kIX2K9XQx5miC8KdHaC6Jm0qQ8ZNeGOi7wYB8OsdxKs+Y2oVuTFuVwKQ==}
+
   generator-function@2.0.1:
     resolution: {integrity: sha512-SFdFmIJi+ybC0vjlHN0ZGVGHc3lgE0DxPAT0djjVg+kjOnSqclqmj0KQ7ykTOLP6YxoqOvuAODGdcHJn+43q3g==}
     engines: {node: '>= 0.4'}
@@ -2540,6 +2559,10 @@ packages:
     resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
     engines: {node: '>=0.10.0'}
 
+  iconv-lite@0.7.3:
+    resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
+    engines: {node: '>=0.10.0'}
+
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
 
@@ -2600,6 +2623,9 @@ packages:
   is-number@7.0.0:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
+
+  is-property@1.0.2:
+    resolution: {integrity: sha512-Ks/IoX00TtClbGQr4TWXemAnktAQvYB7HzcCxDGqEZU6oCmb2INHuOoKxbtR+HFkmYWBKv/dOZtGRiAjDhj92g==}
 
   is-regex@1.2.1:
     resolution: {integrity: sha512-MjYsKHO5O7mCsmRGxWcLWheFqN9DJ/2TmngvjKXihe6efViPqc274+Fx/4fYj/r03+ESvBdTXK0V6tA3rgez1g==}
@@ -2731,6 +2757,9 @@ packages:
   lodash@4.18.1:
     resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
+  long@5.3.2:
+    resolution: {integrity: sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==}
+
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
@@ -2741,6 +2770,10 @@ packages:
   lru-cache@6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
+
+  lru.min@1.1.5:
+    resolution: {integrity: sha512-5J9ysMYUpYIg9RF2vJpy9SinEmSviFSe0GyPpCQ4L5QSkLAgeLXlTAOu2ZwWUU5m+0SBl6gUU1R1ZQB3aKypfA==}
+    engines: {bun: '>=1.0.0', deno: '>=1.30.0', node: '>=8.0.0'}
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -2876,8 +2909,18 @@ packages:
     resolution: {integrity: sha512-u7f2xaZ/UG8oLXHvtF/oWTRvT44p9ecwBBqTwgJVq0+4BW1g8OW01TyMEGWBHbyMOYVHXslaut7qEQ1meATXgw==}
     engines: {node: '>= 10.16.0'}
 
+  mysql2@3.24.6:
+    resolution: {integrity: sha512-enu73KhbAua2L3dIxjc6qg6ZJ7H3pt1BImZASWNWY5xSsmJ1ZuUPULTDGXgmJbI61vb+nJAG19IZclIq19UidQ==}
+    engines: {node: '>= 8.0'}
+    peerDependencies:
+      '@types/node': '>= 8'
+
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
+
+  named-placeholders@1.1.6:
+    resolution: {integrity: sha512-Tz09sEL2EEuv5fFowm419c1+a/jSMiBjI9gHxVLrVdbUkkNUUfjsVYs9pVZu5oCon/kmRh9TfLEObFtkVxmY0w==}
+    engines: {node: '>=8.0.0'}
 
   nanoid@3.3.12:
     resolution: {integrity: sha512-ZB9RH/39qpq5Vu6Y+NmUaFhQR6pp+M2Xt76XBnEwDaGcVAqhlvxrl3B2bKS5D3NH3QR76v3aSrKaF/Kiy7lEtQ==}
@@ -3476,6 +3519,10 @@ packages:
 
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
+
+  sql-escaper@1.5.2:
+    resolution: {integrity: sha512-6CKD38c31SENivxOADeMNLdukOnUxUcflKtzVWzace7Riv1v7cAEym5Cx9Q7gYZ3ezIJI7ZpqecQq8cqNeSSFg==}
+    engines: {bun: '>=1.0.0', deno: '>=2.0.0', node: '>=12.0.0'}
 
   sqlite3@6.0.1:
     resolution: {integrity: sha512-X0czUUMG2tmSqJpEQa3tCuZSHKIx8PwM53vLZzKp/o6Rpy25fiVfjdbnZ988M8+O3ZWR1ih0K255VumCb3MAnQ==}
@@ -4604,20 +4651,19 @@ snapshots:
     optionalDependencies:
       prisma: 5.22.0
 
-  '@prisma/client@7.8.0(prisma@5.22.0)(typescript@5.6.3)':
-    dependencies:
-      '@prisma/client-runtime-utils': 7.8.0
-    optionalDependencies:
-      prisma: 5.22.0
-      typescript: 5.6.3
-    optional: true
-
   '@prisma/client@7.8.0(prisma@5.22.0)(typescript@5.9.3)':
     dependencies:
       '@prisma/client-runtime-utils': 7.8.0
     optionalDependencies:
       prisma: 5.22.0
       typescript: 5.9.3
+
+  '@prisma/client@7.8.0(typescript@5.6.3)':
+    dependencies:
+      '@prisma/client-runtime-utils': 7.8.0
+    optionalDependencies:
+      typescript: 5.6.3
+    optional: true
 
   '@prisma/debug@5.22.0': {}
 
@@ -5183,6 +5229,8 @@ snapshots:
       '@fastify/error': 4.2.0
       fastq: 1.20.1
 
+  aws-ssl-profiles@1.1.2: {}
+
   balanced-match@1.0.2: {}
 
   base64-js@1.5.1: {}
@@ -5481,27 +5529,27 @@ snapshots:
 
   dottie@2.0.7: {}
 
-  drizzle-orm@0.36.4(@prisma/client@7.8.0(prisma@5.22.0)(typescript@5.9.3))(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@9.6.0)(pg@8.20.0)(postgres@3.4.9)(prisma@5.22.0)(react@18.3.1)(sqlite3@6.0.1):
+  drizzle-orm@0.36.4(@prisma/client@7.8.0(typescript@5.9.3))(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@9.6.0)(mysql2@3.24.6(@types/node@20.19.41))(pg@8.20.0)(postgres@3.4.9)(react@18.3.1)(sqlite3@6.0.1):
     optionalDependencies:
       '@prisma/client': 7.8.0(prisma@5.22.0)(typescript@5.9.3)
       '@types/better-sqlite3': 7.6.13
       '@types/pg': 8.20.0
       better-sqlite3: 9.6.0
+      mysql2: 3.24.6(@types/node@20.19.41)
       pg: 8.20.0
       postgres: 3.4.9
-      prisma: 5.22.0
       react: 18.3.1
       sqlite3: 6.0.1
 
-  drizzle-orm@0.41.0(@prisma/client@7.8.0(prisma@5.22.0)(typescript@5.6.3))(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@9.6.0)(pg@8.20.0)(postgres@3.4.9)(prisma@5.22.0)(sqlite3@6.0.1):
+  drizzle-orm@0.41.0(@prisma/client@7.8.0(typescript@5.6.3))(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@9.6.0)(mysql2@3.24.6(@types/node@20.19.41))(pg@8.20.0)(postgres@3.4.9)(sqlite3@6.0.1):
     optionalDependencies:
-      '@prisma/client': 7.8.0(prisma@5.22.0)(typescript@5.6.3)
+      '@prisma/client': 7.8.0(typescript@5.6.3)
       '@types/better-sqlite3': 7.6.13
       '@types/pg': 8.20.0
       better-sqlite3: 9.6.0
+      mysql2: 3.24.6(@types/node@20.19.41)
       pg: 8.20.0
       postgres: 3.4.9
-      prisma: 5.22.0
       sqlite3: 6.0.1
 
   dunder-proto@1.0.1:
@@ -5862,6 +5910,10 @@ snapshots:
 
   function-bind@1.1.2: {}
 
+  generate-function@2.3.1:
+    dependencies:
+      is-property: 1.0.2
+
   generator-function@2.0.1: {}
 
   get-func-name@2.0.2: {}
@@ -5990,6 +6042,10 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
+  iconv-lite@0.7.3:
+    dependencies:
+      safer-buffer: 2.1.2
+
   ieee754@1.2.1: {}
 
   ignore@5.3.2: {}
@@ -6036,6 +6092,8 @@ snapshots:
       is-extglob: 2.1.1
 
   is-number@7.0.0: {}
+
+  is-property@1.0.2: {}
 
   is-regex@1.2.1:
     dependencies:
@@ -6177,6 +6235,8 @@ snapshots:
 
   lodash@4.18.1: {}
 
+  long@5.3.2: {}
+
   loose-envify@1.4.0:
     dependencies:
       js-tokens: 4.0.0
@@ -6189,6 +6249,8 @@ snapshots:
   lru-cache@6.0.0:
     dependencies:
       yallist: 4.0.0
+
+  lru.min@1.1.5: {}
 
   magic-string@0.30.21:
     dependencies:
@@ -6311,11 +6373,26 @@ snapshots:
       type-is: 1.6.18
       xtend: 4.0.2
 
+  mysql2@3.24.6(@types/node@20.19.41):
+    dependencies:
+      '@types/node': 20.19.41
+      aws-ssl-profiles: 1.1.2
+      generate-function: 2.3.1
+      iconv-lite: 0.7.3
+      long: 5.3.2
+      lru.min: 1.1.5
+      named-placeholders: 1.1.6
+      sql-escaper: 1.5.2
+
   mz@2.7.0:
     dependencies:
       any-promise: 1.3.0
       object-assign: 4.1.1
       thenify-all: 1.6.0
+
+  named-placeholders@1.1.6:
+    dependencies:
+      lru.min: 1.1.5
 
   nanoid@3.3.12: {}
 
@@ -6784,7 +6861,7 @@ snapshots:
 
   sequelize-pool@7.1.0: {}
 
-  sequelize@6.37.8(pg@8.20.0):
+  sequelize@6.37.8(mysql2@3.24.6(@types/node@20.19.41))(pg@8.20.0)(sqlite3@6.0.1):
     dependencies:
       '@types/debug': 4.1.13
       '@types/validator': 13.15.10
@@ -6803,29 +6880,8 @@ snapshots:
       validator: 13.15.35
       wkx: 0.5.0
     optionalDependencies:
+      mysql2: 3.24.6(@types/node@20.19.41)
       pg: 8.20.0
-    transitivePeerDependencies:
-      - supports-color
-
-  sequelize@6.37.8(sqlite3@6.0.1):
-    dependencies:
-      '@types/debug': 4.1.13
-      '@types/validator': 13.15.10
-      debug: 4.4.3
-      dottie: 2.0.7
-      inflection: 1.13.4
-      lodash: 4.18.1
-      moment: 2.30.1
-      moment-timezone: 0.5.48
-      pg-connection-string: 2.12.0
-      retry-as-promised: 7.1.1
-      semver: 7.8.0
-      sequelize-pool: 7.1.0
-      toposort-class: 1.0.1
-      uuid: 8.3.2
-      validator: 13.15.35
-      wkx: 0.5.0
-    optionalDependencies:
       sqlite3: 6.0.1
     transitivePeerDependencies:
       - supports-color
@@ -6929,6 +6985,8 @@ snapshots:
   split2@4.2.0: {}
 
   sprintf-js@1.0.3: {}
+
+  sql-escaper@1.5.2: {}
 
   sqlite3@6.0.1:
     dependencies:

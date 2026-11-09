@@ -31,7 +31,7 @@
 ### D. Missing requirements (CLAUDE.md)
 - [x] `JwtResolver` (claim-based, user-supplied verifier — no hard JWT dependency)
 - [ ] Per-tenant pool stats in health payload (adapter-provided)
-- [ ] CI matrix over Postgres + MySQL (service containers, integration tests)
+- [x] CI matrix over Postgres + MySQL (service containers, integration tests; `pnpm test:integration`)
 - [ ] `examples/multi-region`
 - [x] KMS cipher example in docs (AWS + GCP already present; CLI usage added)
 

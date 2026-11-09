@@ -50,6 +50,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "mysql2": "^3.11.0",
+    "pg": "^8.13.0",
     "sqlite3": "^6.0.1",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
