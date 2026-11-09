@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { Sequelize } from 'sequelize';
+import { type Dialect, Sequelize } from 'sequelize';
 import { SequelizeMasterStore, SequelizeAdapter } from '@kosan/sequelize';
 import { TenantRegistry } from '@kosan/core';
 import { withConcurrency } from '../pool.js';
@@ -28,7 +28,7 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
   const masterSequelize =
     typeof config.master === 'string'
       ? new Sequelize(config.master, { logging: false })
-      : new Sequelize({ ...(config.master as object), logging: false } as ConstructorParameters<typeof Sequelize>[0]);
+      : new Sequelize({ ...config.master, logging: false });
 
   const masterStore = await SequelizeMasterStore.create(masterSequelize);
   const adapter = new SequelizeAdapter({ logging: false });
@@ -65,11 +65,11 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
     // ---------------------------------------------------------------------------
 
     const results = await withConcurrency(targets, concurrency, async (tenant) => {
-      const dialect = (tenant.meta?.['dialect'] as string | undefined) ?? 'postgres';
+      const dialect = resolveDialect(tenant.meta?.['dialect']);
       const isSqlite = dialect === 'sqlite';
 
       const sequelize = new Sequelize({
-        dialect: dialect as 'postgres' | 'mysql' | 'sqlite' | 'mariadb' | 'mssql',
+        dialect,
         ...(isSqlite
           ? { storage: tenant.dbName }
           : {
@@ -95,6 +95,13 @@ export async function runMigrate(opts: MigrateOptions): Promise<TenantMigrationR
     await registry.shutdown();
     await masterSequelize.close();
   }
+}
+
+const DIALECTS: readonly Dialect[] = ['postgres', 'mysql', 'mariadb', 'sqlite', 'mssql', 'db2', 'snowflake', 'oracle'];
+
+/** Per-tenant dialect override from `tenant.meta.dialect`, defaulting to postgres. */
+function resolveDialect(value: unknown): Dialect {
+  return DIALECTS.find((d) => d === value) ?? 'postgres';
 }
 
 // ---------------------------------------------------------------------------
