@@ -4,7 +4,7 @@ import {
   TenantNotFoundError,
   TenantRegistry,
 } from "../src/TenantRegistry.js";
-import type { CreateTenantInput } from "../src/types.js";
+import type { CreateTenantInput, TenantConfig } from "../src/types.js";
 import { FakeAdapter } from "./helpers/FakeAdapter.js";
 import { InMemoryMasterStore } from "./helpers/InMemoryMasterStore.js";
 
@@ -403,6 +403,144 @@ describe("TenantRegistry tenant lookup cache", () => {
     await expect(r.resolveBySlug("acme-corp")).resolves.toMatchObject({
       tenant: { slug: "acme-corp" },
     });
+    await r.shutdown();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Provisioning lifecycle: onProvision → connect → onCreate, with rollback
+// ---------------------------------------------------------------------------
+
+describe("TenantRegistry provisioning", () => {
+  let master: InMemoryMasterStore;
+  let adapter: FakeAdapter;
+
+  beforeEach(() => {
+    master = new InMemoryMasterStore();
+    adapter = new FakeAdapter();
+  });
+
+  it("runs onProvision before any connection, then onCreate with one", async () => {
+    const order: string[] = [];
+    const realConnect = adapter.connect.bind(adapter);
+    adapter.connect = async (t) => {
+      order.push("connect");
+      return realConnect(t);
+    };
+    const r = await TenantRegistry.create({
+      master,
+      adapter,
+      hooks: {
+        onProvision: async () => {
+          order.push("provision");
+        },
+        onCreate: async () => {
+          order.push("create");
+        },
+      },
+    });
+
+    const tenant = await r.createTenant(BASE_INPUT);
+    expect(order).toEqual(["provision", "connect", "create"]);
+    expect(tenant.status).toBe("active");
+    await r.shutdown();
+  });
+
+  it("gives onProvision decrypted credentials", async () => {
+    const onProvision = vi.fn(async (_t: TenantConfig) => {});
+    const r = await TenantRegistry.create({
+      master,
+      adapter,
+      cipher: { encrypt: async (p) => `enc:${p}`, decrypt: async (p) => p.slice(4) },
+      hooks: { onProvision },
+    });
+    await r.createTenant(BASE_INPUT);
+    expect(onProvision.mock.calls[0]?.[0].password).toBe("secret");
+    await r.shutdown();
+  });
+
+  it("does not open a connection when only onProvision is set", async () => {
+    const r = await TenantRegistry.create({
+      master,
+      adapter,
+      hooks: { onProvision: async () => {} },
+    });
+    await r.createTenant(BASE_INPUT);
+    expect(adapter.connectCallCount).toBe(0);
+    await r.shutdown();
+  });
+
+  it("keeps the tenant unresolvable until provisioning finishes", async () => {
+    let duringProvision: unknown;
+    const r: TenantRegistry = await TenantRegistry.create({
+      master,
+      adapter,
+      hooks: {
+        onProvision: async () => {
+          duringProvision = await r.resolveBySlug("acme").catch((e: unknown) => e);
+        },
+      },
+    });
+    await r.createTenant(BASE_INPUT);
+    expect(duringProvision).toBeInstanceOf(TenantNotActiveError);
+    await expect(r.resolveBySlug("acme")).resolves.toBeDefined();
+    await r.shutdown();
+  });
+
+  it("honours an explicit initial status once provisioned", async () => {
+    const r = await TenantRegistry.create({
+      master,
+      adapter,
+      hooks: { onProvision: async () => {} },
+    });
+    const tenant = await r.createTenant({ ...BASE_INPUT, status: "suspended" });
+    expect(tenant.status).toBe("suspended");
+    await r.shutdown();
+  });
+
+  it("rolls back the master row when onProvision fails", async () => {
+    const r = await TenantRegistry.create({
+      master,
+      adapter,
+      hooks: {
+        onProvision: async () => {
+          throw new Error("CREATE DATABASE failed");
+        },
+      },
+    });
+    await expect(r.createTenant(BASE_INPUT)).rejects.toThrow("CREATE DATABASE failed");
+    expect(await master.findBySlug("acme")).toBeNull();
+    expect(adapter.connectCallCount).toBe(0);
+    await r.shutdown();
+  });
+
+  it("rolls back and closes the connection when onCreate fails", async () => {
+    const r = await TenantRegistry.create({
+      master,
+      adapter,
+      hooks: {
+        onCreate: async () => {
+          throw new Error("migration failed");
+        },
+      },
+    });
+    await expect(r.createTenant(BASE_INPUT)).rejects.toThrow("migration failed");
+    expect(await master.findBySlug("acme")).toBeNull();
+    expect(adapter.connections[0]?.disconnected).toBe(true);
+    await r.shutdown();
+  });
+
+  it("rolls back when the provisioning connection cannot be opened", async () => {
+    adapter.connect = async () => {
+      throw new Error("database does not exist");
+    };
+    const r = await TenantRegistry.create({
+      master,
+      adapter,
+      hooks: { onCreate: async () => {} },
+    });
+    await expect(r.createTenant(BASE_INPUT)).rejects.toThrow("database does not exist");
+    expect(await master.findBySlug("acme")).toBeNull();
     await r.shutdown();
   });
 });

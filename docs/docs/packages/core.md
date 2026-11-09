@@ -30,7 +30,8 @@ const registry = await TenantRegistry.create({
   },
   cipher,        // optional Cipher for credential encryption
   hooks: {
-    onCreate,    // optional lifecycle hooks
+    onProvision, // optional lifecycle hooks
+    onCreate,
     onDelete,
     onSuspend,
   },
@@ -349,6 +350,7 @@ interface Cipher {
 }
 
 interface LifecycleHooks<TConn> {
+  onProvision?(tenant: TenantConfig): Promise<void>;
   onCreate?(tenant: TenantConfig, conn: TConn): Promise<void>;
   onDelete?(tenant: TenantConfig): Promise<void>;
   onSuspend?(tenant: TenantConfig): Promise<void>;

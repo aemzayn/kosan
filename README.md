@@ -175,8 +175,11 @@ fastify.get('/orders', async () => {
 TenantRegistry.create({
   // ...
   hooks: {
+    async onProvision(tenant) {
+      // runs before any connection: create the physical database (opt-in)
+    },
     async onCreate(tenant, conn) {
-      // provision the physical database, run initial migrations, etc.
+      // connected to the new database: run initial migrations, seed data
     },
     async onDelete(tenant) { /* archive or drop */ },
     async onSuspend(tenant) { /* notify downstream services */ },

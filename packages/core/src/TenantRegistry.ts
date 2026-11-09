@@ -75,20 +75,37 @@ export class TenantRegistry<TConn = unknown> {
 
   async createTenant(input: CreateTenantInput): Promise<TenantConfig> {
     const encrypted = await this.encryptCredentials(input);
-    const tenant = await this.master.create(encrypted);
+    const onProvision = this.hooks?.onProvision;
+    const onCreate = this.hooks?.onCreate;
 
-    if (this.hooks?.onCreate !== undefined) {
-      // Use a throw-away connection for provisioning — don't pollute the cache.
-      const decrypted = await this.decryptCredentials(tenant);
-      const conn = await this.adapter.connect(decrypted);
-      try {
-        await this.hooks.onCreate(decrypted, conn);
-      } finally {
-        await this.adapter.disconnect(conn);
-      }
+    if (onProvision === undefined && onCreate === undefined) {
+      return this.master.create(encrypted);
     }
 
-    return tenant;
+    // Hidden from resolution until provisioning succeeds.
+    const tenant = await this.master.create({ ...encrypted, status: "suspended" });
+    try {
+      const decrypted = await this.decryptCredentials(tenant);
+      if (onProvision !== undefined) await onProvision(decrypted);
+      if (onCreate !== undefined) {
+        // Throw-away connection — don't pollute the cache.
+        const conn = await this.adapter.connect(decrypted);
+        try {
+          await onCreate(decrypted, conn);
+        } finally {
+          await this.adapter.disconnect(conn);
+        }
+      }
+    } catch (err) {
+      await this.master.delete(tenant.id);
+      this.lookups.invalidate(tenant.id);
+      throw err;
+    }
+
+    const ready = await this.master.update(tenant.id, { status: input.status ?? "active" });
+    // A lookup during provisioning may have cached the interim `suspended` row.
+    this.lookups.invalidate(tenant.id);
+    return ready;
   }
 
   async updateTenant(id: string, data: UpdateTenantInput): Promise<TenantConfig> {

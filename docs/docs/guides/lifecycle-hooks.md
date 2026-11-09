@@ -18,6 +18,7 @@ const registry = await TenantRegistry.create({
   master: masterStore,
   adapter,
   hooks: {
+    onProvision: async (tenant) => { /* … */ },
     onCreate: async (tenant, conn) => { /* … */ },
     onDelete: async (tenant) => { /* … */ },
     onSuspend: async (tenant) => { /* … */ },
@@ -27,43 +28,65 @@ const registry = await TenantRegistry.create({
 
 ---
 
-## onCreate
+## How `createTenant()` runs the hooks
 
-Called after a tenant row is inserted into the master DB. Receives the new `TenantConfig` and a **throw-away** connection that is opened for provisioning and closed immediately after the hook returns.
+1. The master row is inserted with status `suspended`, so requests can't resolve the tenant while it is being set up.
+2. `onProvision(tenant)` runs. **No connection is opened yet**, so this is where you create the physical database.
+3. A throw-away connection to the tenant database is opened and `onCreate(tenant, conn)` runs: schema, migrations, seed data.
+4. The status is set to what you asked for (default `active`) and the tenant becomes resolvable.
+
+If any step throws, including opening the connection, the master row is **deleted** and the error is rethrown from `createTenant()`. Hooks receive decrypted credentials.
+
+Kosan never creates databases on its own. Provisioning only happens if you write an `onProvision` hook.
+
+---
+
+## onProvision
+
+Runs before Kosan connects to the tenant database. Use your own admin connection to create it:
 
 ```ts
+import { Sequelize } from 'sequelize';
+
+const admin = new Sequelize(process.env.ADMIN_DATABASE_URL!);
+
 hooks: {
-  async onCreate(tenant, conn) {
-    // conn is a fresh connection to the new tenant's database.
-    // Use it to create the schema and run initial migrations.
-
-    // Option A — Sequelize sync (for development / demos)
-    await conn.sync({ force: false });
-
-    // Option B — Run your migration tool (recommended for production)
-    await runMigrationsForTenant(tenant, conn);
-
-    // Option C — Copy a template database (Postgres-specific)
-    await masterConn.query(
-      `CREATE DATABASE "${tenant.dbName}" TEMPLATE tenant_template`
-    );
+  async onProvision(tenant) {
+    await admin.query(`CREATE DATABASE "${tenant.dbName}"`);
+    // Or copy a template: CREATE DATABASE "x" TEMPLATE tenant_template
   },
 },
 ```
 
-The connection passed to `onCreate` is isolated from the connection cache. It will not be reused — it exists only for provisioning.
-
-### Provisioning a new Postgres database
-
-If your tenants each need a fresh database created:
+If `onProvision` fails partway (say, after `CREATE DATABASE` but before granting privileges), Kosan removes the master row but cannot undo your side effects. Clean up inside the hook:
 
 ```ts
-async onCreate(tenant, conn) {
-  // Use the master connection (not conn) to CREATE the database.
-  await master.query(`CREATE DATABASE "${tenant.dbName}"`);
+async onProvision(tenant) {
+  await admin.query(`CREATE DATABASE "${tenant.dbName}"`);
+  try {
+    await admin.query(`GRANT ALL ON DATABASE "${tenant.dbName}" TO "${tenant.user}"`);
+  } catch (err) {
+    await admin.query(`DROP DATABASE "${tenant.dbName}"`);
+    throw err;
+  }
+},
+```
 
-  // Now use conn (which already points to the new DB) to create the schema.
-  await conn.sync();
+---
+
+## onCreate
+
+Runs after `onProvision`, with a **throw-away** connection to the new tenant database. The connection is closed when the hook returns and is never added to the connection cache.
+
+```ts
+hooks: {
+  async onCreate(tenant, conn) {
+    // Development / demos: create tables from your models
+    await conn.sync();
+
+    // Production: run your migrations instead
+    await runMigrationsForTenant(tenant, conn);
+  },
 },
 ```
 
